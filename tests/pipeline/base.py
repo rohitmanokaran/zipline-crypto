@@ -4,7 +4,6 @@ Base class for Pipeline API unit tests.
 import numpy as np
 from numpy import arange, prod
 from pandas import DataFrame, Timestamp
-from six import iteritems
 
 from zipline.lib.labelarray import LabelArray
 from zipline.utils.compat import wraps
@@ -13,7 +12,7 @@ from zipline.pipeline.domain import US_EQUITIES
 from zipline.pipeline.engine import SimplePipelineEngine
 from zipline.pipeline.hooks import NoHooks
 from zipline.pipeline.term import AssetExists, InputDates
-from zipline.testing import check_arrays
+from zipline.testing.core import check_arrays
 from zipline.testing.fixtures import (
     WithAssetFinder,
     WithTradingSessions,
@@ -37,25 +36,28 @@ def with_defaults(**default_funcs):
     If a value is passed for `foo`, it will be used. Otherwise the function
     supplied to `with_defaults` will be called with `self` as an argument.
     """
+
     def decorator(f):
         @wraps(f)
         def method(self, *args, **kwargs):
-            for name, func in iteritems(default_funcs):
+            for name, func in default_funcs.items():
                 if name not in kwargs:
                     kwargs[name] = func(self)
             return f(self, *args, **kwargs)
+
         return method
+
     return decorator
 
 
 with_default_shape = with_defaults(shape=lambda self: self.default_shape)
 
 
-class BaseUSEquityPipelineTestCase(WithTradingSessions,
-                                   WithAssetFinder,
-                                   ZiplineTestCase):
-    START_DATE = Timestamp('2014', tz='UTC')
-    END_DATE = Timestamp('2014-12-31', tz='UTC')
+class BaseUSEquityPipelineTestCase(
+    WithTradingSessions, WithAssetFinder, ZiplineTestCase
+):
+    START_DATE = Timestamp("2014", tz="UTC")
+    END_DATE = Timestamp("2014-12-31", tz="UTC")
     ASSET_FINDER_EQUITY_SIDS = list(range(20))
 
     @classmethod
@@ -94,6 +96,7 @@ class BaseUSEquityPipelineTestCase(WithTradingSessions,
         results : dict
             Mapping from termname -> computed result.
         """
+
         def get_loader(c):
             raise AssertionError("run_graph() should not require any loaders!")
 
@@ -134,12 +137,7 @@ class BaseUSEquityPipelineTestCase(WithTradingSessions,
 
         return self.run_graph(graph, initial_workspace, mask)
 
-    def check_terms(self,
-                    terms,
-                    expected,
-                    initial_workspace,
-                    mask,
-                    check=check_arrays):
+    def check_terms(self, terms, expected, initial_workspace, mask, check=check_arrays):
         """
         Compile the given terms into a TermGraph, compute it with
         initial_workspace, and compare the results with ``expected``.
@@ -186,12 +184,12 @@ class BaseUSEquityPipelineTestCase(WithTradingSessions,
         Build a block of random numerical data.
         """
         rand = np.random.RandomState(seed)
-        return rand.randint(low, high, shape, dtype='i8')
+        return rand.randint(low, high, shape, dtype="i8")
 
     @with_default_shape
     def rand_datetimes(self, seed, shape):
         ints = self.rand_ints(seed=seed, shape=shape, low=0, high=10000)
-        return ints.astype('datetime64[D]').astype('datetime64[ns]')
+        return ints.astype("datetime64[D]").astype("datetime64[ns]")
 
     @with_default_shape
     def rand_categoricals(self, categories, seed, shape, missing_value=None):
@@ -209,8 +207,7 @@ class BaseUSEquityPipelineTestCase(WithTradingSessions,
 
     @with_default_shape
     def rand_mask(self, seed, shape):
-        """Build a block of random boolean data.
-        """
+        """Build a block of random boolean data."""
         return np.random.RandomState(seed).randint(0, 2, shape).astype(bool)
 
     @with_default_shape
