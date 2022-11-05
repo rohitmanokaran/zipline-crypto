@@ -17,7 +17,7 @@ import random
 import numpy as np
 import pandas as pd
 
-from zipline.data import BcolzMinuteBarWriter
+from zipline.data.minute_bars import BcolzMinuteBarWriter
 from zipline.utils.calendar_utils import get_calendar
 
 

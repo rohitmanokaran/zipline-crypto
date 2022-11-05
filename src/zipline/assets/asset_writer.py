@@ -422,8 +422,9 @@ def check_version_info(conn, version_table, expected_version):
 
     # Read the version out of the table
     version_from_table = conn.execute(
-        sa.select((version_table.c.version,)),
+        sa.select(version_table.c.version),
     ).scalar()
+    #print('version_from_table', version_from_table)
 
     # A db without a version is considered v0
     if version_from_table is None:
@@ -450,7 +451,8 @@ def write_version_info(conn, version_table, version_value):
         The version to write in to the database
 
     """
-    conn.execute(sa.insert(version_table, values={"version": version_value}))
+    #print('writing version to table', version_value)
+    conn.execute(version_table.insert().values({'version': version_value}))
 
 
 class _empty(object):
@@ -877,17 +879,17 @@ class AssetDBWriter(object):
 
         Parameters
         ----------
-        txn : Transaction
-            The open transaction to check in.
+        txn : sa.engine.Connection, optional
+            The transaction to execute in. If this is not provided, a new
+            transaction will be started with the engine provided.
 
         Returns
         -------
         has_tables : bool
             True if any tables are present, otherwise False.
         """
-        conn = txn.connect()
         for table_name in asset_db_table_names:
-            if txn.dialect.has_table(conn, table_name):
+            if txn.dialect.has_table(txn, table_name):
                 return True
         return False
 

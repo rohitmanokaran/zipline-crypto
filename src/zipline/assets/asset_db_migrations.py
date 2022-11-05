@@ -76,10 +76,10 @@ def downgrade(engine, desired_version):
 
     # Check the version of the db at the engine
     with engine.begin() as conn:
-        metadata = sa.MetaData(conn)
-        metadata.reflect()
+        metadata = sa.MetaData()
+        metadata.reflect(conn)
         version_info_table = metadata.tables["version_info"]
-        starting_version = sa.select((version_info_table.c.version,)).scalar()
+        starting_version = conn.execute(sa.select(version_info_table.c.version)).scalar()
 
         # Check for accidental upgrade
         if starting_version < desired_version:
@@ -123,7 +123,7 @@ def _pragma_foreign_keys(connection, on):
         If true, PRAGMA foreign_keys will be set to ON. Otherwise, the PRAGMA
         foreign_keys will be set to OFF.
     """
-    connection.execute("PRAGMA foreign_keys=%s" % ("ON" if on else "OFF"))
+    connection.execute(sa.text("PRAGMA foreign_keys=%s" % ("ON" if on else "OFF")))
 
 
 # This dict contains references to downgrade methods that can be applied to an

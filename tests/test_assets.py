@@ -2006,7 +2006,7 @@ def sql_db(request):
 @pytest.fixture(scope="function")
 def setup_empty_assets_db(sql_db, request):
     AssetDBWriter(sql_db).write(None)
-    request.cls.metadata = sa.MetaData(sql_db)
+    request.cls.metadata = sa.MetaData()
     request.cls.metadata.reflect(bind=sql_db)
 
 
@@ -2015,91 +2015,94 @@ class TestAssetDBVersioning:
     def test_check_version(self):
         version_table = self.metadata.tables["version_info"]
 
-        # This should not raise an error
-        check_version_info(self.engine, version_table, ASSET_DB_VERSION)
+        with self.engine.connect() as conn:
+            # This should not raise an error
+            check_version_info(conn, version_table, ASSET_DB_VERSION)
 
-        # This should fail because the version is too low
-        with pytest.raises(AssetDBVersionError):
-            check_version_info(
-                self.engine,
-                version_table,
-                ASSET_DB_VERSION - 1,
-            )
+            # This should fail because the version is too low
+            with pytest.raises(AssetDBVersionError):
+                check_version_info(
+                    conn,
+                    version_table,
+                    ASSET_DB_VERSION - 1,
+                )
 
-        # This should fail because the version is too high
-        with pytest.raises(AssetDBVersionError):
-            check_version_info(
-                self.engine,
-                version_table,
-                ASSET_DB_VERSION + 1,
-            )
+            # This should fail because the version is too high
+            with pytest.raises(AssetDBVersionError):
+                check_version_info(
+                    conn,
+                    version_table,
+                    ASSET_DB_VERSION + 1,
+                )
 
     def test_write_version(self):
-        version_table = self.metadata.tables["version_info"]
-        version_table.delete().execute()
+        with self.engine.connect() as conn:
+            version_table = self.metadata.tables["version_info"]
+            conn.execute(version_table.delete())
 
-        # Assert that the version is not present in the table
-        assert sa.select((version_table.c.version,)).scalar() is None
+            # Assert that the version is not present in the table
+            assert conn.execute(sa.select(version_table.c.version)).scalar() is None
 
-        # This should fail because the table has no version info and is,
-        # therefore, consdered v0
-        with pytest.raises(AssetDBVersionError):
-            check_version_info(self.engine, version_table, -2)
+            # This should fail because the table has no version info and is,
+            # therefore, consdered v0
+            with pytest.raises(AssetDBVersionError):
+                check_version_info(conn, version_table, -2)
 
-        # This should not raise an error because the version has been written
-        write_version_info(self.engine, version_table, -2)
-        check_version_info(self.engine, version_table, -2)
+            # This should not raise an error because the version has been written
+            write_version_info(conn, version_table, -2)
+            check_version_info(conn, version_table, -2)
 
-        # Assert that the version is in the table and correct
-        assert sa.select((version_table.c.version,)).scalar() == -2
+            # Assert that the version is in the table and correct
+            assert conn.execute(sa.select(version_table.c.version)).scalar() == -2
 
-        # Assert that trying to overwrite the version fails
-        with pytest.raises(sa.exc.IntegrityError):
-            write_version_info(self.engine, version_table, -3)
+            # Assert that trying to overwrite the version fails
+            with pytest.raises(sa.exc.IntegrityError):
+                write_version_info(conn, version_table, -3)
 
     def test_finder_checks_version(self):
-        version_table = self.metadata.tables["version_info"]
-        version_table.delete().execute()
-        write_version_info(self.engine, version_table, -2)
-        check_version_info(self.engine, version_table, -2)
+        with self.engine.connect() as conn:
+            version_table = self.metadata.tables["version_info"]
+            conn.execute(version_table.delete())
+            write_version_info(conn, version_table, -2)
+            check_version_info(conn, self.metadata.tables["version_info"], -2)
+            conn.commit()
 
-        # Assert that trying to build a finder with a bad db raises an error
-        with pytest.raises(AssetDBVersionError):
+            # Assert that trying to build a finder with a bad db raises an error
+            with pytest.raises(AssetDBVersionError):
+                AssetFinder(engine=self.engine)
+
+            # Change the version number of the db to the correct version
+            conn.execute(version_table.delete())
+            write_version_info(conn, version_table, ASSET_DB_VERSION)
+            check_version_info(conn, version_table, ASSET_DB_VERSION)
+
+            # Now that the versions match, this Finder should succeed
             AssetFinder(engine=self.engine)
-
-        # Change the version number of the db to the correct version
-        version_table.delete().execute()
-        write_version_info(self.engine, version_table, ASSET_DB_VERSION)
-        check_version_info(self.engine, version_table, ASSET_DB_VERSION)
-
-        # Now that the versions match, this Finder should succeed
-        AssetFinder(engine=self.engine)
 
     def test_downgrade(self):
         # Attempt to downgrade a current assets db all the way down to v0
-        conn = self.engine.connect()
+        with self.engine.connect() as conn:
+            # first downgrade to v3
+            downgrade(self.engine, 3)
+            metadata = sa.MetaData()
+            metadata.reflect(conn)
+            check_version_info(conn, metadata.tables["version_info"], 3)
+            assert not ("exchange_full" in metadata.tables)
 
-        # first downgrade to v3
-        downgrade(self.engine, 3)
-        metadata = sa.MetaData(conn)
-        metadata.reflect()
-        check_version_info(conn, metadata.tables["version_info"], 3)
-        assert not ("exchange_full" in metadata.tables)
+            # now go all the way to v0
+            downgrade(self.engine, 0)
 
-        # now go all the way to v0
-        downgrade(self.engine, 0)
+            # Verify that the db version is now 0
+            metadata = sa.MetaData()
+            metadata.reflect(conn)
+            version_table = metadata.tables["version_info"]
+            check_version_info(conn, version_table, 0)
 
-        # Verify that the db version is now 0
-        metadata = sa.MetaData(conn)
-        metadata.reflect()
-        version_table = metadata.tables["version_info"]
-        check_version_info(conn, version_table, 0)
-
-        # Check some of the v1-to-v0 downgrades
-        assert "futures_contracts" in metadata.tables
-        assert "version_info" in metadata.tables
-        assert not ("tick_size" in metadata.tables["futures_contracts"].columns)
-        assert "contract_multiplier" in metadata.tables["futures_contracts"].columns
+            # Check some of the v1-to-v0 downgrades
+            assert "futures_contracts" in metadata.tables
+            assert "version_info" in metadata.tables
+            assert not ("tick_size" in metadata.tables["futures_contracts"].columns)
+            assert "contract_multiplier" in metadata.tables["futures_contracts"].columns
 
     def test_impossible_downgrade(self):
         # Attempt to downgrade a current assets db to a
@@ -2125,8 +2128,8 @@ class TestAssetDBVersioning:
         AssetDBWriter(self.engine).write(equities=equities)
 
         downgrade(self.engine, 4)
-        metadata = sa.MetaData(self.engine)
-        metadata.reflect()
+        metadata = sa.MetaData()
+        metadata.reflect(self.engine)
 
         def select_fields(r):
             return r.sid, r.symbol, r.asset_name, r.start_date, r.end_date
@@ -2169,8 +2172,8 @@ class TestAssetDBVersioning:
         )
 
         downgrade(self.engine, 6)
-        metadata = sa.MetaData(self.engine)
-        metadata.reflect()
+        metadata = sa.MetaData()
+        metadata.reflect(self.engine)
 
         expected_sids = {0, 2}
         actual_sids = set(

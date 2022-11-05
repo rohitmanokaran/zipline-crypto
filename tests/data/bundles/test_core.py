@@ -342,7 +342,8 @@ class BundleCoreTestCase(WithInstanceTmpDir, WithDefaultDateBounds, ZiplineTestC
             metadata = sa.MetaData()
             metadata.reflect(eng)
             version_table = metadata.tables["version_info"]
-            check_version_info(eng, version_table, version)
+            with eng.connect() as conn:
+                check_version_info(conn, version_table, version)
 
     @parameterized.expand([("clean",), ("load",)])
     def test_bundle_doesnt_exist(self, fnname):
