@@ -6,7 +6,7 @@ This page is intended for developers of Zipline, people who want to contribute t
 
 All contributions, bug reports, bug fixes, documentation improvements, enhancements and ideas are welcome. We `track issues`__ on `GitHub`__ and also have a `mailing list`__ where you can ask questions.
 
-__ https://github.com/stefan-jansen/zipline-reloaded/issues
+__ https://github.com/stefan-jansen/zipline-crypto/issues
 __ https://github.com/
 __ https://exchange.ml4trading.io/
 
@@ -17,12 +17,12 @@ First, you'll need to clone Zipline by running:
 
 .. code-block:: bash
 
-   $ git clone git@github.com:stefan-jansen/zipline-reloaded.git
+   $ git clone git@github.com:stefan-jansen/zipline-crypto.git
 
 Then check out to a new branch where you can make your changes:
 
 .. code-block:: bash
-   $ cd zipline-reloaded
+   $ cd zipline-crypto
    $ git checkout -b some-short-descriptive-name
 
 If you don't already have them, you'll need some C library dependencies. You can follow the `install guide`__ to get the appropriate dependencies.
@@ -199,5 +199,5 @@ __ https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 Updating the Whatsnew
 ---------------------
 
-We have a set of `whatsnew <https://github.com/stefan-jansen/zipline-reloaded/tree/main/docs/source/whatsnew>`__ files that are used for documenting changes that have occurred between different versions of Zipline.
+We have a set of `whatsnew <https://github.com/stefan-jansen/zipline-crypto/tree/main/docs/source/whatsnew>`__ files that are used for documenting changes that have occurred between different versions of Zipline.
 Once you've made a change to Zipline, in your Pull Request, please update the most recent ``whatsnew`` file with a comment about what you changed. You can find examples in previous ``whatsnew`` files.

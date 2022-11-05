@@ -5,7 +5,7 @@ Installation
 
 You can install Zipline either using `pip <https://pip.pypa.io/en/stable/>`_, the Python package installer, or
 `conda <https://docs.conda.io/projects/conda/en/latest/index.html>`_, the package and environment management system
-that runs on Windows, macOS, and Linux. In case you are installing `zipline-reloaded` alongside other packages and
+that runs on Windows, macOS, and Linux. In case you are installing `zipline-crypto` alongside other packages and
 encounter [conflict errors](https://github.com/conda/conda/issues/9707), consider using
 [mamba](https://github.com/mamba-org/mamba) instead.
 
@@ -38,7 +38,7 @@ your particular platform), you should be able to simply run (preferably inside a
 
 .. code-block:: bash
 
-   $ pip install zipline-reloaded
+   $ pip install zipline-crypto
 
 If you use Python for anything other than Zipline, we **strongly** recommend
 that you install in a `virtualenv
@@ -158,7 +158,7 @@ configuration file, or as command line flags:
 
 .. code-block:: bash
 
-    conda install -c ml4t -c conda-forge -c ranaroussi zipline-reloaded
+    conda install -c ml4t -c conda-forge -c ranaroussi zipline-crypto
 
 .. _managing-conda-environments:
 
@@ -189,7 +189,7 @@ You can install Zipline by running
 
 .. code-block:: bash
 
-    (env_zipline) $ conda install -c ml4t zipline-reloaded
+    (env_zipline) $ conda install -c ml4t zipline-crypto
 
 To deactivate the ``conda`` environment:
 

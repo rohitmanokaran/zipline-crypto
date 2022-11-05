@@ -6,9 +6,9 @@
 
 # Backtest your Trading Strategies
 
-|Version Info| [![Python](https://img.shields.io/pypi/pyversions/zipline-reloaded.svg?cacheSeconds=2592000")](https://pypi.python.org/pypi/zipline-reloaded) [![Anaconda-Server Badge](https://anaconda.org/ml4t/zipline-reloaded/badges/platforms.svg)](https://anaconda.org/ml4t/zipline-reloaded) [![Release](https://img.shields.io/pypi/v/zipline-reloaded.svg?cacheSeconds=2592000)](https://pypi.org/project/zipline-reloaded/)  [![Anaconda-Server Badge](https://anaconda.org/ml4t/zipline-reloaded/badges/version.svg)](https://anaconda.org/ml4t/zipline-reloaded)|
+|Version Info| [![Python](https://img.shields.io/pypi/pyversions/zipline-crypto.svg?cacheSeconds=2592000")](https://pypi.python.org/pypi/zipline-crypto) [![Anaconda-Server Badge](https://anaconda.org/ml4t/zipline-crypto/badges/platforms.svg)](https://anaconda.org/ml4t/zipline-crypto) [![Release](https://img.shields.io/pypi/v/zipline-crypto.svg?cacheSeconds=2592000)](https://pypi.org/project/zipline-crypto/)  [![Anaconda-Server Badge](https://anaconda.org/ml4t/zipline-crypto/badges/version.svg)](https://anaconda.org/ml4t/zipline-crypto)|
 |----|----|
-|**Test** **Status** | [![CI Tests](https://github.com/stefan-jansen/zipline-reloaded/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/stefan-jansen/zipline-reloaded/actions/workflows/unit_tests.yml) [![PyPI](https://github.com/stefan-jansen/zipline-reloaded/actions/workflows/build_wheels.yml/badge.svg)](https://github.com/stefan-jansen/zipline-reloaded/actions/workflows/build_wheels.yml) [![Anaconda](https://github.com/stefan-jansen/zipline-reloaded/actions/workflows/conda_package.yml/badge.svg)](https://github.com/stefan-jansen/zipline-reloaded/actions/workflows/conda_package.yml) [![Coverage Status](https://coveralls.io/repos/stefan-jansen/zipline-reloaded/badge.svg)](https://coveralls.io/r/stefan-jansen/zipline-reloaded)|
+|**Test** **Status** | [![CI Tests](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/unit_tests.yml) [![PyPI](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/build_wheels.yml/badge.svg)](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/build_wheels.yml) [![Anaconda](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/conda_package.yml/badge.svg)](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/conda_package.yml) [![Coverage Status](https://coveralls.io/repos/rohitmanokaran/zipline-crypto/badge.svg)](https://coveralls.io/r/rohitmanokaran/zipline-crypto)|
 |**Community**|[![Discourse](https://img.shields.io/discourse/topics?server=https%3A%2F%2Fexchange.ml4trading.io%2F)](https://exchange.ml4trading.io) [![ML4T](https://img.shields.io/badge/Powered%20by-ML4Trading-blue)](https://ml4trading.io) [![Twitter](https://img.shields.io/twitter/follow/ml4trading.svg?style=social)](https://twitter.com/ml4trading)|
 
 Zipline is a Pythonic event-driven system for backtesting, developed and used as the backtesting and live-trading engine by [crowd-sourced investment fund Quantopian](https://www.bizjournals.com/boston/news/2020/11/10/quantopian-shuts-down-cofounders-head-elsewhere.html). Since it closed late 2020, the domain that had hosted these docs expired. The library is used extensively in the book [Machine Larning for Algorithmic Trading](https://ml4trading.io)
@@ -31,18 +31,18 @@ Zipline supports Python >= 3.7 and is compatible with current versions of the re
 If your system meets the pre-requisites described in the [installation instructions](https://zipline.ml4trading.io/install.html), you can install Zipline using pip by running:
 
 ```bash
-pip install zipline-reloaded
+pip install zipline-crypto
 ```
 
 Alternatively, if you are using the [Anaconda](https://www.anaconda.com/products/individual) or [miniconda](https://docs.conda.io/en/latest/miniconda.html) distributions, you can use
 
 ```bash
-conda install -c ml4t -c conda-forge -c ranaroussi zipline-reloaded
+conda install -c ml4t -c conda-forge -c ranaroussi zipline-crypto
 ```
 
 You can also [enable](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html) `conda-forge` by listing it in your `.condarc`.
 
-In case you are installing `zipline-reloaded` alongside other packages and encounter [conflict errors](https://github.com/conda/conda/issues/9707), consider using [mamba](https://github.com/mamba-org/mamba) instead.
+In case you are installing `zipline-crypto` alongside other packages and encounter [conflict errors](https://github.com/conda/conda/issues/9707), consider using [mamba](https://github.com/mamba-org/mamba) instead.
 
 See the [installation](https://zipline.ml4trading.io/install.html) section of the docs for more detailed instructions.
 
@@ -96,8 +96,8 @@ $ zipline run -f dual_moving_average.py --start 2014-1-1 --end 2018-1-1 -o dma.p
 
 This will download asset pricing data sourced from [Quandl](https://www.quandl.com/databases/WIKIP/documentation?anchor=companies), and stream it through the algorithm over the specified time range. Then, the resulting performance DataFrame is saved as `dma.pickle`, which you can load and analyze from Python.
 
-You can find other examples in the [zipline/examples](https://github.com/stefan-jansen/zipline-reloaded/tree/main/src/zipline/examples) directory.
+You can find other examples in the [zipline/examples](https://github.com/rohitmanokaran/zipline-crypto/tree/main/src/zipline/examples) directory.
 
 ## Questions, suggestions, bugs?
 
-If you find a bug or have other questions about the library, feel free to [open an issue](https://github.com/stefan-jansen/zipline/issues/new) and fill out the template.
+If you find a bug or have other questions about the library, feel free to [open an issue](https://github.com/rohitmanokaran/zipline-crypto/issues/new) and fill out the template.

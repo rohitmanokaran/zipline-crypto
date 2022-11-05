@@ -9,7 +9,7 @@ Highlights
 
 This release updates Zipline to be compatible with Python >= 3.7 as well as the current versions of relevant PyData libraries like Pandas, scikit-learn, and others.
 
-`Conda packages <https://anaconda.org/ml4t/repo>`_ for `Zipline <https://anaconda.org/ml4t/zipline-reloaded>`_ and key dependencies `bcolz <https://anaconda.org/ml4t/bcolz-zipline>`_ and `TA-Lib <https://anaconda.org/ml4t/ta-lib>`_ are now available for Python 3.7-3.9 on the 'ml4t' Anaconda channel. Binary wheels are available on `PyPi <https://pypi.org/project/zipline-reloaded/>`_ for Linux ( Python 3.7-3.9) and MacOSx (3.7 and 3.8).
+`Conda packages <https://anaconda.org/ml4t/repo>`_ for `Zipline <https://anaconda.org/ml4t/zipline-crypto>`_ and key dependencies `bcolz <https://anaconda.org/ml4t/bcolz-zipline>`_ and `TA-Lib <https://anaconda.org/ml4t/ta-lib>`_ are now available for Python 3.7-3.9 on the 'ml4t' Anaconda channel. Binary wheels are available on `PyPi <https://pypi.org/project/zipline-crypto/>`_ for Linux ( Python 3.7-3.9) and MacOSx (3.7 and 3.8).
 
 As part of the update, the ``BlazeLoader`` functionality was removed. It was built on the `Blaze Ecosystem <https://blaze.pydata.org/>`_. Unfortunately, the three relevant projects (`Blaze <https://blaze.readthedocs.io/en/latest/index.html>`_, `Odo <https://odo.readthedocs.io/en/latest/>`_ and `datashape <https://datashape.readthedocs.io/en/latest/>`_ have received very limited support over the last several years.
 

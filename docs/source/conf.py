@@ -70,7 +70,7 @@ highlight_language = "python"
 html_favicon = os.path.join("..", "icons", "zipline.ico")
 
 html_theme_options = {
-    "github_url": "https://github.com/stefan-jansen/zipline-reloaded",
+    "github_url": "https://github.com/stefan-jansen/zipline-crypto",
     "twitter_url": "https://twitter.com/ml4trading",
     "external_links": [
         {"name": "ML for Trading", "url": "https://ml4trading.io"},

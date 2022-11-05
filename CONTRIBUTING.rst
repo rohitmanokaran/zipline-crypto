@@ -5,5 +5,5 @@ For developers of Zipline, people who want to contribute to the Zipline codebase
 All contributions, bug reports, bug fixes, documentation improvements, enhancements and ideas are welcome. We `track issues`__ on `GitHub`__ and also have a `mailing list`__ where you can ask questions.
 
 __ https://zipline.ml4trading.io/development-guidelines.html
-__ https://github.com/stefan-jansen/zipline-reloaded/issues
+__ https://github.com/stefan-jansen/zipline-crypto/issues
 __ https://groups.google.com/forum/#!forum/zipline

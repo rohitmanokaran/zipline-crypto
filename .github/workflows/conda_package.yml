@@ -30,7 +30,7 @@ jobs:
         with:
           xcode-version: '11.5'
 
-      - name: Checkout zipline-reloaded
+      - name: Checkout zipline-crypto
         uses: actions/checkout@v2
 
       - name: Setup miniconda3
@@ -53,7 +53,7 @@ jobs:
         run: |
           conda activate recipe
           mamba install -n recipe boa conda-verify anaconda-client
-          conda mambabuild --output-folder . --python ${{ matrix.python }} conda/zipline-reloaded
+          conda mambabuild --output-folder . --python ${{ matrix.python }} conda/zipline-crypto
 
       - name: activate uploader
         # address broken client under py3.9

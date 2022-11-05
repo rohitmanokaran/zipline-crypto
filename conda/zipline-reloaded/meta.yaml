@@ -1,4 +1,4 @@
-{% set name = "zipline-reloaded" %}
+{% set name = "zipline-crypto" %}
 {% set version = "2.2.0" %}
 
 
