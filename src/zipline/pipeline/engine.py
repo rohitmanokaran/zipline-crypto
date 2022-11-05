@@ -58,6 +58,7 @@ implements the following algorithm for executing pipelines:
 from abc import ABCMeta, abstractmethod
 from functools import partial
 
+import numpy
 from numpy import array, arange
 from pandas import DataFrame, MultiIndex
 from toolz import groupby
@@ -782,7 +783,13 @@ class SimplePipelineEngine(PipelineEngine):
         resolved_assets = array(self._finder.retrieve_all(assets))
         index = _pipeline_output_index(dates, resolved_assets, mask)
 
-        return DataFrame(data=final_columns, index=index)
+        # Fix issue upgaridng pandas from 1.3.5
+        # https://github.com/rohitmanokaran/zipline-crypto/issues/4
+        for key, val in final_columns.items():
+            if val.dtype.type is numpy.record:
+                final_columns[key] = final_columns[key].astype('object')
+        result = DataFrame(data=final_columns, index=index)
+        return result
 
     def _validate_compute_chunk_params(self, graph, dates, sids, initial_workspace):
         """
