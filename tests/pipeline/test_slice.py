@@ -501,6 +501,7 @@ class SliceTestCase(WithSeededRandomPipelineEngine, ZiplineTestCase):
             self.pipeline_start_date,
             self.pipeline_end_date,
         )
+        # TODO: fix
         regression_results = results["regression"].unstack()
         expected_regression_results = results["expected_regression"].unstack()
 

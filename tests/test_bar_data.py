@@ -805,7 +805,7 @@ class TestDailyBarData(
     )
     CREATE_BARDATA_DATA_FREQUENCY = "daily"
 
-    ASSET_FINDER_EQUITY_SIDS = set(range(1, 9))
+    ASSET_FINDER_EQUITY_SIDS = list(range(1, 9))
 
     SPLIT_ASSET_SID = 3
     ILLIQUID_SPLIT_ASSET_SID = 4

@@ -676,6 +676,7 @@ class StatisticalMethodsTestCase(zf.WithSeededRandomPipelineEngine, zf.ZiplineTe
         }
 
         results = run_pipeline(Pipeline(columns=columns), start_date, end_date)
+        # TODO: fix
         regression_results = results["regression"].unstack()
         expected_regression_results = results["expected_regression"].unstack()
 
