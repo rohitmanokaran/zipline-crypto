@@ -2075,6 +2075,7 @@ class TestAssetDBVersioning:
             conn.execute(version_table.delete())
             write_version_info(conn, version_table, ASSET_DB_VERSION)
             check_version_info(conn, version_table, ASSET_DB_VERSION)
+            conn.commit()
 
             # Now that the versions match, this Finder should succeed
             AssetFinder(engine=self.engine)
@@ -2139,12 +2140,13 @@ class TestAssetDBVersioning:
             (1, "B", "B", T("2014-01-01").value, T("2014-01-02").value),
             (2, "B", "C", T("2014-01-01").value, T("2014-01-04").value),
         }
-        actual_data = set(
-            map(
-                select_fields,
-                sa.select(metadata.tables["equities"].c).execute(),
+        with self.engine.connect() as conn:
+            actual_data = set(
+                map(
+                    select_fields,
+                    conn.execute(sa.select(metadata.tables["equities"].c)),
+                )
             )
-        )
 
         assert expected_data == actual_data
 
@@ -2176,12 +2178,13 @@ class TestAssetDBVersioning:
         metadata.reflect(self.engine)
 
         expected_sids = {0, 2}
-        actual_sids = set(
-            map(
-                lambda r: r.sid,
-                sa.select(metadata.tables["equities"].c).execute(),
+        with self.engine.connect() as conn:
+            actual_sids = set(
+                map(
+                    lambda r: r.sid,
+                    conn.execute(sa.select(metadata.tables["equities"].c)),
+                )
             )
-        )
 
         assert expected_sids == actual_sids
 
