@@ -429,7 +429,6 @@ def check_version_info(conn, version_table, expected_version):
     version_from_table = conn.execute(
         sa.select(version_table.c.version),
     ).scalar()
-    #print('version_from_table', version_from_table)
 
     # A db without a version is considered v0
     if version_from_table is None:
@@ -456,7 +455,6 @@ def write_version_info(conn, version_table, version_value):
         The version to write in to the database
 
     """
-    #print('writing version to table', version_value)
     conn.execute(version_table.insert().values({'version': version_value}))
 
 

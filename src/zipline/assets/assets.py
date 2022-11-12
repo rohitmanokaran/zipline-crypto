@@ -170,6 +170,7 @@ def build_ownership_map(engine, table, key_from_row, value_from_row):
             value_from_row,
         )
 
+
 def build_grouped_ownership_map(engine, table, key_from_row, value_from_row, group_key):
     """
     Builds a dict mapping group keys to maps of keys to lists of
@@ -430,8 +431,7 @@ class AssetFinder(object):
             for assets in group_into_chunks(missing):
                 query = conn.execute(
                     sa.select(router_cols.sid, router_cols.asset_type).where(
-                        self.asset_router.c.sid.in_(map(int, assets))
-                ))
+                        self.asset_router.c.sid.in_(map(int, assets))))
                 for sid, type_ in query.fetchall():
                     missing.remove(sid)
                     found[sid] = self._asset_type_cache[sid] = type_
@@ -1189,15 +1189,10 @@ class AssetFinder(object):
             return [
                 r.sid
                 for r in list(
-                    conn.execute(sa.select(fc_cols.sid)
-                    .where(
+                    conn.execute(sa.select(fc_cols.sid).where(
                         (fc_cols.root_symbol == root_symbol)
                         & (fc_cols.start_date != pd.NaT.value)
-                    )
-                    .order_by(fc_cols.sid))
-                    .fetchall()
-                )
-            ]
+                    ).order_by(fc_cols.sid)).fetchall())]
 
     def _get_root_symbol_exchange(self, root_symbol):
         fc_cols = self.futures_root_symbols.c
@@ -1411,12 +1406,10 @@ class AssetFinder(object):
                         equities_cols.sid,
                         equities_cols.start_date,
                         equities_cols.end_date,
-                    )
-                    .where(
+                    ).where(
                         (self.exchanges.c.exchange == equities_cols.exchange)
                         & (self.exchanges.c.country_code.in_(country_codes))
-                    ))
-                    .fetchall()
+                    )).fetchall()
                 )
                 if results:
                     sids, starts, ends = zip(*results)

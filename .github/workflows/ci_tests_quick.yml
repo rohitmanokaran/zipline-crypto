@@ -50,12 +50,3 @@ jobs:
       - name: Unittests with tox & pytest
         run: |
           tox -e py310-pandas15
-
-      - name: Upload coverage data to Codecov
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-          name: codecov-umbrella
-          verbose: true
