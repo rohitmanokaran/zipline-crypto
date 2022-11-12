@@ -130,9 +130,6 @@ We use `Sphinx`__ to generate documentation for Zipline, which you will need to 
 
 __ https://www.sphinx-doc.org/en/master/
 
-
-If you would like to use Anaconda, please follow :ref:`the installation guide<managing-conda-environments>` to create and activate an environment, and then run the command above.
-
 To build and view the docs locally, run:
 
 .. code-block:: bash

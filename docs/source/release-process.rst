@@ -198,38 +198,6 @@ Once we are happy, push the updated docs to the GitHub ``gh-pages`` branch.
 
 `zipline.io <https://www.zipline.io>`__ will update in a few moments.
 
-Uploading conda packages
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-`Travis <https://travis-ci.org/quantopian/zipline>`__ and
-`AppVeyor <https://ci.appveyor.com/project/quantopian/zipline/branch/master>`__
-build zipline conda packages for us (for Linux/OSX and Windows respectively).
-Once they have built and uploaded to anaconda.org the zipline packages for the
-release commit to master, we should move those packages from the "ci" label to
-the "main" label. We should also do this for any packages we uploaded for
-zipline's dependencies. You can do this from the
-`anaconda.org web interface <https://anaconda.org/Quantopian/repo>`__.
-This is also a good time to remove all the old "ci" packages from anaconda.
-
-To build the conda packages for zipline locally, run:
-
-.. code-block:: bash
-
-   $ python etc/conda_build_matrix.py
-
-If all of the builds succeed, then this will not print anything and exit with
-``EXIT_SUCCESS``. If there are build issues, we must address them and decide
-what to do.
-
-Once all of the builds in the matrix pass, we can upload them to anaconda with:
-
-.. code-block:: bash
-
-   $ python etc/conda_build_matrix.py --upload
-
-If you would like to test this command by uploading to a different user, this
-may be specified with the ``--user`` flag.
-
 Next Commit
 ~~~~~~~~~~~
 
