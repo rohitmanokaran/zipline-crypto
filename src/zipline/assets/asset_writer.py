@@ -254,6 +254,9 @@ def _generate_output_dataframe(data_subset, defaults):
 
 
 def _check_asset_group(group):
+    # workaround until fixed: https://github.com/pandas-dev/pandas/issues/47985
+    if group.empty:
+        return group
     row = group.sort_values("end_date").iloc[-1]
     row.start_date = group.start_date.min()
     row.end_date = group.end_date.max()
@@ -315,7 +318,9 @@ def _check_symbol_mappings(df, exchanges, asset_exchange):
             msg_component = "\n  ".join(str(data).splitlines())
             ambiguous[persymbol.name] = intersections, msg_component
 
-    mappings.groupby(["symbol", "country_code"]).apply(check_intersections)
+    mappings.groupby(["symbol", "country_code"], group_keys=False).apply(
+        check_intersections
+    )
 
     if ambiguous:
         raise ValueError(
@@ -375,7 +380,7 @@ def _split_symbol_mappings(df, exchanges):
 
     _check_symbol_mappings(mappings, exchanges, asset_exchange)
     return (
-        df.groupby(level=0).apply(_check_asset_group),
+        df.groupby(level=0, group_keys=False).apply(_check_asset_group),
         mappings,
     )
 

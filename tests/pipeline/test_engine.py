@@ -1059,7 +1059,7 @@ class SyntheticBcolzTestCase(
 class ParameterizedFactorTestCase(
     zf.WithAssetFinder, zf.WithTradingCalendars, zf.ZiplineTestCase
 ):
-    sids = ASSET_FINDER_EQUITY_SIDS = pd.Int64Index([1, 2, 3])
+    sids = ASSET_FINDER_EQUITY_SIDS = pd.Index([1, 2, 3], dtype="int64")
     START_DATE = pd.Timestamp("2015-01-31", tz="UTC")
     END_DATE = pd.Timestamp("2015-03-01", tz="UTC")
     ASSET_FINDER_COUNTRY_CODE = "??"
@@ -1259,7 +1259,7 @@ class ParameterizedFactorTestCase(
         expected_1 = (self.raw_data[5:] ** 2) * 2
         assert_frame_equal(results["dv1"].unstack(), expected_1)
 
-        expected_5 = ((self.raw_data ** 2) * 2).rolling(5).mean()[5:]
+        expected_5 = ((self.raw_data**2) * 2).rolling(5).mean()[5:]
         assert_frame_equal(results["dv5"].unstack(), expected_5)
 
         # The following two use EquityPricing.open and .volume as inputs.
