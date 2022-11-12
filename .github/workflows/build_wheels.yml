@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest ]
-        python: [ 37, 38, 39, 310]
+        python: ['310']
         manylinux_image: [ manylinux2010, manylinux2014 ]
 
     steps:

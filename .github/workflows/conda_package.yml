@@ -17,19 +17,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
-        python: [ '3.7', '3.8', '3.9' ]
-        exclude:
-          - os: macos-latest
-            python: '3.9'
+        os: [ ubuntu-latest ]
+        python: [ '3.10' ]
 
     steps:
-      - name: set Xcode version
-        uses: maxim-lobanov/setup-xcode@v1
-        if: ${{ matrix.os == 'macos-latest' }}
-        with:
-          xcode-version: '11.5'
-
       - name: Checkout zipline-crypto
         uses: actions/checkout@v2
 
@@ -45,8 +36,8 @@ jobs:
           channels: ml4t, conda-forge, defaults, anaconda, ranaroussi, adteam
 
       - name: create uploader
-        # address broken client under py3.9
-        if: ${{ matrix.python == '3.9' }}
+        # address broken client under py3.10
+        if: ${{ matrix.python == '3.10' }}
         run: conda create -n up python=3.7 anaconda-client
 
       - name: conda build for ${{ matrix.os }}
@@ -56,19 +47,9 @@ jobs:
           conda mambabuild --output-folder . --python ${{ matrix.python }} conda/zipline-crypto
 
       - name: activate uploader
-        # address broken client under py3.9
-        if: ${{ matrix.python == '3.9' }}
+        # address broken client under py3.10
+        if: ${{ matrix.python == '3.10' }}
         run: conda activate up
-
-      - name: store windows result
-        uses: actions/upload-artifact@v2
-        if: ${{ matrix.os == 'windows-latest' }}
-        with:
-          path: win-64/*.tar.bz2
-
-      - name: upload windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: anaconda upload -l main -u ml4t win-64/*.tar.bz2
 
       - name: store linux result
         uses: actions/upload-artifact@v2
@@ -79,13 +60,3 @@ jobs:
       - name: upload linux
         if: ${{ matrix.os  == 'ubuntu-latest' }}
         run: anaconda upload -l main -u ml4t linux-64/*.tar.bz2
-
-      - name: store macos result
-        uses: actions/upload-artifact@v2
-        if: ${{ matrix.os == 'macos-latest' }}
-        with:
-          path: osx-64/*.tar.bz2
-
-      - name: upload macos
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: anaconda upload -l main -u ml4t osx-64/*.tar.bz2
