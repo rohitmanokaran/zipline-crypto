@@ -15,7 +15,8 @@ Zipline is a Pythonic event-driven system for backtesting, developed and used as
 by [Stefan Jansen](https://www.linkedin.com/in/applied-ai/) who is trying to keep the library up to date and available to his readers and the wider Python algotrading community.
 
 - [Join our Community!](https://exchange.ml4trading.io)
-- [Documentation](https://zipline.ml4trading.io)
+- [zipline-Documentation](https://zipline.ml4trading.io)
+- [zipline-live Documentation](https://zipline-trader.readthedocs.io)
 
 ## Features
 
@@ -23,6 +24,8 @@ by [Stefan Jansen](https://www.linkedin.com/in/applied-ai/) who is trying to kee
 - **Batteries Included:** many common statistics like moving average and linear regression can be readily accessed from within a user-written algorithm.
 - **PyData Integration:** Input of historical data and output of performance statistics are based on Pandas DataFrames to integrate nicely into the existing PyData ecosystem.
 - **Statistics and Machine Learning Libraries:** You can use libraries like matplotlib, scipy, statsmodels, and scikit-klearn to support development, analysis, and visualization of state-of-the-art trading systems.
+- **Live trading:** Live trading support for Interactive Brokers and Alpaca.
+- **Multiple Data sources:** 
 
 ## Installation
 
