@@ -33,8 +33,10 @@ from zipline.finance.commission import (
 )
 from zipline.utils.input_validation import expect_types
 import pandas as pd
+
 log = Logger('Blotter Live')
 warning_logger = Logger('AlgoWarning')
+
 
 class BlotterLive(Blotter):
     def __init__(self, data_frequency, broker):
@@ -59,6 +61,7 @@ class BlotterLive(Blotter):
             ),
         }
         log.info('Initialized blotter_live')
+
     def __repr__(self):
         return """
     {class_name}(

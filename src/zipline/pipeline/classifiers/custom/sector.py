@@ -33,7 +33,8 @@ SECTOR_CODING = {"Basic Industries": 0,
                  "Transportation": 11,
                  "n/a": -1}
 
-SECTOR_LABELS =  dict(zip(SECTOR_CODING.values(), SECTOR_CODING.keys()))
+SECTOR_LABELS = dict(zip(SECTOR_CODING.values(), SECTOR_CODING.keys()))
+
 
 def get_tickers_from_bundle(bundle_name):
     """Gets a list of tickers from a given bundle"""
@@ -78,7 +79,6 @@ def create_sid_table_from_file(bundle_name='alpaca_api'):
 
 
 class ZiplineTraderSector(Classifier):
-
     inputs = ()
     dtype = int64_dtype
     window_length = 0

@@ -58,7 +58,7 @@ class ALPACABroker(Broker):
     def subscribed_assets(self):
         '''Do nothing to comply the interface'''
         return []
-      
+
     def set_metrics_tracker(self, metrics_tracker):
         self.metrics_tracker = metrics_tracker
 
@@ -66,7 +66,6 @@ class ALPACABroker(Broker):
     def positions(self):
         self._get_positions_from_broker()
         return self.metrics_tracker.positions
-
 
     @property
     def portfolio(self):
@@ -168,10 +167,10 @@ class ALPACABroker(Broker):
     def orders(self):
         orders = {}
         for o in self._api.list_orders('all'):
-            try:
-                orders[o.client_order_id] = self._order2zp(o)
-            except:
-                continue
+            # try:
+            orders[o.client_order_id] = self._order2zp(o)
+            # except:
+            #     continue
         return orders
 
     @property
@@ -203,7 +202,7 @@ class ALPACABroker(Broker):
         return pd.Timestamp(quote.last_timestamp)
 
     def get_spot_value(self, assets, field, dt, data_frequency):
-        assert(field in (
+        assert (field in (
             'open', 'high', 'low', 'close', 'volume', 'price', 'last_traded'))
         assets_is_scalar = not isinstance(assets, (list, set, tuple))
         if assets_is_scalar:
@@ -214,7 +213,7 @@ class ALPACABroker(Broker):
             try:
                 last_trade = self._api.get_last_trade(symbols[0])
                 return last_trade.price
-            except:
+            except tradeapi.rest.APIError:
                 return np.nan
 
         bars = self._api.get_barset(symbols, '1Min', limit=1).df
@@ -254,8 +253,9 @@ class ALPACABroker(Broker):
             editable_position._underlying_position.amount = int(ap_position.qty)
             editable_position._underlying_position.cost_basis = float(ap_position.avg_entry_price)
             editable_position._underlying_position.last_sale_price = float(ap_position.current_price)
-            editable_position._underlying_position.last_sale_date = self._api.get_last_trade(ap_position.symbol).timestamp
-            
+            editable_position._underlying_position.last_sale_date = self._api.get_last_trade(
+                ap_position.symbol).timestamp
+
             self.metrics_tracker.update_position(z_position.asset,
                                                  amount=z_position.amount,
                                                  last_sale_price=z_position.last_sale_price,
@@ -274,7 +274,7 @@ class ALPACABroker(Broker):
                                                  amount=0)
         # for some reason, the metrics tracker has self.positions AND self.portfolio.positions. let's make sure
         # these objects are consistent
-        self.metrics_tracker._ledger._portfolio.positions = self.metrics_tracker.positions                                                 
+        self.metrics_tracker._ledger._portfolio.positions = self.metrics_tracker.positions
 
     def get_realtime_bars(self, assets, data_frequency):
         # TODO: cache the result. The caller

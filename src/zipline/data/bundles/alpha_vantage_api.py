@@ -16,6 +16,7 @@ Adjustments: to enable a bigger precision on our backtests, i decided to
   for dividends and splits. However, only daily-data contains this information
   so it's really IMPORTANT that you never only request minute-data alone.
 """
+import alpaca_trade_api.rest
 import numpy as np
 import pandas as pd
 
@@ -44,6 +45,8 @@ os.environ["ALPHAVANTAGE_API_KEY"] = av_config.api_key  # make sure it's set in 
 UNIVERSE = Universe.NASDAQ100
 
 ASSETS = None
+
+
 def list_assets():
     global ASSETS
     if not ASSETS:
@@ -54,7 +57,7 @@ def list_assets():
         else:
             try:
                 universe = Universe[av_config.av["universe"]]
-            except:
+            except KeyError:
                 universe = Universe.ALL
             if universe == Universe.ALL:
                 # alpha vantage doesn't define a universe. we could try using alpaca's universe if the
@@ -63,7 +66,7 @@ def list_assets():
                     import zipline.data.bundles.alpaca_api as alpaca
                     alpaca.initialize_client()
                     ASSETS = all_alpaca_assets(alpaca.CLIENT)
-                except:
+                except alpaca_trade_api.rest.APIError:
                     raise Exception("You tried to use Universe.ALL but you didn't define the alpaca credentials.")
             elif universe == Universe.SP100:
                 ASSETS = get_sp100()
@@ -279,8 +282,6 @@ def df_generator(interval, start, end, divs_splits, assets_to_sids={}):
 
 
 def metadata_df(assets_to_sids={}):
-    metadata = []
-
     sids = [sid for _, sid in assets_to_sids.items()]
 
     metadata_dtype = [

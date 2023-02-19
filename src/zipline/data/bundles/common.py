@@ -12,7 +12,7 @@ def asset_to_sid_map(asset_finder, symbols):
             try:
                 asset = asset_finder.lookup_symbol(symbol, pd.Timestamp(date.today(), tz='UTC'))
                 assets_to_sids[symbol] = int(asset)
-            except (SymbolNotFound, SidsNotFound) as e:
+            except (SymbolNotFound, SidsNotFound):
                 assets_to_sids[symbol] = next_free_sid
                 next_free_sid = next_free_sid + 1
 

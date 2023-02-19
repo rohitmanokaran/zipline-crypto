@@ -21,7 +21,8 @@ def set_bundle_data(bundle_name='alpaca_api'):
     BUNDLE_DATA = bundles.load(bundle_name)
 
     PRICING_LOADER = USEquityPricingLoader.without_fx(BUNDLE_DATA.equity_daily_bar_reader,
-                                                          BUNDLE_DATA.adjustment_reader)
+                                                      BUNDLE_DATA.adjustment_reader)
+
 
 def choose_loader(column):
     """ Define the function for the get_loader parameter
@@ -129,6 +130,7 @@ class DATE(str):
     """
     date string in the format YYYY-MM-DD
     """
+
     def __new__(cls, value):
         if not value:
             raise ValueError('Unexpected empty string')

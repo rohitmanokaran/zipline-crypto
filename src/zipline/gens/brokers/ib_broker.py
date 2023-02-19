@@ -254,10 +254,10 @@ class TWSConnection(EWrapper):  # EClientSocket, EWrapper
     def _add_bar(self, symbol, last_trade_price, last_trade_size,
                  last_trade_time, total_volume, vwap, single_trade_flag):
         bar = pd.DataFrame(index=pd.DatetimeIndex([last_trade_time]),
-                           data={'last_trade_price':  last_trade_price,
-                                 'last_trade_size':   last_trade_size,
-                                 'total_volume':      total_volume,
-                                 'vwap':              vwap,
+                           data={'last_trade_price': last_trade_price,
+                                 'last_trade_size': last_trade_size,
+                                 'total_volume': total_volume,
+                                 'vwap': vwap,
                                  'single_trade_flag': single_trade_flag})
 
         if symbol not in self.bars:
@@ -423,7 +423,7 @@ class TWSConnection(EWrapper):  # EClientSocket, EWrapper
                 log = Logger('IB Broker')
             log.exception(id_)
 
-        #if isinstance(error_code, EClientErrors.CodeMsgPair):
+        # if isinstance(error_code, EClientErrors.CodeMsgPair):
         #    error_msg = error_code.msg()
         #    error_code = error_code.code()
 
@@ -470,8 +470,8 @@ class TWSConnection(EWrapper):  # EClientSocket, EWrapper
         log_message('scannerData', vars())
 
     def currentTime(self, time):
-        self.time_skew = (pd.to_datetime('now', utc=True) -
-                          pd.to_datetime(long(time), unit='s', utc=True))
+        self.time_skew = (
+            pd.to_datetime('now', utc=True) - pd.to_datetime(long(time), unit='s', utc=True))
 
     def deltaNeutralValidation(self, req_id, under_comp):
         log_message('deltaNeutralValidation', vars())
@@ -545,7 +545,7 @@ class IBBroker(Broker):
                     lambda: asset.symbol in self._tws.bars,
                     timeout=_max_wait_subscribe,
                     step=_poll_frequency)
-            except polling.TimeoutException as te:
+            except polling.TimeoutException:
                 log.warning('!!!WARNING: I did not manage to subscribe to %s ' % str(asset.symbol))
             else:
                 log.debug("Subscription completed")
@@ -598,10 +598,9 @@ class IBBroker(Broker):
         # (self.metrics_tracker.positions is self.metrics_tracker._ledger.position_tracker.positions)
         self.metrics_tracker._ledger._portfolio.positions = self.metrics_tracker.positions
 
-
     @property
     def portfolio(self):
-        positions = self.positions
+        self.positions
 
         return self.metrics_tracker.portfolio
 
@@ -609,7 +608,6 @@ class IBBroker(Broker):
         ib_account = self._tws.accounts[self.account_id][self.currency]
         return ib_account
 
-    
     def set_metrics_tracker(self, metrics_tracker):
         self.metrics_tracker = metrics_tracker
 
@@ -623,10 +621,9 @@ class IBBroker(Broker):
             buying_power=float(ib_account['BuyingPower']),
             equity_with_loan=float(ib_account['EquityWithLoanValue']),
             total_positions_value=float(ib_account['StockMarketValue']),
-            total_positions_exposure=float(
-                (float(ib_account['StockMarketValue']) /
-                 (float(ib_account['StockMarketValue']) +
-                  float(ib_account['TotalCashValue'])))),
+            total_positions_exposure=float((
+                float(ib_account['StockMarketValue']) / (
+                    float(ib_account['StockMarketValue']) + float(ib_account['TotalCashValue'])))),
             regt_equity=float(ib_account['RegTEquity']),
             regt_margin=float(ib_account['RegTMargin']),
             initial_margin_requirement=float(
@@ -642,9 +639,8 @@ class IBBroker(Broker):
             leverage=float(
                 self._tws.accounts[self.account_id]['']['Leverage-S']),
             net_leverage=(
-                    float(ib_account['StockMarketValue']) /
-                    (float(ib_account['TotalCashValue']) +
-                     float(ib_account['StockMarketValue']))),
+                float(ib_account['StockMarketValue']) / (
+                    float(ib_account['TotalCashValue']) + float(ib_account['StockMarketValue']))),
             net_liquidation=float(ib_account['NetLiquidation'])
         )
 
@@ -700,12 +696,12 @@ class IBBroker(Broker):
                 return None
 
             return {
-                'action':      action[2:],
-                'qty':         int(qty[2:]),
-                'order_type':  order_type[2:].replace('_', ' '),
+                'action': action[2:],
+                'qty': int(qty[2:]),
+                'order_type': order_type[2:].replace('_', ' '),
                 'limit_price': float(limit_price[2:]),
-                'stop_price':  float(stop_price[2:]),
-                'dt':          pd.to_datetime(dt[2:], unit='s', utc=True)}
+                'stop_price': float(stop_price[2:]),
+                'dt': pd.to_datetime(dt[2:], unit='s', utc=True)}
 
         except ValueError:
             log.warning("Error parsing order metadata: {}".format(
@@ -898,12 +894,12 @@ class IBBroker(Broker):
                     list(executions.values())[-1]['exec_detail']
                 zp_order.filled = last_exec_detail.m_cumQty
 
-        all_ib_order_ids = (set([e.broker_order_id
-                                 for e in self._orders.values()]) |
-                            set(self._tws.open_orders.keys()) |
-                            set(self._tws.order_statuses.keys()) |
-                            set(self._tws.executions.keys()) |
-                            set(self._tws.commissions.keys()))
+        all_ib_order_ids = (
+            set([e.broker_order_id for e in self._orders.values()]) | set(
+                self._tws.open_orders.keys()) | set(
+                self._tws.order_statuses.keys()) | set(
+                self._tws.executions.keys()) | set(
+                self._tws.commissions.keys()))
         for ib_order_id in all_ib_order_ids:
             zp_order = self._get_or_create_zp_order(ib_order_id)
             if zp_order:
@@ -935,14 +931,12 @@ class IBBroker(Broker):
                 if exec_id in self._transactions:
                     continue
 
-                try:
-                    commission = self._tws.commissions[ib_order_id][exec_id] \
-                        .m_commission
-                except KeyError:
-                    log.warning(
-                        "Commission not found for execution: {}".format(
-                            exec_id))
-                    commission = 0
+                # try:
+                #     commission = self._tws.commissions[ib_order_id][exec_id].m_commission
+                # except KeyError:
+                #     log.warning(
+                #         "Commission not found for execution: {}".format(exec_id))
+                #     commission = 0
 
                 exec_detail = execution['exec_detail']
                 is_buy = order.amount > 0

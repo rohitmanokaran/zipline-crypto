@@ -91,21 +91,19 @@ class RealtimeClock(object):
                 current_time = pd.to_datetime('now', utc=True)
                 server_time = (current_time + self.time_skew).floor('1 min')
 
-                if (server_time >= self.before_trading_start_minutes[index] and
-                        not self._before_trading_start_bar_yielded):
+                if (server_time >= self.before_trading_start_minutes[index] and not self.
+                        _before_trading_start_bar_yielded):
                     self._last_emit = server_time
                     self._before_trading_start_bar_yielded = True
                     yield server_time, BEFORE_TRADING_START_BAR
                 elif (server_time < self.execution_opens[index].tz_localize('UTC') and index == 0) or \
-                        (self.execution_closes[index - 1].tz_localize('UTC') <= server_time <
-                         self.execution_opens[index].tz_localize('UTC')):
+                        (self.execution_closes[index - 1]
+                             .tz_localize('UTC') <= server_time < self.execution_opens[index].tz_localize('UTC')):
                     # sleep anywhere between yesterday's close and today's open
                     sleep(1)
-                elif (self.execution_opens[index].tz_localize('UTC') <= server_time <
-                      self.execution_closes[index].tz_localize('UTC')):
-                    if (self._last_emit is None or
-                            server_time - self._last_emit >=
-                            pd.Timedelta('1 minute')):
+                elif (self.execution_opens[index]
+                          .tz_localize('UTC') <= server_time < self.execution_closes[index].tz_localize('UTC')):
+                    if (self._last_emit is None or server_time - self._last_emit >= pd.Timedelta('1 minute')):
                         self._last_emit = server_time
                         yield server_time, BAR
                         if self.minute_emission:
@@ -168,9 +166,7 @@ class RealtimeClock(object):
                 if self._stop_execution_callback:
                     if self._stop_execution_callback(self._execution_id):
                         break
-                if (self._last_emit is None or
-                        server_time - self._last_emit >=
-                        pd.Timedelta('1 minute')):
+                if self._last_emit is None or server_time - self._last_emit >= pd.Timedelta('1 minute'):
                     self._last_emit = server_time
                     yield server_time, BAR
                     counter += 1

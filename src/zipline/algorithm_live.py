@@ -32,7 +32,7 @@ from zipline.finance.metrics import MetricsTracker, load as load_metrics_set
 log = logbook.Logger("Live Trading")
 # how many minutes before Trading starts needs the function before_trading_starts
 # be launched
-_minutes_before_trading_starts = 60*4
+_minutes_before_trading_starts = 60 * 4
 
 
 class LiveAlgorithmExecutor(AlgorithmSimulator):
@@ -131,10 +131,10 @@ class LiveTradingAlgorithm(TradingAlgorithm):
         execution_closes = \
             self.trading_calendar.execution_time_from_close(market_closes)
 
-        before_trading_start_minutes = ((pd.to_datetime(execution_opens.values)
-                                         .tz_localize('UTC').tz_convert('US/Eastern') -
-                                         timedelta(minutes=_minutes_before_trading_starts))
-                                        .tz_convert('UTC'))
+        before_trading_start_minutes = (
+            (pd.to_datetime(execution_opens.values).tz_localize('UTC')
+             .tz_convert('US/Eastern') - timedelta(minutes=_minutes_before_trading_starts)
+             ).tz_convert('UTC'))
 
         return RealtimeClock(
             self.sim_params.sessions,
@@ -285,7 +285,6 @@ class LiveTradingAlgorithm(TradingAlgorithm):
             realtime_history[asset].to_csv(path, mode='a',
                                            index_label='datetime',
                                            header=not os.path.exists(path))
-
 
     def _pipeline_output(self, pipeline, chunks, name):
         # This method is taken from TradingAlgorithm.

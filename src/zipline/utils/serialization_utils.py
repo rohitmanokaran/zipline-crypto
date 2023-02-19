@@ -15,7 +15,6 @@
 
 import pickle
 
-
 # Label for the serialization version field in the state returned by
 # __getstate__.
 VERSION_LABEL = '_stateversion_'
@@ -30,7 +29,7 @@ def load_context(state_file_path, context, checksum):
             raise ValueError("Corrupt state file: {}".format(state_file_path))
         else:
             if CHECKSUM_KEY not in loaded_state or \
-               loaded_state[CHECKSUM_KEY] != checksum:
+                    loaded_state[CHECKSUM_KEY] != checksum:
                 raise TypeError("Checksum mismatch during state load. "
                                 "The given state file was not created "
                                 "for the algorithm in use")
@@ -43,8 +42,7 @@ def load_context(state_file_path, context, checksum):
 
 def store_context(state_file_path, context, checksum, exclude_list):
     state = {}
-    fields_to_store = list(set(context.__dict__.keys()) -
-                           set(exclude_list))
+    fields_to_store = list(set(context.__dict__.keys()) - set(exclude_list))
 
     for field in fields_to_store:
         state[field] = getattr(context, field)

@@ -148,11 +148,14 @@ def allowed_only_in_before_trading_start(exception):
     def method(self):
         # Do stuff that is only allowed inside before_trading_start.
     """
+
     def decorator(method):
         @wraps(method)
         def wrapped_method(self, *args, **kwargs):
             if not self._in_before_trading_start:
                 raise exception
             return method(self, *args, **kwargs)
+
         return wrapped_method
+
     return decorator

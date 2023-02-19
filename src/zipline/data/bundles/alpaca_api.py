@@ -7,7 +7,6 @@ import pandas as pd
 import pytz
 from alpaca_trade_api.common import URL
 from dateutil import tz
-from zipline.utils.calendar_utils import get_calendar, TradingCalendar
 
 import zipline.config
 from zipline.data.bundles import core as bundles
@@ -31,7 +30,10 @@ def initialize_client():
                            secret_key=secret,
                            base_url=URL(base_url))
 
+
 ASSETS = None
+
+
 def list_assets():
     global ASSETS
     if not ASSETS:
@@ -43,7 +45,7 @@ def list_assets():
         else:
             try:
                 universe = Universe[conf.universe]
-            except:
+            except KeyError:
                 universe = Universe.ALL
             if universe == Universe.ALL:
                 ASSETS = all_alpaca_assets(CLIENT)
@@ -67,6 +69,7 @@ def iso_date(date_str):
     return date_parse(date_str).date().isoformat()
 
 
+# flake8: noqa: C901
 def get_aggs_from_alpaca(symbols,
                          start,
                          end,
@@ -221,7 +224,10 @@ def get_aggs_from_alpaca(symbols,
 
     return processed
 
+
 MAX_PER_REQUEST_AMOUNT = 200  # Alpaca max symbols per 1 http request
+
+
 def df_generator(interval, start, end, assets_to_sids):
     exchange = 'NYSE'
     asset_list = list_assets()
@@ -230,7 +236,7 @@ def df_generator(interval, start, end, assets_to_sids):
     # ingest process. for now, we make sure we serve one of them (for now the first one)
     already_ingested = {}
     for i in range(len(asset_list[::MAX_PER_REQUEST_AMOUNT])):
-        partial = asset_list[MAX_PER_REQUEST_AMOUNT*i:MAX_PER_REQUEST_AMOUNT*(i+1)]
+        partial = asset_list[MAX_PER_REQUEST_AMOUNT * i:MAX_PER_REQUEST_AMOUNT * (i + 1)]
         df: pd.DataFrame = get_aggs_from_alpaca(partial, start, end, 'day' if interval == '1d' else 'minute', 1)
         for _, symbol in enumerate(df.columns.levels[0]):
             try:
@@ -244,7 +250,8 @@ def df_generator(interval, start, end, assets_to_sids):
                     if symbol not in already_ingested:
                         first_traded = start
                         auto_close_date = end + pd.Timedelta(days=1)
-                        yield (sid, df[symbol].sort_index()), symbol, start, end, first_traded, auto_close_date, exchange
+                        yield (sid,
+                               df[symbol].sort_index()), symbol, start, end, first_traded, auto_close_date, exchange
                         already_ingested[symbol] = True
 
             except Exception as e:
@@ -296,6 +303,7 @@ def api_to_bundle(interval=['1m']):
                                                                                    start=start_session,
                                                                                    end=end_session,
                                                                                    assets_to_sids=assets_to_sids))
+
         for _interval in interval:
             metadata = metadata_df()
             if _interval == '1d':

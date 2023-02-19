@@ -49,7 +49,6 @@ class AlpacaConfig:
             return os.environ.get('ZT_CUSTOM_ASSET_LIST')
 
 
-
 class AlphaVantage:
     if CONFIG_PATH and ZIPLINE_CONFIG.get("alpha-vantage"):
         av = ZIPLINE_CONFIG["alpha-vantage"]

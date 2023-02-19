@@ -1,7 +1,7 @@
 from pytz import UTC
 import pandas as pd
 
-PANDAS_VERSION = pd.__version__
+# PANDAS_VERSION = pd.__version__
 
 # NOTE:
 # trading-calendars is no longer maintained and does not support pandas > 1.2.5.
@@ -29,6 +29,7 @@ from exchange_calendars.calendar_utils import (
 from exchange_calendars.errors import InvalidCalendarName
 from exchange_calendars.utils.pandas_utils import days_at_time  # noqa: reexport
 
+
 def _fabricate(self, name: str, **kwargs):
     """Fabricate calendar with `name` and `**kwargs`."""
     try:
@@ -48,6 +49,7 @@ def _fabricate(self, name: str, **kwargs):
     calendar = factory(**kwargs)
     self._factory_output_cache[name] = (calendar, kwargs)
     return calendar
+
 
 # Yay! Monkey patching
 ExchangeCalendarDispatcher._fabricate = _fabricate

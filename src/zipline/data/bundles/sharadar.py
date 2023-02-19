@@ -49,7 +49,7 @@ def sharadar_prices_bundle(environ,
             "Please set your QUANDL_API_KEY environment variable and retry."
         )
 
-    ###ticker2sid_map = {}
+    # ##ticker2sid_map = {}
 
     raw_data = fetch_data_table(
         api_key,
@@ -77,26 +77,26 @@ def sharadar_prices_bundle(environ,
 
     raw_data.reset_index(inplace=True)
     # raw_data.index = pd.DatetimeIndex(raw_data.date)
-    ###ajjc changes
+    # ##ajjc changes
     raw_data['symbol'] = raw_data['symbol'].astype('category')
     raw_data['sid'] = raw_data.symbol.cat.codes
 
     # read in Dividend History
     # ajjc pharrin----------------------
 
-    ###uv = raw_data.symbol.unique()  # get unique m_tickers (Zacks primary key)
+    # ##uv = raw_data.symbol.unique()  # get unique m_tickers (Zacks primary key)
     # iterate over all the unique securities and pack data, and metadata
     # for writing
     # counter of valid securites, this will be our primary key
-    ###sec_counter = 0
+    # ##sec_counter = 0
 
-    ###for tkr in uv:
-    ###    #df_tkr = raw_data[raw_data['symbol'] == tkr]
-    ###    ticker2sid_map[tkr] = sec_counter  # record the sid for use later
-    ###    sec_counter += 1
+    # ##for tkr in uv:
+    # ##    #df_tkr = raw_data[raw_data['symbol'] == tkr]
+    # ##    ticker2sid_map[tkr] = sec_counter  # record the sid for use later
+    # ##    sec_counter += 1
 
-    ### dfd = pd.read_csv(file_name, index_col='date',
-    ###                 parse_dates=['date'], na_values=['NA'])
+    # ## dfd = pd.read_csv(file_name, index_col='date',
+    # ##                 parse_dates=['date'], na_values=['NA'])
     # drop rows where dividends == 0.0
     raw_data = raw_data[raw_data["dividends"] != 0.0]
 
@@ -123,9 +123,7 @@ def format_metadata_url(api_key):
     """
     query_params = [('api_key', api_key), ('qopts.export', 'true')]
 
-    return (
-            QUANDL_DATA_URL + urlencode(query_params)
-    )
+    return QUANDL_DATA_URL + urlencode(query_params)
 
 
 def load_data_table(file,
@@ -153,8 +151,8 @@ def load_data_table(file,
                     'close',
                     'volume',
                     'dividends',
-                    ##'closeunadj',
-                    ##'lastupdated' #prune last two columns for zipline bundle load
+                    # #'closeunadj',
+                    # #'lastupdated' #prune last two columns for zipline bundle load
                 ],
             )
 
