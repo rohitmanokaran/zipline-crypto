@@ -442,6 +442,7 @@ def _make_bundle_core():
                         " db."
                     )
             log.info("Ingesting {}.", name)
+            #print(bundle)
             bundle.ingest(
                 environ,
                 asset_db_writer,

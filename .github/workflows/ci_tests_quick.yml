@@ -3,9 +3,11 @@ name: CI Tests
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   tests:

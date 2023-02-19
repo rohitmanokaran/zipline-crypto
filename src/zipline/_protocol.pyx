@@ -629,10 +629,12 @@ cdef class BarData:
             if single_asset:
                 # single asset, single field: return pd.Series with pd.DateTimeIndex
                 return df.loc[:, assets]
+                # return pd.Panel(df_dict) -> return pd.concat(df_dict, axis=1)?
             else:
                 # multiple assets, single field: return DataFrame with pd.DateTimeIndex
                 # and assets in columns.
                 return df
+                # return pd.Panel(df_dict) -> return pd.concat(df_dict, axis=1)?
         else:  # multiple fields
             # if single_asset:
             # todo: optimize by querying multiple fields
@@ -670,6 +672,7 @@ cdef class BarData:
                   .unstack(level='fields'))
             df.index.set_names([dt_label, 'asset'])
             return df.sort_index()
+            # return pd.Panel(df_dict) -> return pd.concat(df_dict, axis=1)?
 
     property current_dt:
         def __get__(self):

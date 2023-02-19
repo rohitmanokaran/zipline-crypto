@@ -13,3 +13,11 @@
    development-guidelines
    api-reference
    releases
+   configuration-file
+   alpaca-bundle-ingestion
+   research
+   backtest
+   going-live
+   troubleshoot
+   zipline-docs
+   release-process

@@ -528,7 +528,7 @@ class HDF5DailyBarReader(CurrencyAwareSessionBarReader):
         country_code : str
             The ISO 3166 alpha-2 country code for the country to read.
         """
-        return cls.from_file(h5py.File(path), country_code)
+        return cls.from_file(h5py.File(path, 'r'), country_code)
 
     def _read_scaling_factor(self, field):
         return self._country_group[DATA][field].attrs[SCALING_FACTOR]
@@ -870,7 +870,7 @@ class MultiCountryDailyBarReader(CurrencyAwareSessionBarReader):
         path : str
             Path to an HDF5 daily pricing file.
         """
-        return cls.from_file(h5py.File(path))
+        return cls.from_file(h5py.File(path, 'r'))
 
     @property
     def countries(self):

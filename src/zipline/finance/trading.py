@@ -34,7 +34,7 @@ class SimulationParameters(object):
         capital_base=DEFAULT_CAPITAL_BASE,
         emission_rate="daily",
         data_frequency="daily",
-        arena="backtest",
+        arena="backtest"
     ):
 
         assert type(start_session) == pd.Timestamp
@@ -49,6 +49,11 @@ class SimulationParameters(object):
             end_session >= trading_calendar.first_trading_session
         ), "Period end falls before the first known trading day."
 
+        # TODO: Rohit - Do we need to fix live trading by removing normalize_date ie.
+        # self._start_session = start_session
+        # self._end_session = end_session
+        # for minute windows to work?
+        #
         # chop off any minutes or hours on the given start and end dates,
         # as we only support session labels here (and we represent session
         # labels as midnight UTC).

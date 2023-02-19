@@ -38,14 +38,14 @@ from zipline.assets.asset_writer import (
 from zipline.utils.pandas_utils import timedelta_to_integral_seconds
 
 
-_SID_QUERY_TEMPLATE = """
+SID_QUERY_TEMPLATE = """
 SELECT DISTINCT sid FROM {0}
-WHERE effective_date >= ? AND effective_date <= ?
+WHERE effective_date >= {1} AND effective_date <= {2}
 """
-cdef dict SID_QUERIES = {
-    tablename: _SID_QUERY_TEMPLATE.format(tablename)
-    for tablename in ('splits', 'dividends', 'mergers')
-}
+#cdef dict SID_QUERIES = {
+#    tablename: _SID_QUERY_TEMPLATE.format(tablename)
+#    for tablename in ('splits', 'dividends', 'mergers')
+#}
 
 ADJ_QUERY_TEMPLATE = """
 SELECT sid, ratio, effective_date
@@ -75,15 +75,16 @@ cdef set _get_sids_from_table(object db,
     sids : set
         Set of sets
     """
+    cdef object cursor = db.cursor()
 
-    cdef object cursor = db.execute(
-        SID_QUERIES[tablename],
-        (start_date, end_date),
-    )
+    cursor.execute(SID_QUERY_TEMPLATE.format(tablename, start_date, end_date))
+
     cdef set out = set()
     cdef tuple result
     for result in cursor.fetchall():
         PySet_Add(out, result[0])
+
+    cursor.close()
     return out
 
 
@@ -114,14 +115,14 @@ cdef _adjustments(object adjustments_db,
     while splits_to_query:
         query_len = min(len(splits_to_query), SQLITE_MAX_IN_STATEMENT)
         query_assets = splits_to_query[:query_len]
-        t = [str(a) for a in query_assets]
+
         statement = ADJ_QUERY_TEMPLATE.format(
             'splits',
-            ",".join(['?' for _ in query_assets]),
+            ",".join([str(asset) for asset in query_assets]),
             start_date,
             end_date,
         )
-        c.execute(statement, t)
+        c.execute(statement)
         splits_to_query = splits_to_query[query_len:]
         splits_results.extend(c.fetchall())
 
@@ -130,14 +131,13 @@ cdef _adjustments(object adjustments_db,
     while mergers_to_query:
         query_len = min(len(mergers_to_query), SQLITE_MAX_IN_STATEMENT)
         query_assets = mergers_to_query[:query_len]
-        t = [str(a) for a in query_assets]
         statement = ADJ_QUERY_TEMPLATE.format(
             'mergers',
-            ",".join(['?' for _ in query_assets]),
+            ",".join([str(asset) for asset in query_assets]),
             start_date,
             end_date,
         )
-        c.execute(statement, t)
+        c.execute(statement)
         mergers_to_query = mergers_to_query[query_len:]
         mergers_results.extend(c.fetchall())
 
@@ -146,14 +146,14 @@ cdef _adjustments(object adjustments_db,
     while dividends_to_query:
         query_len = min(len(dividends_to_query), SQLITE_MAX_IN_STATEMENT)
         query_assets = dividends_to_query[:query_len]
-        t = [str(a) for a in query_assets]
         statement = ADJ_QUERY_TEMPLATE.format(
             'dividends',
-            ",".join(['?' for _ in query_assets]),
+            ",".join([str(asset) for asset in query_assets]),
             start_date,
             end_date,
         )
-        c.execute(statement, t)
+
+        c.execute(statement)
         dividends_to_query = dividends_to_query[query_len:]
         dividends_results.extend(c.fetchall())
 

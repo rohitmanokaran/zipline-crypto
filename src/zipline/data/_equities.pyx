@@ -168,7 +168,7 @@ cpdef _read_bcolz_data(ctable_t table,
     offsets : ndarray[intp
         Arrays in the format returned by _compute_row_slices.
     read_all : bool
-        Whether to read_all sid data at once, or to read a silce from the
+        Whether to read_all sid data at once, or to read a slice from the
         carray for each sid.
 
     Returns
@@ -242,4 +242,105 @@ cpdef _read_bcolz_data(ctable_t table,
             results.append(outbuf_as_float)
         else:
             results.append(outbuf)
+    return results
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cpdef _read_tape_data(dict table,
+                       tuple shape,
+                       list columns,
+                       intp_t[:] first_rows,
+                       intp_t[:] last_rows,
+                       intp_t[:] offsets,
+                       bool read_all):
+    """
+    Load raw dict data for the given columns and indices.
+    basically, slice the desired data from a dict of arrays. 
+
+    Parameters
+    ----------
+    table : dict
+        dict of columns to ndarrays containing all asset's data
+    shape : tuple (length 2)
+        The shape of the expected output arrays.
+    columns : list[str]
+        List of column names to read.
+
+    first_rows : ndarray[intp]
+    last_rows : ndarray[intp]
+    offsets : ndarray[intp
+        Arrays in the format returned by _compute_row_slices.
+    read_all : bool
+        Whether to read_all sid data at once, or to read a slice from the
+        carray for each sid.
+
+    Returns
+    -------
+    results : list of ndarray
+        A 2D array of shape `shape` for each column in `columns`.
+    """
+    cdef:
+        int nassets
+        str column_name
+        carray_t carray
+        ndarray[dtype=uint32_t, ndim=1] raw_data
+        ndarray[dtype=float64_t, ndim=2] outbuf
+        ndarray[dtype=uint8_t, ndim=2, cast=True] where_nan
+        ndarray[dtype=float64_t, ndim=2] outbuf_as_float
+        intp_t asset
+        intp_t out_idx
+        intp_t raw_idx
+        intp_t first_row
+        intp_t last_row
+        intp_t offset
+        list results = []
+
+    ndays = shape[0]
+    nassets = shape[1]
+    if not nassets == len(first_rows) == len(last_rows) == len(offsets):
+        raise ValueError("Incompatible index arrays.")
+
+    for column_name in columns:
+        outbuf = zeros(shape=shape, dtype=float64)
+        if read_all:
+            raw_data = table[column_name][:]
+
+            for asset in range(nassets):
+                first_row = first_rows[asset]
+                if first_row == -1:
+                    # This is an unknown asset, leave its slot empty.
+                    continue
+
+                last_row = last_rows[asset]
+                offset = offsets[asset]
+
+                if first_row <= last_row:
+                    outbuf[offset:offset + (last_row + 1 - first_row), asset] =\
+                        raw_data[first_row:last_row + 1]
+                else:
+                    continue
+        else:
+            carray = table[column_name]
+
+            for asset in range(nassets):
+                first_row = first_rows[asset]
+                if first_row == -1:
+                    # This is an unknown asset, leave its slot empty.
+                    continue
+
+                last_row = last_rows[asset]
+                offset = offsets[asset]
+                out_start = offset
+                out_end = (last_row - first_row) + offset + 1
+                if first_row <= last_row:
+                    outbuf[offset:offset + (last_row + 1 - first_row), asset] =\
+                        carray[first_row:last_row + 1]
+                else:
+                    continue
+
+        if column_name in {'open', 'high', 'low', 'close'}:
+            where_nan = (outbuf == 0)
+            outbuf[where_nan] = NAN
+        results.append(outbuf)
+
     return results

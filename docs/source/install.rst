@@ -39,6 +39,31 @@ that you install in a `virtualenv
 Python`_ provides an `excellent tutorial on virtualenv
 <https://docs.python-guide.org/en/latest/dev/virtualenvs/>`_.
 
+Installing using pip directly from github
+----------------------------------------------
+You can install it with ability to debug it like this:
+
+.. code-block:: bash
+    python -m pip install --upgrade pip
+    pip install -e git://github.com/shlomikushchi/zipline-trader.git#egg=zipline-trader
+To install a specific version, you could do this (installing version 1.6.0):
+
+.. code-block:: bash
+    python -m pip install --upgrade pip
+    pip install -e git://github.com/shlomikushchi/zipline-trader.git@1.6.0#egg=zipline-trader
+The last step will install this project from source, giving you the ability to debug zipline-trader's code.
+
+
+Installing with git clone
+--------------------------
+Installing the cutting edge version, directly from the master branch.
+
+Using the Master branch install is for the more advanced users.
+ * git clone https://github.com/rohitmanokaran/zipline-crypto.git
+ * <create/activate a virtual env> - optional but recommended
+ * python -m pip install --upgrade pip
+ * pip install -e .
+
 GNU/Linux
 ~~~~~~~~~
 

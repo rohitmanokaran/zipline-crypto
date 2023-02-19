@@ -512,7 +512,7 @@ def changed_locations(a, include_first):
     -------
     >>> import numpy as np
     >>> changed_locations(np.array([0, 0, 5, 5, 1, 1]), include_first=False)
-    array([2, 4])
+    array([2, 4], dtype=int32)
 
     >>> changed_locations(np.array([0, 0, 5, 5, 1, 1]), include_first=True)
     array([0, 2, 4])

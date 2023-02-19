@@ -1,0 +1,7 @@
+# All code merged except postgressql changes
+# Validated with direct merge from zipline-trader.
+# See diff in https://github.com/rohitmanokaran/zipline-crypto/pull/5
+
+1. Docker files need fixing
+2. Unit tests need unskipping and fixing
+3. Live trading needs to be tested. See alpaca-bundle-ingestion and then going-live for how to test.
