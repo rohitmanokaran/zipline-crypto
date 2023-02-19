@@ -4,10 +4,11 @@ from datetime import time
 from collections import defaultdict
 
 import pandas as pd
+
 # fix to allow zip_longest on Python 2.X and 3.X
-try:                                    # Python 3
+try:  # Python 3
     from itertools import zip_longest
-except ImportError:                     # Python 2
+except ImportError:  # Python 2
     from itertools import izip_longest as zip_longest
 
 from mock import patch
@@ -181,4 +182,3 @@ class TestRealtimeClock(TestCase):
             self.assertEquals(event_time,
                               pd.Timestamp("2017-04-20 20:05", tz='UTC'))
             self.assertEquals(event_type, BEFORE_TRADING_START_BAR)
-

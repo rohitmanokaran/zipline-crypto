@@ -3,15 +3,15 @@ import pytest
 import pandas as pd
 
 # fix to allow zip_longest on Python 2.X and 3.X
-try:                                    # Python 3
+try:  # Python 3
     from itertools import zip_longest
-except ImportError:                     # Python 2
+except ImportError:  # Python 2
     from itertools import izip_longest as zip_longest
 from math import fabs
 
 from mock import patch, sentinel, Mock, MagicMock
 
-#from ib.ext.OrderState import OrderState
+# from ib.ext.OrderState import OrderState
 from ibapi.execution import Execution
 from ibapi.wrapper import Contract
 from ibapi.wrapper import Order
@@ -25,6 +25,7 @@ from zipline.finance.execution import (StopLimitOrder,
 from zipline.finance.order import ORDER_STATUS
 from zipline.testing.fixtures import (ZiplineTestCase,
                                       WithDataPortal)
+
 
 @pytest.mark.skip("Failing on CI - Fix later")
 class TestIBBroker(WithSimParams,
@@ -87,9 +88,9 @@ class TestIBBroker(WithSimParams,
 
     @staticmethod
     def _create_order_state(status_):
-        #status = OrderState()
-        #status.m_status = status_
-        #return status
+        # status = OrderState()
+        # status.m_status = status_
+        # return status
         return status_
 
     @staticmethod
@@ -228,8 +229,7 @@ class TestIBBroker(WithSimParams,
         assert order.amount == amount
         assert order.limit == limit_price
         assert order.stop == stop_price
-        assert (order.dt - pd.to_datetime('now', utc=True) <
-                pd.Timedelta('10s'))
+        assert (order.dt - pd.to_datetime('now', utc=True) < pd.Timedelta('10s'))
 
     @patch('zipline.gens.brokers.ib_broker.symbol_lookup')
     def test_orders_loaded_from_open_orders(self, symbol_lookup):
@@ -257,8 +257,7 @@ class TestIBBroker(WithSimParams,
         assert zp_order.amount == -40
         assert zp_order.limit == limit_price
         assert zp_order.stop == stop_price
-        assert (zp_order.dt - pd.to_datetime('now', utc=True) <
-                pd.Timedelta('10s'))
+        assert (zp_order.dt - pd.to_datetime('now', utc=True) < pd.Timedelta('10s'))
 
         @patch('zipline.gens.brokers.ib_broker.symbol_lookup')
         def test_orders_loaded_from_exec_details(self, symbol_lookup):
@@ -286,8 +285,7 @@ class TestIBBroker(WithSimParams,
             assert zp_order.amount == -40
             assert zp_order.limit == limit_price
             assert zp_order.stop == stop_price
-            assert (zp_order.dt - pd.to_datetime('now', utc=True) <
-                    pd.Timedelta('10s'))
+            assert (zp_order.dt - pd.to_datetime('now', utc=True) < pd.Timedelta('10s'))
 
     @patch('zipline.gens.brokers.ib_broker.symbol_lookup')
     def test_orders_updated_from_order_status(self, symbol_lookup):
@@ -329,8 +327,7 @@ class TestIBBroker(WithSimParams,
         assert zp_order.amount == amount
         assert zp_order.limit == limit_price
         assert zp_order.stop == stop_price
-        assert (zp_order.dt - pd.to_datetime('now', utc=True) <
-                pd.Timedelta('10s'))
+        assert (zp_order.dt - pd.to_datetime('now', utc=True) < pd.Timedelta('10s'))
 
     @patch('zipline.gens.brokers.ib_broker.symbol_lookup')
     def test_multiple_orders(self, symbol_lookup):
@@ -367,8 +364,7 @@ class TestIBBroker(WithSimParams,
         assert deserialized['order_type'] == order.m_orderType
         assert deserialized['limit_price'] == order.m_lmtPrice
         assert deserialized['stop_price'] == order.m_auxPrice
-        assert (deserialized['dt'] - pd.to_datetime('now', utc=True) <
-                pd.Timedelta('10s'))
+        assert (deserialized['dt'] - pd.to_datetime('now', utc=True) < pd.Timedelta('10s'))
 
     @patch('zipline.gens.brokers.ib_broker.symbol_lookup')
     def test_transactions_not_created_for_incompl_orders(self, symbol_lookup):
@@ -451,7 +447,7 @@ class TestIBBroker(WithSimParams,
 
             assert broker.transactions[exec_id].asset == asset
             assert broker.transactions[exec_id].amount == order.amount
-            assert (broker.transactions[exec_id].dt -
-                    pd.to_datetime('now', utc=True) < pd.Timedelta('10s'))
+            assert (broker.transactions[exec_id].dt - pd.to_datetime(
+                'now', utc=True) < pd.Timedelta('10s'))
             assert broker.transactions[exec_id].price == price
             assert broker.orders[order.id].commission == 0

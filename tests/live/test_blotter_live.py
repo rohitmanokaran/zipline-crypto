@@ -3,9 +3,9 @@ import pytest
 import pandas as pd
 
 # fix to allow zip_longest on Python 2.X and 3.X
-try:                                    # Python 3
+try:  # Python 3
     from itertools import zip_longest
-except ImportError:                     # Python 2
+except ImportError:  # Python 2
     from itertools import izip_longest as zip_longest
 
 from mock import patch, sentinel, Mock, MagicMock
@@ -17,6 +17,7 @@ from zipline.testing.fixtures import WithSimParams
 from zipline.finance.transaction import Transaction
 from zipline.testing.fixtures import (ZiplineTestCase,
                                       WithDataPortal)
+
 
 class TestBlotterLive(WithSimParams,
                       WithDataPortal,
@@ -144,12 +145,12 @@ class TestBlotterLive(WithSimParams,
         assert len(new_commissions) == 2
         assert {'asset': asset2,
                 'cost': 12,
-                'order': broker.orders[sentinel.order_id2]}\
-            in new_commissions
+                'order': broker.orders[sentinel.order_id2]} \
+               in new_commissions
         assert {'asset': asset1,
                 'cost': 3,
                 'order': broker.orders[sentinel.order_id3]} \
-            in new_commissions
+               in new_commissions
         assert len(new_transactions) == 2
         assert broker.transactions['exec_2'] in new_transactions
         assert broker.transactions['exec_3'] in new_transactions

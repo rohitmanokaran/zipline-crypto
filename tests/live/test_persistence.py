@@ -3,7 +3,6 @@ import os
 from mock import sentinel
 from testfixtures import tempdir
 
-
 from zipline.algorithm_live import LiveTradingAlgorithm
 from zipline.testing.fixtures import WithSimParams
 from zipline.utils.serialization_utils import load_context, store_context
@@ -173,4 +172,3 @@ class TestPersistence(WithSimParams,
         assert restored_context.sma == context.sma
         assert restored_context.trading_client is None
         assert restored_context.event_manager is None
-
