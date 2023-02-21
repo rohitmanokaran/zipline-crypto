@@ -22,14 +22,13 @@ from zipline.errors import SymbolNotFound
 import pandas as pd
 import numpy as np
 import uuid
-
-from logbook import Logger
+import logging
 import sys
 
 if sys.version_info > (3,):
     long = int
 
-log = Logger("Alpaca Broker")
+log = logging.getLogger("Alpaca Broker")
 NY = "America/New_York"
 
 

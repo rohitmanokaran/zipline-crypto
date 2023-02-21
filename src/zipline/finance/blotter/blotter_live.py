@@ -10,7 +10,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from logbook import Logger
+import logging
 from collections import defaultdict
 from copy import copy
 
@@ -34,8 +34,8 @@ from zipline.finance.commission import (
 from zipline.utils.input_validation import expect_types
 import pandas as pd
 
-log = Logger("Blotter Live")
-warning_logger = Logger("AlgoWarning")
+log = logging.getLogger("Blotter Live")
+warning_logger = logging.getLogger("AlgoWarning")
 
 
 class BlotterLive(Blotter):

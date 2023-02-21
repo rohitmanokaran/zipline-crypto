@@ -38,12 +38,12 @@ from ibapi.execution import ExecutionFilter
 
 # from ibapi.ext.EClientErrors import EClientErrors
 
-from logbook import Logger
+import logging
 
 if sys.version_info > (3,):
     long = int
 
-log = Logger("IB Broker")
+log = logging.getLogger("IB Broker")
 
 Position = namedtuple(
     "Position",
@@ -487,7 +487,7 @@ class TWSConnection(EWrapper):  # EClientSocket, EWrapper
             # therefore it needs to be instantiated before use
             global log
             if not log:
-                log = Logger("IB Broker")
+                log = logging.getLogger("IB Broker")
             log.exception(id_)
 
         # if isinstance(error_code, EClientErrors.CodeMsgPair):

@@ -12,7 +12,7 @@
 # limitations under the License.
 from time import sleep
 
-from logbook import Logger
+import logging
 import pandas as pd
 
 from zipline.gens.sim_engine import (
@@ -23,7 +23,7 @@ from zipline.gens.sim_engine import (
     BEFORE_TRADING_START_BAR,
 )
 
-log = Logger("Realtime Clock")
+log = logging.getLogger("Realtime Clock")
 
 
 class RealtimeClock(object):

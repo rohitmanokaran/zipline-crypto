@@ -14,10 +14,9 @@ from datetime import timedelta
 
 import pandas as pd
 from zipline.data.data_portal import DataPortal
+import logging
 
-from logbook import Logger
-
-log = Logger("DataPortalLive")
+log = logging.getLogger("DataPortalLive")
 
 
 class DataPortalLive(DataPortal):

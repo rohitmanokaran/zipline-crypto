@@ -12,8 +12,8 @@
 # limitations under the License.
 import os.path
 from datetime import datetime, timedelta
-import logbook
 import pandas as pd
+import logging
 import pytz
 from dateutil.relativedelta import relativedelta
 
@@ -31,7 +31,7 @@ from zipline.utils.api_support import (
 from zipline.utils.serialization_utils import load_context, store_context
 from zipline.finance.metrics import MetricsTracker, load as load_metrics_set
 
-log = logbook.Logger("Live Trading")
+log = logging.getLogger("Live Trading")
 # how many minutes before Trading starts needs the function before_trading_starts
 # be launched
 _minutes_before_trading_starts = 60 * 4

@@ -8,7 +8,7 @@ from io import BytesIO
 from zipfile import ZipFile
 
 from click import progressbar
-from logbook import Logger
+import logging
 import pandas as pd
 import requests
 from six.moves.urllib.parse import urlencode
@@ -23,7 +23,8 @@ import numpy as np
 # "Cannot find data bundle during ingest #2275"
 # https://github.com/quantopian/zipline/issues/2275
 
-log = Logger(__name__)
+log = logging.getLogger(__name__)
+
 
 ONE_MEGABYTE = 1024 * 1024
 QUANDL_DATA_URL = "https://www.quandl.com/api/v3/datatables/SHARADAR/SEP.csv?"
