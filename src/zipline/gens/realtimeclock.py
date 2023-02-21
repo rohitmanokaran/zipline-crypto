@@ -20,10 +20,10 @@ from zipline.gens.sim_engine import (
     SESSION_START,
     SESSION_END,
     MINUTE_END,
-    BEFORE_TRADING_START_BAR
+    BEFORE_TRADING_START_BAR,
 )
 
-log = Logger('Realtime Clock')
+log = Logger("Realtime Clock")
 
 
 class RealtimeClock(object):
@@ -41,24 +41,31 @@ class RealtimeClock(object):
     the Broker and the live trading machine's clock.
     """
 
-    def __init__(self,
-                 sessions,
-                 execution_opens,
-                 execution_closes,
-                 before_trading_start_minutes,
-                 minute_emission,
-                 time_skew=pd.Timedelta("0s"),
-                 is_broker_alive=None,
-                 execution_id=None,
-                 stop_execution_callback=None):
-        today = pd.to_datetime('now', utc=True).date()
+    def __init__(
+        self,
+        sessions,
+        execution_opens,
+        execution_closes,
+        before_trading_start_minutes,
+        minute_emission,
+        time_skew=pd.Timedelta("0s"),
+        is_broker_alive=None,
+        execution_id=None,
+        stop_execution_callback=None,
+    ):
+        today = pd.to_datetime("now", utc=True).date()
         beginning_of_today = pd.to_datetime(today, utc=True)
 
         self.sessions = sessions[(beginning_of_today <= sessions)]
-        self.execution_opens = execution_opens[(beginning_of_today.tz_localize(None) <= execution_opens)]
-        self.execution_closes = execution_closes[(beginning_of_today.tz_localize(None) <= execution_closes)]
+        self.execution_opens = execution_opens[
+            (beginning_of_today.tz_localize(None) <= execution_opens)
+        ]
+        self.execution_closes = execution_closes[
+            (beginning_of_today.tz_localize(None) <= execution_closes)
+        ]
         self.before_trading_start_minutes = before_trading_start_minutes[
-            (beginning_of_today <= before_trading_start_minutes)]
+            (beginning_of_today <= before_trading_start_minutes)
+        ]
 
         self.minute_emission = minute_emission
         self.time_skew = time_skew
@@ -85,39 +92,54 @@ class RealtimeClock(object):
                     break
 
             while self.is_broker_alive():
-                if self._stop_execution_callback:  # put it here too, to break inner loop as well
+                if (
+                    self._stop_execution_callback
+                ):  # put it here too, to break inner loop as well
                     if self._stop_execution_callback(self._execution_id):
                         break
-                current_time = pd.to_datetime('now', utc=True)
-                server_time = (current_time + self.time_skew).floor('1 min')
+                current_time = pd.to_datetime("now", utc=True)
+                server_time = (current_time + self.time_skew).floor("1 min")
 
-                if (server_time >= self.before_trading_start_minutes[index] and not self.
-                        _before_trading_start_bar_yielded):
+                if (
+                    server_time >= self.before_trading_start_minutes[index]
+                    and not self._before_trading_start_bar_yielded
+                ):
                     self._last_emit = server_time
                     self._before_trading_start_bar_yielded = True
                     yield server_time, BEFORE_TRADING_START_BAR
-                elif (server_time < self.execution_opens[index].tz_localize('UTC') and index == 0) or \
-                        (self.execution_closes[index - 1]
-                             .tz_localize('UTC') <= server_time < self.execution_opens[index].tz_localize('UTC')):
+                elif (
+                    server_time < self.execution_opens[index].tz_localize("UTC")
+                    and index == 0
+                ) or (
+                    self.execution_closes[index - 1].tz_localize("UTC")
+                    <= server_time
+                    < self.execution_opens[index].tz_localize("UTC")
+                ):
                     # sleep anywhere between yesterday's close and today's open
                     sleep(1)
-                elif (self.execution_opens[index]
-                          .tz_localize('UTC') <= server_time < self.execution_closes[index].tz_localize('UTC')):
-                    if (self._last_emit is None or server_time - self._last_emit >= pd.Timedelta('1 minute')):
+                elif (
+                    self.execution_opens[index].tz_localize("UTC")
+                    <= server_time
+                    < self.execution_closes[index].tz_localize("UTC")
+                ):
+                    if (
+                        self._last_emit is None
+                        or server_time - self._last_emit >= pd.Timedelta("1 minute")
+                    ):
                         self._last_emit = server_time
                         yield server_time, BAR
                         if self.minute_emission:
                             yield server_time, MINUTE_END
                     else:
                         sleep(1)
-                elif server_time == self.execution_closes[index].tz_localize('UTC'):
+                elif server_time == self.execution_closes[index].tz_localize("UTC"):
                     self._last_emit = server_time
                     yield server_time, BAR
                     if self.minute_emission:
                         yield server_time, MINUTE_END
                     yield server_time, SESSION_END
                     break
-                elif server_time > self.execution_closes[index].tz_localize('UTC'):
+                elif server_time > self.execution_closes[index].tz_localize("UTC"):
                     break
                 else:
                     # We should never end up in this branch
@@ -129,19 +151,23 @@ class RealtimeClock(object):
         :return:
         """
         from datetime import timedelta
+
         num_days = 5
         from zipline.utils.calendar_utils import get_calendar
+
         self.sessions = get_calendar("NYSE").sessions_in_range(
-            str(pd.to_datetime('now', utc=True).date() - timedelta(days=num_days * 2)),
-            str(pd.to_datetime('now', utc=True).date() + timedelta(days=num_days * 2))
+            str(pd.to_datetime("now", utc=True).date() - timedelta(days=num_days * 2)),
+            str(pd.to_datetime("now", utc=True).date() + timedelta(days=num_days * 2)),
         )
 
         # for day in range(num_days, 0, -1):
         for day in range(0, 1):
             # current_time = pd.to_datetime('now', utc=True)
-            current_time = pd.to_datetime('2018/08/25', utc=True)
+            current_time = pd.to_datetime("2018/08/25", utc=True)
             # server_time = (current_time + self.time_skew).floor('1 min') - timedelta(days=day)
-            server_time = (current_time + self.time_skew).floor('1 min') + timedelta(days=day)
+            server_time = (current_time + self.time_skew).floor("1 min") + timedelta(
+                days=day
+            )
 
             # yield self.sessions[-1 - day], SESSION_START
             yield self.sessions[day], SESSION_START
@@ -151,7 +177,9 @@ class RealtimeClock(object):
             num_minutes = 6 * 60
             minute_list = []
             for i in range(num_minutes + 1):
-                minute_list.append(pd.to_datetime("13:31", utc=True) + timedelta(minutes=i))
+                minute_list.append(
+                    pd.to_datetime("13:31", utc=True) + timedelta(minutes=i)
+                )
             while self.is_broker_alive():
                 # current_time = pd.to_datetime('now', utc=True)
                 # server_time = (current_time + self.time_skew).floor('1 min')
@@ -166,7 +194,10 @@ class RealtimeClock(object):
                 if self._stop_execution_callback:
                     if self._stop_execution_callback(self._execution_id):
                         break
-                if self._last_emit is None or server_time - self._last_emit >= pd.Timedelta('1 minute'):
+                if (
+                    self._last_emit is None
+                    or server_time - self._last_emit >= pd.Timedelta("1 minute")
+                ):
                     self._last_emit = server_time
                     yield server_time, BAR
                     counter += 1

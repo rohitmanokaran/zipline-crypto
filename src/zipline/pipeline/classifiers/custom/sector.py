@@ -19,19 +19,21 @@ SID_FILE_NAME = "NASDAQ_sids.npy"  # persisted np.array where
 SECTOR_PATH = os.path.join(BASE_PATH, SID_FILE_NAME)
 
 # NASDAQ sectors, not the same as Morningstar
-SECTOR_CODING = {"Basic Industries": 0,
-                 "Capital Goods": 1,
-                 "Consumer Durables": 2,
-                 "Consumer Non-Durables": 3,
-                 "Consumer Services": 4,
-                 "Energy": 5,
-                 "Finance": 6,
-                 "Health Care": 7,
-                 "Miscellaneous": 8,
-                 "Public Utilities": 9,
-                 "Technology": 10,
-                 "Transportation": 11,
-                 "n/a": -1}
+SECTOR_CODING = {
+    "Basic Industries": 0,
+    "Capital Goods": 1,
+    "Consumer Durables": 2,
+    "Consumer Non-Durables": 3,
+    "Consumer Services": 4,
+    "Energy": 5,
+    "Finance": 6,
+    "Health Care": 7,
+    "Miscellaneous": 8,
+    "Public Utilities": 9,
+    "Technology": 10,
+    "Transportation": 11,
+    "n/a": -1,
+}
 
 SECTOR_LABELS = dict(zip(SECTOR_CODING.values(), SECTOR_CODING.keys()))
 
@@ -53,10 +55,10 @@ def get_tickers_from_bundle(bundle_name):
 
 def download_nasdaq_company_list():
     r = requests.get(BASE_URL, allow_redirects=True)
-    open(INPUT_FILE, 'wb').write(r.content)
+    open(INPUT_FILE, "wb").write(r.content)
 
 
-def create_sid_table_from_file(bundle_name='alpaca_api'):
+def create_sid_table_from_file(bundle_name="alpaca_api"):
     """reads the raw file, maps tickers -> SIDS,
     then maps sector strings to integers, and saves
     to the file: SID_FILE"""
@@ -69,7 +71,7 @@ def create_sid_table_from_file(bundle_name='alpaca_api'):
     N = max(ae_d.values()) + 1
 
     # create empty 1-D array to hold data where index = SID
-    sectors = np.full(N, -1, np.dtype('int64'))
+    sectors = np.full(N, -1, np.dtype("int64"))
 
     # iterate over Assets in the bundle, and fill in sectors
     for ticker, sid in ae_d.items():
@@ -96,7 +98,7 @@ class ZiplineTraderSector(Classifier):
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # if you want to refresh the basdaq asset list.
     # download_nasdaq_company_list()
     # get_tickers_from_bundle("alpaca_api")

@@ -34,8 +34,8 @@ from zipline.finance.commission import (
 from zipline.utils.input_validation import expect_types
 import pandas as pd
 
-log = Logger('Blotter Live')
-warning_logger = Logger('AlgoWarning')
+log = Logger("Blotter Live")
+warning_logger = Logger("AlgoWarning")
 
 
 class BlotterLive(Blotter):
@@ -45,7 +45,7 @@ class BlotterLive(Blotter):
         self._processed_transactions = []
         self.data_frequency = data_frequency
         self.new_orders = []
-        self.max_shares = int(1e+11)
+        self.max_shares = int(1e11)
 
         self.slippage_models = {
             Equity: FixedBasisPointsSlippage(),
@@ -60,7 +60,7 @@ class BlotterLive(Blotter):
                 exchange_fee=FUTURE_EXCHANGE_FEES_BY_SYMBOL,
             ),
         }
-        log.info('Initialized blotter_live')
+        log.info("Initialized blotter_live")
 
     def __repr__(self):
         return """
@@ -68,28 +68,34 @@ class BlotterLive(Blotter):
         open_orders={open_orders},
         orders={orders},
         new_orders={new_orders},
-    """.strip().format(class_name=self.__class__.__name__,
-                       open_orders=self.open_orders,
-                       orders=self.orders,
-                       new_orders=self.new_orders)
+    """.strip().format(
+            class_name=self.__class__.__name__,
+            open_orders=self.open_orders,
+            orders=self.orders,
+            new_orders=self.new_orders,
+        )
 
     @property
     def orders(self):
         # IB returns orders from previous days too.
         # Need to filter for today to be in sync with zipline's behavior
         # TODO: This logic needs to be extended once GTC orders are supported
-        today = pd.to_datetime('now', utc=True).date()
-        return {order_id: order
-                for order_id, order in iteritems(self.broker.orders)
-                if order.dt.date() == today}
+        today = pd.to_datetime("now", utc=True).date()
+        return {
+            order_id: order
+            for order_id, order in iteritems(self.broker.orders)
+            if order.dt.date() == today
+        }
 
     @property
     def open_orders(self):
-        assets = set([order.asset for order in itervalues(self.orders)
-                      if order.open])
+        assets = set([order.asset for order in itervalues(self.orders) if order.open])
         return {
-            asset: [order for order in itervalues(self.orders)
-                    if order.asset == asset and order.open]
+            asset: [
+                order
+                for order in itervalues(self.orders)
+                if order.asset == asset and order.open
+            ]
             for asset in assets
         }
 
@@ -98,7 +104,7 @@ class BlotterLive(Blotter):
         assert order_id is None
         if amount == 0:
             # it's a zipline fuck up.. we shouldn't get orders with amount 0. ignoring this order
-            return ''
+            return ""
         order = self.broker.order(asset, amount, style)
         self.new_orders.append(order)
 
@@ -129,12 +135,12 @@ class BlotterLive(Blotter):
                 # been a partial fill or not.
                 if order.filled > 0:
                     warning_logger.warn(
-                        'Your order for {order_amt} shares of '
-                        '{order_sym} has been partially filled. '
-                        '{order_filled} shares were successfully '
-                        'purchased. {order_failed} shares were not '
-                        'filled by the end of day and '
-                        'were canceled.'.format(
+                        "Your order for {order_amt} shares of "
+                        "{order_sym} has been partially filled. "
+                        "{order_filled} shares were successfully "
+                        "purchased. {order_failed} shares were not "
+                        "filled by the end of day and "
+                        "were canceled.".format(
                             order_amt=order.amount,
                             order_sym=order.asset.symbol,
                             order_filled=order.filled,
@@ -143,12 +149,12 @@ class BlotterLive(Blotter):
                     )
                 elif order.filled < 0:
                     warning_logger.warn(
-                        'Your order for {order_amt} shares of '
-                        '{order_sym} has been partially filled. '
-                        '{order_filled} shares were successfully '
-                        'sold. {order_failed} shares were not '
-                        'filled by the end of day and '
-                        'were canceled.'.format(
+                        "Your order for {order_amt} shares of "
+                        "{order_sym} has been partially filled. "
+                        "{order_filled} shares were successfully "
+                        "sold. {order_failed} shares were not "
+                        "filled by the end of day and "
+                        "were canceled.".format(
                             order_amt=order.amount,
                             order_sym=order.asset.symbol,
                             order_filled=-1 * order.filled,
@@ -157,9 +163,9 @@ class BlotterLive(Blotter):
                     )
                 else:
                     warning_logger.warn(
-                        'Your order for {order_amt} shares of '
-                        '{order_sym} failed to fill by the end of day '
-                        'and was canceled.'.format(
+                        "Your order for {order_amt} shares of "
+                        "{order_sym} failed to fill by the end of day "
+                        "and was canceled.".format(
                             order_amt=order.amount,
                             order_sym=order.asset.symbol,
                         )
@@ -168,13 +174,11 @@ class BlotterLive(Blotter):
         assert not orders
         del self.open_orders[asset]
 
-    def reject(self, order_id, reason=''):
-        log.warning("Unexpected reject request for {}: '{}'".format(
-            order_id, reason))
+    def reject(self, order_id, reason=""):
+        log.warning("Unexpected reject request for {}: '{}'".format(order_id, reason))
 
-    def hold(self, order_id, reason=''):
-        log.warning("Unexpected hold request for {}: '{}'".format(
-            order_id, reason))
+    def hold(self, order_id, reason=""):
+        log.warning("Unexpected hold request for {}: '{}'".format(order_id, reason))
 
     def get_transactions(self, bar_data):
         # All returned values from this function are delta between
@@ -182,24 +186,28 @@ class BlotterLive(Blotter):
         def _list_delta(lst_a, lst_b):
             return [elem for elem in lst_a if elem not in set(lst_b)]
 
-        today = pd.to_datetime('now', utc=True).date()
-        all_transactions = [tx
-                            for tx in itervalues(self.broker.transactions)
-                            if tx.dt.date() == today]
-        new_transactions = _list_delta(all_transactions,
-                                       self._processed_transactions)
+        today = pd.to_datetime("now", utc=True).date()
+        all_transactions = [
+            tx for tx in itervalues(self.broker.transactions) if tx.dt.date() == today
+        ]
+        new_transactions = _list_delta(all_transactions, self._processed_transactions)
         self._processed_transactions = all_transactions
 
-        new_commissions = [{'asset': tx.asset,
-                            'cost': self.broker.orders[tx.order_id].commission,
-                            'order': self.orders[tx.order_id]}
-                           for tx in new_transactions]
+        new_commissions = [
+            {
+                "asset": tx.asset,
+                "cost": self.broker.orders[tx.order_id].commission,
+                "order": self.orders[tx.order_id],
+            }
+            for tx in new_transactions
+        ]
 
-        all_closed_orders = [order
-                             for order in itervalues(self.orders)
-                             if not order.open]
-        new_closed_orders = _list_delta(all_closed_orders,
-                                        self._processed_closed_orders)
+        all_closed_orders = [
+            order for order in itervalues(self.orders) if not order.open
+        ]
+        new_closed_orders = _list_delta(
+            all_closed_orders, self._processed_closed_orders
+        )
         self._processed_closed_orders = all_closed_orders
 
         return new_transactions, new_commissions, new_closed_orders

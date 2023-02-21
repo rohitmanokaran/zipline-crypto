@@ -253,35 +253,27 @@ DEFAULT_BUNDLE = "quandl"
         help="Should the algorithm methods be " "resolved in the local namespace.",
     )
 )
+@click.option("--broker", default=None, help="Broker")
 @click.option(
-    '--broker',
+    "--broker-uri",
     default=None,
-    help='Broker'
-)
-@click.option(
-    '--broker-uri',
-    default=None,
-    metavar='BROKER-URI',
+    metavar="BROKER-URI",
     show_default=True,
-    help='Connection to broker',
+    help="Connection to broker",
 )
 @click.option(
-    '--state-file',
+    "--state-file",
     default=None,
-    metavar='FILENAME',
-    help='Filename where the state will be stored'
+    metavar="FILENAME",
+    help="Filename where the state will be stored",
 )
 @click.option(
-    '--realtime-bar-target',
+    "--realtime-bar-target",
     default=None,
-    metavar='DIRNAME',
-    help='Directory where the realtime collected minutely bars are saved'
+    metavar="DIRNAME",
+    help="Directory where the realtime collected minutely bars are saved",
 )
-@click.option(
-    '--list-brokers',
-    is_flag=True,
-    help='Get list of available brokers'
-)
+@click.option("--list-brokers", is_flag=True, help="Get list of available brokers")
 @click.pass_context
 def run(
     ctx,
@@ -308,14 +300,14 @@ def run(
     broker_uri,
     state_file,
     realtime_bar_target,
-    list_brokers
+    list_brokers,
 ):
     """Run a backtest for the given algorithm."""
 
     if list_brokers:
         click.echo("Supported brokers:")
         for _, name, _ in pkgutil.iter_modules(brokers.__path__):
-            if name != 'broker':
+            if name != "broker":
                 click.echo(name)
         return
 
@@ -344,21 +336,25 @@ def run(
 
     brokerobj = None
     if broker:
-        mod_name = 'zipline.gens.brokers.%s_broker' % broker.lower()
+        mod_name = "zipline.gens.brokers.%s_broker" % broker.lower()
         try:
             bmod = import_module(mod_name)
         except ImportError:
             ctx.fail("unsupported broker: can't import module %s" % mod_name)
 
-        cl_name = '%sBroker' % broker.upper()
+        cl_name = "%sBroker" % broker.upper()
         try:
             bclass = getattr(bmod, cl_name)
         except AttributeError:
-            ctx.fail("unsupported broker: can't import class %s from %s" %
-                     (cl_name, mod_name))
+            ctx.fail(
+                "unsupported broker: can't import class %s from %s"
+                % (cl_name, mod_name)
+            )
         brokerobj = bclass(broker_uri)
     if end is None:
-        end = pd.Timestamp.utcnow() + pd.Timedelta(days=1, seconds=1)  # Add 1-second to assure that end is > 1day
+        end = pd.Timestamp.utcnow() + pd.Timedelta(
+            days=1, seconds=1
+        )  # Add 1-second to assure that end is > 1day
 
     if (algotext is not None) == (algofile is not None):
         ctx.fail(
@@ -404,7 +400,7 @@ def run(
         state_filename=state_file,
         realtime_bar_target=realtime_bar_target,
         performance_callback=None,
-        stop_execution_callback=None
+        stop_execution_callback=None,
     )
 
 

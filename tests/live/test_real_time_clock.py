@@ -12,9 +12,11 @@ except ImportError:  # Python 2
     from itertools import izip_longest as zip_longest
 
 from mock import patch
-from zipline.gens.realtimeclock import (RealtimeClock,
-                                        SESSION_START,
-                                        BEFORE_TRADING_START_BAR)
+from zipline.gens.realtimeclock import (
+    RealtimeClock,
+    SESSION_START,
+    BEFORE_TRADING_START_BAR,
+)
 from zipline.gens.sim_engine import MinuteSimulationClock
 from zipline.utils.calendar_utils import get_calendar, days_at_time
 
@@ -25,13 +27,12 @@ class TestRealtimeClock(TestCase):
         cls.nyse_calendar = get_calendar("NYSE")
 
         cls.sessions = cls.nyse_calendar.sessions_in_range(
-            pd.Timestamp("2017-04-20"),
-            pd.Timestamp("2017-04-20")
+            pd.Timestamp("2017-04-20"), pd.Timestamp("2017-04-20")
         )
 
         trading_o_and_c = cls.nyse_calendar.schedule.loc[cls.sessions]
-        cls.opens = trading_o_and_c['open']
-        cls.closes = trading_o_and_c['close']
+        cls.opens = trading_o_and_c["open"]
+        cls.closes = trading_o_and_c["close"]
 
     def setUp(self):
         self.internal_clock = None
@@ -41,7 +42,7 @@ class TestRealtimeClock(TestCase):
         """Mock function for sleep. Advances the internal clock by 1 min"""
         # The internal clock advance time must be 1 minute to match
         # MinutesSimulationClock's update frequency
-        self.internal_clock += pd.Timedelta('1 min')
+        self.internal_clock += pd.Timedelta("1 min")
 
     def get_clock(self, arg, *args, **kwargs):
         """Mock function for pandas.to_datetime which is used to query the
@@ -60,21 +61,23 @@ class TestRealtimeClock(TestCase):
                 self.opens,
                 self.closes,
                 days_at_time(self.sessions, time(8, 45), "US/Eastern"),
-                minute_emission
+                minute_emission,
             )
             msc_events = list(msc)
 
-            with patch('zipline.gens.realtimeclock.pd.to_datetime') as to_dt, \
-                    patch('zipline.gens.realtimeclock.sleep') as sleep:
-                rtc = iter(RealtimeClock(
-                    self.sessions,
-                    self.opens,
-                    self.closes,
-                    days_at_time(self.sessions, time(8, 45), "US/Eastern"),
-                    minute_emission
-                ))
-                self.internal_clock = \
-                    pd.Timestamp("2017-04-20 00:00")
+            with patch("zipline.gens.realtimeclock.pd.to_datetime") as to_dt, patch(
+                "zipline.gens.realtimeclock.sleep"
+            ) as sleep:
+                rtc = iter(
+                    RealtimeClock(
+                        self.sessions,
+                        self.opens,
+                        self.closes,
+                        days_at_time(self.sessions, time(8, 45), "US/Eastern"),
+                        minute_emission,
+                    )
+                )
+                self.internal_clock = pd.Timestamp("2017-04-20 00:00")
                 to_dt.side_effect = self.get_clock
                 sleep.side_effect = self.advance_clock
 
@@ -90,15 +93,16 @@ class TestRealtimeClock(TestCase):
         """Tests that RealtimeClock's time_skew parameter behaves as
         expected"""
         for time_skew in (pd.Timedelta("2 hour"), pd.Timedelta("-120 sec")):
-            with patch('zipline.gens.realtimeclock.pd.to_datetime') as to_dt, \
-                    patch('zipline.gens.realtimeclock.sleep') as sleep:
+            with patch("zipline.gens.realtimeclock.pd.to_datetime") as to_dt, patch(
+                "zipline.gens.realtimeclock.sleep"
+            ) as sleep:
                 clock = RealtimeClock(
                     self.sessions,
                     self.opens,
                     self.closes,
                     days_at_time(self.sessions, time(11, 31), "US/Eastern"),
                     False,
-                    time_skew
+                    time_skew,
                 )
                 to_dt.side_effect = self.get_clock
                 sleep.side_effect = self.advance_clock
@@ -119,18 +123,19 @@ class TestRealtimeClock(TestCase):
             self.opens,
             self.closes,
             days_at_time(self.sessions, time(8, 45), "US/Eastern"),
-            False
+            False,
         )
         msc_events = list(msc)
 
-        with patch('zipline.gens.realtimeclock.pd.to_datetime') as to_dt, \
-                patch('zipline.gens.realtimeclock.sleep') as sleep:
+        with patch("zipline.gens.realtimeclock.pd.to_datetime") as to_dt, patch(
+            "zipline.gens.realtimeclock.sleep"
+        ) as sleep:
             rtc = RealtimeClock(
                 self.sessions,
                 self.opens,
                 self.closes,
                 days_at_time(self.sessions, time(8, 45), "US/Eastern"),
-                False
+                False,
             )
 
             to_dt.side_effect = self.get_clock
@@ -148,8 +153,7 @@ class TestRealtimeClock(TestCase):
 
         # before_trading_start is fired immediately if we're after 8:45 EDT
         event_time, event_type = rtc_events[1]
-        self.assertEquals(event_time,
-                          pd.Timestamp("2017-04-20 15:00"))
+        self.assertEquals(event_time, pd.Timestamp("2017-04-20 15:00"))
         self.assertEquals(event_type, BEFORE_TRADING_START_BAR)
 
         self.assertEquals(rtc_events[2:], msc_events[msc_midday_position:])
@@ -157,14 +161,15 @@ class TestRealtimeClock(TestCase):
     @unittest.skip("Failing on CI - Fix later")
     def test_afterhours_start(self):
         """Tests that RealtimeClock returns immediately if started after RTH"""
-        with patch('zipline.gens.realtimeclock.pd.to_datetime') as to_dt, \
-                patch('zipline.gens.realtimeclock.sleep') as sleep:
+        with patch("zipline.gens.realtimeclock.pd.to_datetime") as to_dt, patch(
+            "zipline.gens.realtimeclock.sleep"
+        ) as sleep:
             rtc = RealtimeClock(
                 self.sessions,
                 self.opens,
                 self.closes,
                 days_at_time(self.sessions, time(8, 45), "US/Eastern"),
-                False
+                False,
             )
 
             to_dt.side_effect = self.get_clock
@@ -179,6 +184,5 @@ class TestRealtimeClock(TestCase):
             self.assertEquals(event_type, SESSION_START)
 
             event_time, event_type = events[1]
-            self.assertEquals(event_time,
-                              pd.Timestamp("2017-04-20 20:05"))
+            self.assertEquals(event_time, pd.Timestamp("2017-04-20 20:05"))
             self.assertEquals(event_type, BEFORE_TRADING_START_BAR)

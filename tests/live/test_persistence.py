@@ -6,18 +6,16 @@ from testfixtures import tempdir
 from zipline.algorithm_live import LiveTradingAlgorithm
 from zipline.testing.fixtures import WithSimParams
 from zipline.utils.serialization_utils import load_context, store_context
-from zipline.testing.fixtures import (ZiplineTestCase,
-                                      WithDataPortal)
+from zipline.testing.fixtures import ZiplineTestCase, WithDataPortal
 
 
-class TestPersistence(WithSimParams,
-                      WithDataPortal,
-                      ZiplineTestCase):
+class TestPersistence(WithSimParams, WithDataPortal, ZiplineTestCase):
     def noop(*args, **kwargs):
         pass
 
-    def make_trading_algo(self, state_filename, algo_filename=None,
-                          initialize=noop, handle_data=noop):
+    def make_trading_algo(
+        self, state_filename, algo_filename=None, initialize=noop, handle_data=noop
+    ):
         return LiveTradingAlgorithm(
             namespace={},
             asset_finder=self.asset_finder,
@@ -26,7 +24,8 @@ class TestPersistence(WithSimParams,
             algo_filename=algo_filename,
             initialize=initialize,
             handle_data=handle_data,
-            script=None)
+            script=None,
+        )
 
     @tempdir()
     def test_live_trading_algorithm_creates_state_file(self, tmpdir):
@@ -59,9 +58,9 @@ class TestPersistence(WithSimParams,
         def handle_data_1(context, data):
             context.state_from_handle_data = 11
 
-        algo_1 = self.make_trading_algo(state_filename,
-                                        initialize=initialize_1,
-                                        handle_data=handle_data_1)
+        algo_1 = self.make_trading_algo(
+            state_filename, initialize=initialize_1, handle_data=handle_data_1
+        )
 
         algo_1.initialize()
         algo_1.handle_data(data=sentinel.data)
@@ -72,9 +71,9 @@ class TestPersistence(WithSimParams,
         def handle_data_2(context, data):
             assert False, "handle_data shouldn't be called"
 
-        algo_2 = self.make_trading_algo(state_filename,
-                                        initialize=initialize_2,
-                                        handle_data=handle_data_2)
+        algo_2 = self.make_trading_algo(
+            state_filename, initialize=initialize_2, handle_data=handle_data_2
+        )
         algo_2.initialize()
 
         assert algo_2.state_from_initialize == 7
@@ -84,9 +83,11 @@ class TestPersistence(WithSimParams,
     def test_state_load_with_corrupt_state(self, tmpdir):
         state_filename = os.path.join(tmpdir.path, "state_file")
 
-        algo_1 = self.make_trading_algo(state_filename,
-                                        initialize=TestPersistence.noop,
-                                        handle_data=TestPersistence.noop)
+        algo_1 = self.make_trading_algo(
+            state_filename,
+            initialize=TestPersistence.noop,
+            handle_data=TestPersistence.noop,
+        )
 
         tmpdir.write("state_file", b"roken")
 
@@ -107,8 +108,7 @@ class TestPersistence(WithSimParams,
         algo_path_1 = tmpdir.write(algo_filename_1, algo_text_1)
 
         state_filename_1 = os.path.join(tmpdir.path, "state_file_1")
-        algo_1 = self.make_trading_algo(state_filename_1,
-                                        algo_filename=algo_path_1)
+        algo_1 = self.make_trading_algo(state_filename_1, algo_filename=algo_path_1)
 
         algo_1.initialize()
         algo_1.handle_data(data=sentinel.data)
@@ -124,17 +124,18 @@ class TestPersistence(WithSimParams,
         algo_path_2 = tmpdir.write(algo_filename_2, algo_text_2)
 
         state_filename_2 = os.path.join(tmpdir.path, "state_file_2")
-        algo_2 = self.make_trading_algo(state_filename_2,
-                                        algo_filename=algo_path_2)
+        algo_2 = self.make_trading_algo(state_filename_2, algo_filename=algo_path_2)
 
         algo_2.initialize()
         algo_2.handle_data(data=sentinel.data)
 
-        algo_1_wrong_state = self.make_trading_algo(state_filename_2,
-                                                    algo_filename=algo_path_1)
+        algo_1_wrong_state = self.make_trading_algo(
+            state_filename_2, algo_filename=algo_path_1
+        )
 
-        algo_2_wrong_state = self.make_trading_algo(state_filename_1,
-                                                    algo_filename=algo_path_2)
+        algo_2_wrong_state = self.make_trading_algo(
+            state_filename_1, algo_filename=algo_path_2
+        )
 
         with self.assertRaises(TypeError) as e1:
             algo_1_wrong_state.initialize()
@@ -147,18 +148,23 @@ class TestPersistence(WithSimParams,
     @tempdir()
     def test_context_persistence_exclude_list(self, tmpdir):
         class Context(object):
-            def __init__(self, rsi=None, sma=None,
-                         trading_client=None, event_manager=None):
+            def __init__(
+                self, rsi=None, sma=None, trading_client=None, event_manager=None
+            ):
                 self.rsi = rsi
                 self.sma = sma
                 self.trading_client = trading_client
                 self.event_manager = event_manager
 
-        context = Context(rsi=17.2, sma=40.4, trading_client=lambda x: x + 3,
-                          event_manager=[None, False])
+        context = Context(
+            rsi=17.2,
+            sma=40.4,
+            trading_client=lambda x: x + 3,
+            event_manager=[None, False],
+        )
 
-        exclude_list = ['trading_client', 'event_manager']
-        checksum = 'robocop'
+        exclude_list = ["trading_client", "event_manager"]
+        checksum = "robocop"
 
         state_file_path = os.path.join(tmpdir.path, "state_file")
 

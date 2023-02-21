@@ -33,7 +33,7 @@ class SimulationParameters:
         capital_base=DEFAULT_CAPITAL_BASE,
         emission_rate="daily",
         data_frequency="daily",
-        arena="backtest"
+        arena="backtest",
     ):
 
         assert type(start_session) == pd.Timestamp

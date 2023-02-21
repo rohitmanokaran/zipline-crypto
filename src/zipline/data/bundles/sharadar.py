@@ -26,24 +26,24 @@ import numpy as np
 log = Logger(__name__)
 
 ONE_MEGABYTE = 1024 * 1024
-QUANDL_DATA_URL = (
-    'https://www.quandl.com/api/v3/datatables/SHARADAR/SEP.csv?'
-)
+QUANDL_DATA_URL = "https://www.quandl.com/api/v3/datatables/SHARADAR/SEP.csv?"
 
 
-@bundles.register('sharadar-prices')
-def sharadar_prices_bundle(environ,
-                           asset_db_writer,
-                           minute_bar_writer,
-                           daily_bar_writer,
-                           adjustment_writer,
-                           calendar,
-                           start_session,
-                           end_session,
-                           cache,
-                           show_progress,
-                           output_dir):
-    api_key = environ.get('QUANDL_API_KEY')
+@bundles.register("sharadar-prices")
+def sharadar_prices_bundle(
+    environ,
+    asset_db_writer,
+    minute_bar_writer,
+    daily_bar_writer,
+    adjustment_writer,
+    calendar,
+    start_session,
+    end_session,
+    cache,
+    show_progress,
+    output_dir,
+):
+    api_key = environ.get("QUANDL_API_KEY")
     if api_key is None:
         raise ValueError(
             "Please set your QUANDL_API_KEY environment variable and retry."
@@ -52,34 +52,25 @@ def sharadar_prices_bundle(environ,
     # ##ticker2sid_map = {}
 
     raw_data = fetch_data_table(
-        api_key,
-        show_progress,
-        environ.get('QUANDL_DOWNLOAD_ATTEMPTS', 5)
+        api_key, show_progress, environ.get("QUANDL_DOWNLOAD_ATTEMPTS", 5)
     )
-    asset_metadata = gen_asset_metadata(
-        raw_data[['symbol', 'date']],
-        show_progress
-    )
+    asset_metadata = gen_asset_metadata(raw_data[["symbol", "date"]], show_progress)
     asset_db_writer.write(asset_metadata)
 
     symbol_map = asset_metadata.symbol
     sessions = calendar.sessions_in_range(start_session, end_session)
 
-    raw_data.set_index(['date', 'symbol'], inplace=True)
+    raw_data.set_index(["date", "symbol"], inplace=True)
     daily_bar_writer.write(
-        parse_pricing_and_vol(
-            raw_data,
-            sessions,
-            symbol_map
-        ),
-        show_progress=show_progress
+        parse_pricing_and_vol(raw_data, sessions, symbol_map),
+        show_progress=show_progress,
     )
 
     raw_data.reset_index(inplace=True)
     # raw_data.index = pd.DatetimeIndex(raw_data.date)
     # ##ajjc changes
-    raw_data['symbol'] = raw_data['symbol'].astype('category')
-    raw_data['sid'] = raw_data.symbol.cat.codes
+    raw_data["symbol"] = raw_data["symbol"].astype("category")
+    raw_data["sid"] = raw_data.symbol.cat.codes
 
     # read in Dividend History
     # ajjc pharrin----------------------
@@ -100,18 +91,24 @@ def sharadar_prices_bundle(environ,
     # drop rows where dividends == 0.0
     raw_data = raw_data[raw_data["dividends"] != 0.0]
 
-    raw_data.set_index(['date', 'sid'], inplace=True)
+    raw_data.set_index(["date", "sid"], inplace=True)
 
     # raw_data.loc[:, 'ex_date'] = raw_data.loc[:, 'record_date'] = raw_data.date
     # raw_data.loc[:, 'declared_date'] = raw_data.loc[:, 'pay_date'] = raw_data.date
-    raw_data.loc[:, 'ex_date'] = raw_data.loc[:, 'record_date'] = raw_data.index.get_level_values('date')
-    raw_data.loc[:, 'declared_date'] = raw_data.loc[:, 'pay_date'] = raw_data.index.get_level_values('date')
+    raw_data.loc[:, "ex_date"] = raw_data.loc[
+        :, "record_date"
+    ] = raw_data.index.get_level_values("date")
+    raw_data.loc[:, "declared_date"] = raw_data.loc[
+        :, "pay_date"
+    ] = raw_data.index.get_level_values("date")
     # raw_data.loc[:, 'sid'] = raw_data.loc[:, 'symbol'].apply(lambda x: ticker2sid_map[x])
-    raw_data = raw_data.rename(columns={'dividends': 'amount'})
+    raw_data = raw_data.rename(columns={"dividends": "amount"})
     # raw_data = raw_data.drop(['open', 'high', 'low', 'close', 'volume','symbol'], axis=1)
 
     raw_data.reset_index(inplace=True)
-    raw_data = raw_data.drop(['open', 'high', 'low', 'close', 'volume', 'symbol', 'date'], axis=1)
+    raw_data = raw_data.drop(
+        ["open", "high", "low", "close", "volume", "symbol", "date"], axis=1
+    )
     # raw_data = raw_data.drop(['open', 'high', 'low', 'close', 'volume', 'lastupdated', 'ticker', 'closeunadj'], axis=1)
     # # format dfd to have sid
     adjustment_writer.write(dividends=raw_data)
@@ -119,71 +116,61 @@ def sharadar_prices_bundle(environ,
 
 
 def format_metadata_url(api_key):
-    """ Build the query URL for Quandl Prices metadata.
-    """
-    query_params = [('api_key', api_key), ('qopts.export', 'true')]
+    """Build the query URL for Quandl Prices metadata."""
+    query_params = [("api_key", api_key), ("qopts.export", "true")]
 
     return QUANDL_DATA_URL + urlencode(query_params)
 
 
-def load_data_table(file,
-                    index_col,
-                    show_progress=False):
-    """ Load data table from zip file provided by Quandl.
-    """
+def load_data_table(file, index_col, show_progress=False):
+    """Load data table from zip file provided by Quandl."""
     with ZipFile(file) as zip_file:
         file_names = zip_file.namelist()
         assert len(file_names) == 1, "Expected a single file from Quandl."
         wiki_prices = file_names.pop()
         with zip_file.open(wiki_prices) as table_file:
             if show_progress:
-                log.info('Parsing raw data.')
+                log.info("Parsing raw data.")
             data_table = pd.read_csv(
                 table_file,
-                parse_dates=['date'],
+                parse_dates=["date"],
                 index_col=index_col,
                 usecols=[
-                    'ticker',
-                    'date',
-                    'open',
-                    'high',
-                    'low',
-                    'close',
-                    'volume',
-                    'dividends',
+                    "ticker",
+                    "date",
+                    "open",
+                    "high",
+                    "low",
+                    "close",
+                    "volume",
+                    "dividends",
                     # #'closeunadj',
                     # #'lastupdated' #prune last two columns for zipline bundle load
                 ],
             )
 
     data_table.rename(
-        columns={
-            'ticker': 'symbol'
-        },
+        columns={"ticker": "symbol"},
         inplace=True,
         copy=False,
     )
     return data_table
 
 
-def fetch_data_table(api_key,
-                     show_progress,
-                     retries):
+def fetch_data_table(api_key, show_progress, retries):
     for _ in range(retries):
         try:
             if show_progress:
-                log.info('Downloading Sharadar Price metadata.')
+                log.info("Downloading Sharadar Price metadata.")
 
-            metadata = pd.read_csv(
-                format_metadata_url(api_key)
-            )
+            metadata = pd.read_csv(format_metadata_url(api_key))
             # Extract link from metadata and download zip file.
-            table_url = metadata.loc[0, 'file.link']
+            table_url = metadata.loc[0, "file.link"]
             if show_progress:
                 raw_file = download_with_progress(
                     table_url,
                     chunk_size=ONE_MEGABYTE,
-                    label="Downloading Prices table from Quandl Sharadar"
+                    label="Downloading Prices table from Quandl Sharadar",
                 )
             else:
                 raw_file = download_without_progress(table_url)
@@ -205,34 +192,25 @@ def fetch_data_table(api_key,
 
 def gen_asset_metadata(data, show_progress):
     if show_progress:
-        log.info('Generating asset metadata.')
+        log.info("Generating asset metadata.")
 
-    data = data.groupby(
-        by='symbol'
-    ).agg(
-        {'date': [np.min, np.max]}
-    )
+    data = data.groupby(by="symbol").agg({"date": [np.min, np.max]})
     data.reset_index(inplace=True)
-    data['start_date'] = data.date.amin
-    data['end_date'] = data.date.amax
-    del data['date']
+    data["start_date"] = data.date.amin
+    data["end_date"] = data.date.amax
+    del data["date"]
     data.columns = data.columns.get_level_values(0)
 
-    data['exchange'] = 'QUANDL'
-    data['auto_close_date'] = data['end_date'].values + pd.Timedelta(days=1)
+    data["exchange"] = "QUANDL"
+    data["auto_close_date"] = data["end_date"].values + pd.Timedelta(days=1)
     return data
 
 
-def parse_pricing_and_vol(data,
-                          sessions,
-                          symbol_map):
+def parse_pricing_and_vol(data, sessions, symbol_map):
     for asset_id, symbol in iteritems(symbol_map):
-        asset_data = data.xs(
-            symbol,
-            level=1
-        ).reindex(
-            sessions.tz_localize(None)
-        ).fillna(0.0)
+        asset_data = (
+            data.xs(symbol, level=1).reindex(sessions.tz_localize(None)).fillna(0.0)
+        )
         yield asset_id, asset_data
 
 
@@ -258,7 +236,7 @@ def download_with_progress(url, chunk_size, **progress_kwargs):
     resp = requests.get(url, stream=True)
     resp.raise_for_status()
 
-    total_size = int(resp.headers['content-length'])
+    total_size = int(resp.headers["content-length"])
     data = BytesIO()
     with progressbar(length=total_size, **progress_kwargs) as pbar:
         for chunk in resp.iter_content(chunk_size=chunk_size):

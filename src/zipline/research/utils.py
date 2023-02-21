@@ -16,20 +16,21 @@ PRICING_LOADER = None
 END_DT = None
 
 
-def set_bundle_data(bundle_name='alpaca_api'):
+def set_bundle_data(bundle_name="alpaca_api"):
     global BUNDLE_DATA, PRICING_LOADER
     BUNDLE_DATA = bundles.load(bundle_name)
 
-    PRICING_LOADER = USEquityPricingLoader.without_fx(BUNDLE_DATA.equity_daily_bar_reader,
-                                                      BUNDLE_DATA.adjustment_reader)
+    PRICING_LOADER = USEquityPricingLoader.without_fx(
+        BUNDLE_DATA.equity_daily_bar_reader, BUNDLE_DATA.adjustment_reader
+    )
 
 
 def choose_loader(column):
-    """ Define the function for the get_loader parameter
-     Set the dataloader"""
+    """Define the function for the get_loader parameter
+    Set the dataloader"""
 
     if column not in USEquityPricing.columns:
-        raise Exception('Column not in USEquityPricing')
+        raise Exception("Column not in USEquityPricing")
     return PRICING_LOADER
 
 
@@ -38,15 +39,19 @@ def create_data_portal(_bundle_name, _trading_calendar, start_date):
     if not BUNDLE_DATA:
         set_bundle_data(_bundle_name)
     # Create a data portal
-    data_portal = DataPortal(BUNDLE_DATA.asset_finder,
-                             trading_calendar=_trading_calendar,
-                             first_trading_day=start_date,
-                             equity_daily_reader=BUNDLE_DATA.equity_daily_bar_reader,
-                             adjustment_reader=BUNDLE_DATA.adjustment_reader)
+    data_portal = DataPortal(
+        BUNDLE_DATA.asset_finder,
+        trading_calendar=_trading_calendar,
+        first_trading_day=start_date,
+        equity_daily_reader=BUNDLE_DATA.equity_daily_bar_reader,
+        adjustment_reader=BUNDLE_DATA.adjustment_reader,
+    )
     return data_portal
 
 
-def get_pricing(data_portal, trading_calendar, assets, start_date, end_date, field='close'):
+def get_pricing(
+    data_portal, trading_calendar, assets, start_date, end_date, field="close"
+):
     # Set the given start and end dates to Timestamps. The frequency string C is used to
     # indicate that a CustomBusinessDay DateOffset is used
 
@@ -59,19 +64,24 @@ def get_pricing(data_portal, trading_calendar, assets, start_date, end_date, fie
     start_loc = trading_calendar.closes.index.get_loc(start_dt)
 
     # return the historical data for the given window
-    return data_portal.get_history_window(assets=assets, end_dt=END_DT, bar_count=end_loc - start_loc,
-                                          frequency='1d',
-                                          field=field,
-                                          data_frequency='daily')
+    return data_portal.get_history_window(
+        assets=assets,
+        end_dt=END_DT,
+        bar_count=end_loc - start_loc,
+        frequency="1d",
+        field=field,
+        data_frequency="daily",
+    )
 
 
-def create_pipeline_engine(bundle_name='alpaca_api'):
+def create_pipeline_engine(bundle_name="alpaca_api"):
     global BUNDLE_DATA
     if not BUNDLE_DATA:
         set_bundle_data(bundle_name)
     # Create a Pipeline engine
-    engine = SimplePipelineEngine(get_loader=choose_loader,
-                                  asset_finder=BUNDLE_DATA.asset_finder)
+    engine = SimplePipelineEngine(
+        get_loader=choose_loader, asset_finder=BUNDLE_DATA.asset_finder
+    )
     return engine
 
 
@@ -95,29 +105,28 @@ def get_pipeline_output_for_equity(df, symbol, drop_level=False):
     return df
 
 
-def pipeline_train_test_split(X,
-                              y,
-                              test_size=0.3,
-                              validate_size=0.3,
-                              should_validate=False):
+def pipeline_train_test_split(
+    X, y, test_size=0.3, validate_size=0.3, should_validate=False
+):
     """
     sklearn train_test_split
     :param df:
     :return:
     """
-    a, b, c, d = train_test_split(X.index.levels[0],
-                                  y.index.levels[0],
-                                  test_size=test_size,
-                                  random_state=101)
+    a, b, c, d = train_test_split(
+        X.index.levels[0], y.index.levels[0], test_size=test_size, random_state=101
+    )
     X_train = X.loc[list(a)]
     X_test = X.loc[list(b)]
     y_train = y.loc[list(c)]
     y_test = y.loc[list(d)]
     if should_validate:
-        a, b, c, d = train_test_split(X_train.index.levels[0],
-                                      y_train.index.levels[0],
-                                      test_size=validate_size,
-                                      random_state=101)
+        a, b, c, d = train_test_split(
+            X_train.index.levels[0],
+            y_train.index.levels[0],
+            test_size=validate_size,
+            random_state=101,
+        )
         X_train = X.loc[list(a)]
         X_validate = X.loc[list(b)]
         y_train = y.loc[list(c)]
@@ -133,12 +142,13 @@ class DATE(str):
 
     def __new__(cls, value):
         if not value:
-            raise ValueError('Unexpected empty string')
+            raise ValueError("Unexpected empty string")
         if not isinstance(value, str):
             raise TypeError(f'Unexpected type for DATE: "{type(value)}"')
         if value.count("-") != 2:
-            raise ValueError(f'Unexpected date structure. expected '
-                             f'"YYYY-MM-DD" got {value}')
+            raise ValueError(
+                f"Unexpected date structure. expected " f'"YYYY-MM-DD" got {value}'
+            )
         try:
             dateutil.parser.parse(value)
         except Exception as e:
@@ -147,10 +157,11 @@ class DATE(str):
         return str.__new__(cls, value)
 
 
-def get_benchmark(symbol=None, start: DATE = None, end: DATE = None, other_file_path=None):
-    bm = yahoo_reader.DataReader(symbol,
-                                 'yahoo',
-                                 pd.Timestamp(DATE(start)),
-                                 pd.Timestamp(DATE(end)))['Close']
-    bm.index = bm.index.tz_localize('UTC')
+def get_benchmark(
+    symbol=None, start: DATE = None, end: DATE = None, other_file_path=None
+):
+    bm = yahoo_reader.DataReader(
+        symbol, "yahoo", pd.Timestamp(DATE(start)), pd.Timestamp(DATE(end))
+    )["Close"]
+    bm.index = bm.index.tz_localize("UTC")
     return bm.pct_change(periods=1).fillna(0)

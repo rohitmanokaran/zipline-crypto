@@ -360,7 +360,7 @@ class TradingAlgorithm:
             if analyze is not None:
                 unexpected_api_methods.add("analyze")
             if teardown is not None:
-                unexpected_api_methods.add('teardown')
+                unexpected_api_methods.add("teardown")
 
             if unexpected_api_methods:
                 raise ValueError(
@@ -382,7 +382,7 @@ class TradingAlgorithm:
             )
             # Optional analyze function, gets called after run
             self._analyze = self.namespace.get("analyze")
-            self._teardown = self.namespace.get('teardown')
+            self._teardown = self.namespace.get("teardown")
 
         else:
             self._initialize = initialize or (lambda self: None)
@@ -2235,7 +2235,7 @@ class TradingAlgorithm:
 
         self._pipelines[name] = AttachedPipeline(pipeline, iter(chunks), eager)
 
-        log.info('Pipeline {} attached'.format(name))
+        log.info("Pipeline {} attached".format(name))
         # Return the pipeline to allow expressions like
         # p = attach_pipeline(Pipeline(), 'name')
         return pipeline

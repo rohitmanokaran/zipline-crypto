@@ -11,7 +11,13 @@ from dateutil import tz
 import zipline.config
 from zipline.data.bundles import core as bundles
 from zipline.data.bundles.common import asset_to_sid_map
-from zipline.data.bundles.universe import Universe, all_alpaca_assets, get_sp500, get_sp100, get_nasdaq100
+from zipline.data.bundles.universe import (
+    Universe,
+    all_alpaca_assets,
+    get_sp500,
+    get_sp100,
+    get_nasdaq100,
+)
 from dateutil.parser import parse as date_parse
 
 user_home = str(Path.home())
@@ -26,9 +32,7 @@ def initialize_client():
     key = conf.key
     secret = conf.secret
     base_url = conf.base_url
-    CLIENT = tradeapi.REST(key_id=key,
-                           secret_key=secret,
-                           base_url=URL(base_url))
+    CLIENT = tradeapi.REST(key_id=key, secret_key=secret, base_url=URL(base_url))
 
 
 ASSETS = None
@@ -70,11 +74,7 @@ def iso_date(date_str):
 
 
 # flake8: noqa: C901
-def get_aggs_from_alpaca(symbols,
-                         start,
-                         end,
-                         granularity,
-                         compression=1):
+def get_aggs_from_alpaca(symbols, start, end, granularity, compression=1):
     """
     https://alpaca.markets/docs/api-documentation/api-v2/market-data/bars/
     Alpaca API as a limit of 1000 records per api call. meaning, we need to
@@ -110,26 +110,26 @@ def get_aggs_from_alpaca(symbols,
         curr = end
         response: pd.DataFrame = pd.DataFrame([])
         while not got_all:
-            if granularity == 'minute' and compression == 5:
+            if granularity == "minute" and compression == 5:
                 timeframe = "5Min"
-            elif granularity == 'minute' and compression == 15:
+            elif granularity == "minute" and compression == 15:
                 timeframe = "15Min"
             else:
                 timeframe = granularity
-            r = CLIENT.get_barset(symbols,
-                                  timeframe,
-                                  limit=1000,
-                                  end=curr.isoformat()
-                                  )
+            r = CLIENT.get_barset(symbols, timeframe, limit=1000, end=curr.isoformat())
             if r:
                 response = r.df if response.empty else pd.concat([r.df, response])
                 response.sort_index(inplace=True)
-                if response.index[0] <= (pytz.timezone(NY).localize(
-                        start) if not start.tzname() else start):
+                if response.index[0] <= (
+                    pytz.timezone(NY).localize(start) if not start.tzname() else start
+                ):
                     got_all = True
                 else:
-                    delta = timedelta(days=1) if granularity == "day" \
+                    delta = (
+                        timedelta(days=1)
+                        if granularity == "day"
                         else timedelta(minutes=1)
+                    )
                     curr = response.index[0] - delta
             else:
                 # no more data is available, let's return what we have
@@ -137,7 +137,7 @@ def get_aggs_from_alpaca(symbols,
         return response
 
     def _fillna(df, granularity, start, end):
-        if granularity != 'day':
+        if granularity != "day":
             return df
         if df.empty:
             return df
@@ -175,34 +175,33 @@ def get_aggs_from_alpaca(symbols,
         may want to work with different window size (5min)
         """
 
-        if granularity == 'minute':
+        if granularity == "minute":
             sample_size = f"{compression}Min"
         else:
             sample_size = f"{compression}D"
         df = df.resample(sample_size).agg(
-            collections.OrderedDict([
-                ('open', 'first'),
-                ('high', 'max'),
-                ('low', 'min'),
-                ('close', 'last'),
-                ('volume', 'sum'),
-            ])
+            collections.OrderedDict(
+                [
+                    ("open", "first"),
+                    ("high", "max"),
+                    ("low", "min"),
+                    ("close", "last"),
+                    ("volume", "sum"),
+                ]
+            )
         )
-        if granularity == 'minute':
+        if granularity == "minute":
             return df.between_time("09:30", "16:00")
         else:
             return df
 
     if not start:
-        response = CLIENT.get_barset(symbols,
-                                     granularity,
-                                     limit=1000,
-                                     end=end).df
+        response = CLIENT.get_barset(symbols, granularity, limit=1000, end=end).df
     else:
         response = _iterate_api_calls()
 
     cdl = response
-    if granularity == 'minute':
+    if granularity == "minute":
         cdl = _clear_out_of_market_hours(cdl)
         cdl = _drop_early_samples(cdl)
     if compression != 1:
@@ -210,7 +209,7 @@ def get_aggs_from_alpaca(symbols,
     # response = _back_to_aggs(cdl)
     else:
         response = cdl
-    if granularity == 'day':
+    if granularity == "day":
         response = response[start:end]  # we only want data between dates
     processed = pd.DataFrame([], columns=response.columns)
     for sym in response.columns.levels[0]:
@@ -229,15 +228,19 @@ MAX_PER_REQUEST_AMOUNT = 200  # Alpaca max symbols per 1 http request
 
 
 def df_generator(interval, start, end, assets_to_sids):
-    exchange = 'NYSE'
+    exchange = "NYSE"
     asset_list = list_assets()
     base_sid = 0
     # some symbols from alpaca are duplicated, which causes an issue with zipline
     # ingest process. for now, we make sure we serve one of them (for now the first one)
     already_ingested = {}
     for i in range(len(asset_list[::MAX_PER_REQUEST_AMOUNT])):
-        partial = asset_list[MAX_PER_REQUEST_AMOUNT * i:MAX_PER_REQUEST_AMOUNT * (i + 1)]
-        df: pd.DataFrame = get_aggs_from_alpaca(partial, start, end, 'day' if interval == '1d' else 'minute', 1)
+        partial = asset_list[
+            MAX_PER_REQUEST_AMOUNT * i : MAX_PER_REQUEST_AMOUNT * (i + 1)
+        ]
+        df: pd.DataFrame = get_aggs_from_alpaca(
+            partial, start, end, "day" if interval == "1d" else "minute", 1
+        )
         for _, symbol in enumerate(df.columns.levels[0]):
             try:
                 sid = assets_to_sids[symbol]
@@ -250,67 +253,88 @@ def df_generator(interval, start, end, assets_to_sids):
                     if symbol not in already_ingested:
                         first_traded = start
                         auto_close_date = end + pd.Timedelta(days=1)
-                        yield (sid,
-                               df[symbol].sort_index()), symbol, start, end, first_traded, auto_close_date, exchange
+                        yield (
+                            sid,
+                            df[symbol].sort_index(),
+                        ), symbol, start, end, first_traded, auto_close_date, exchange
                         already_ingested[symbol] = True
 
             except Exception as e:
                 import traceback
+
                 traceback.print_exc()
                 print(f"error while processig {(sid + base_sid, symbol)}: {e}")
 
 
 def metadata_df():
     metadata_dtype = [
-        ('symbol', 'object'),
+        ("symbol", "object"),
         # ('asset_name', 'object'),
-        ('start_date', 'datetime64[ns]'),
-        ('end_date', 'datetime64[ns]'),
-        ('first_traded', 'datetime64[ns]'),
-        ('auto_close_date', 'datetime64[ns]'),
-        ('exchange', 'object'), ]
-    metadata_df = pd.DataFrame(
-        np.empty(len(list_assets()), dtype=metadata_dtype))
+        ("start_date", "datetime64[ns]"),
+        ("end_date", "datetime64[ns]"),
+        ("first_traded", "datetime64[ns]"),
+        ("auto_close_date", "datetime64[ns]"),
+        ("exchange", "object"),
+    ]
+    metadata_df = pd.DataFrame(np.empty(len(list_assets()), dtype=metadata_dtype))
 
     return metadata_df
 
 
-@bundles.register('alpaca_api', calendar_name="NYSE", minutes_per_day=390)
-def api_to_bundle(interval=['1m']):
-    def ingest(environ,
-               asset_db_writer,
-               minute_bar_writer,
-               daily_bar_writer,
-               adjustment_writer,
-               calendar,
-               start_session,
-               end_session,
-               cache,
-               show_progress,
-               output_dir
-               ):
+@bundles.register("alpaca_api", calendar_name="NYSE", minutes_per_day=390)
+def api_to_bundle(interval=["1m"]):
+    def ingest(
+        environ,
+        asset_db_writer,
+        minute_bar_writer,
+        daily_bar_writer,
+        adjustment_writer,
+        calendar,
+        start_session,
+        end_session,
+        cache,
+        show_progress,
+        output_dir,
+    ):
 
         assets_to_sids = asset_to_sid_map(asset_db_writer.asset_finder, list_assets())
 
         def minute_data_generator():
-            return (sid_df for (sid_df, *metadata.iloc[sid_df[0]]) in df_generator(interval='1m',
-                                                                                   start=start_session,
-                                                                                   end=end_session,
-                                                                                   assets_to_sids=assets_to_sids))
+            return (
+                sid_df
+                for (sid_df, *metadata.iloc[sid_df[0]]) in df_generator(
+                    interval="1m",
+                    start=start_session,
+                    end=end_session,
+                    assets_to_sids=assets_to_sids,
+                )
+            )
 
         def daily_data_generator():
-            return (sid_df for (sid_df, *metadata.iloc[sid_df[0]]) in df_generator(interval='1d',
-                                                                                   start=start_session,
-                                                                                   end=end_session,
-                                                                                   assets_to_sids=assets_to_sids))
+            return (
+                sid_df
+                for (sid_df, *metadata.iloc[sid_df[0]]) in df_generator(
+                    interval="1d",
+                    start=start_session,
+                    end=end_session,
+                    assets_to_sids=assets_to_sids,
+                )
+            )
 
         for _interval in interval:
             metadata = metadata_df()
-            if _interval == '1d':
-                daily_bar_writer.write(daily_data_generator(), assets=assets_to_sids.values(), show_progress=True)
-            elif _interval == '1m':
+            if _interval == "1d":
+                daily_bar_writer.write(
+                    daily_data_generator(),
+                    assets=assets_to_sids.values(),
+                    show_progress=True,
+                )
+            elif _interval == "1m":
                 minute_bar_writer.write(
-                    minute_data_generator(), assets=assets_to_sids.values(), show_progress=True)
+                    minute_data_generator(),
+                    assets=assets_to_sids.values(),
+                    show_progress=True,
+                )
 
             # Drop the ticker rows which have missing sessions in their data sets
             metadata.dropna(inplace=True)
@@ -322,17 +346,17 @@ def api_to_bundle(interval=['1m']):
     return ingest
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from zipline.data.bundles import register
     from zipline.data import bundles as bundles_module
     from zipline.utils.calendar_utils import get_calendar, TradingCalendar
     import os
 
-    cal: TradingCalendar = get_calendar('NYSE')
-    end_date = pd.Timestamp('now', tz='utc').date() - timedelta(days=1)
+    cal: TradingCalendar = get_calendar("NYSE")
+    end_date = pd.Timestamp("now", tz="utc").date() - timedelta(days=1)
     while not cal.is_session(str(end_date)):
         end_date -= timedelta(days=1)
-    end_date = pd.Timestamp(end_date, tz='utc')
+    end_date = pd.Timestamp(end_date, tz="utc")
 
     # start_date = pd.Timestamp('2020-10-03 0:00', tz='utc')
     # while not cal.is_session(start_date):
@@ -349,13 +373,13 @@ if __name__ == '__main__':
     start_time = time.time()
 
     register(
-        'alpaca_api',
+        "alpaca_api",
         # api_to_bundle(interval=['1d', '1m']),
         # api_to_bundle(interval=['1m']),
-        api_to_bundle(interval=['1d']),
-        calendar_name='NYSE',
+        api_to_bundle(interval=["1d"]),
+        calendar_name="NYSE",
         start_session=start_date,
-        end_session=end_date
+        end_session=end_date,
     )
 
     assets_version = ((),)[0]  # just a weird way to create an empty tuple

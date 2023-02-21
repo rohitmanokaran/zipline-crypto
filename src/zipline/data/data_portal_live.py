@@ -17,7 +17,7 @@ from zipline.data.data_portal import DataPortal
 
 from logbook import Logger
 
-log = Logger('DataPortalLive')
+log = Logger("DataPortalLive")
 
 
 class DataPortalLive(DataPortal):
@@ -31,14 +31,9 @@ class DataPortalLive(DataPortal):
     def get_spot_value(self, assets, field, dt, data_frequency):
         return self.broker.get_spot_value(assets, field, dt, data_frequency)
 
-    def get_history_window(self,
-                           assets,
-                           end_dt,
-                           bar_count,
-                           frequency,
-                           field,
-                           data_frequency,
-                           ffill=True):
+    def get_history_window(
+        self, assets, end_dt, bar_count, frequency, field, data_frequency, ffill=True
+    ):
         # This method is responsible for merging the ingested historical data
         # with the real-time collected data through the Broker.
         # DataPortal.get_history_window() is called with ffill=False to mark
@@ -51,17 +46,17 @@ class DataPortalLive(DataPortal):
         # get_spot_value() will be used to fill the missing data - which is
         # always representing the current spot price presented by Broker.
 
-        if frequency == '1d':
+        if frequency == "1d":
             # if you want today's open price - get minute data and filter the open time
-            historical_bars = super(DataPortalLive,
-                                    self).get_history_window(
+            historical_bars = super(DataPortalLive, self).get_history_window(
                 assets,
                 end_dt - timedelta(days=1),
                 bar_count,
                 frequency,
                 field,
                 data_frequency,
-                ffill=True)
+                ffill=True,
+            )
             return historical_bars
         realtime_bars = self.broker.get_realtime_bars(assets, frequency)
 
@@ -70,17 +65,17 @@ class DataPortalLive(DataPortal):
         # To filter for field the levels needs to be swapped
         realtime_bars = realtime_bars.swaplevel(0, 1, axis=1)
 
-        ohlcv_field = 'close' if field == 'price' else field
+        ohlcv_field = "close" if field == "price" else field
         realtime_bars = realtime_bars[ohlcv_field]
-        if ffill and field == 'price':
+        if ffill and field == "price":
             # Simple forward fill is not enough here as the last ingested
             # value might be outside of the requested time window. That case
             # the time series starts with NaN and forward filling won't help.
             # To provide values for such cases we backward fill.
             # Backward fill as a second operation will have no effect if the
             # forward-fill was successful.
-            realtime_bars.fillna(method='ffill', inplace=True)
-            realtime_bars.fillna(method='bfill', inplace=True)
+            realtime_bars.fillna(method="ffill", inplace=True)
+            realtime_bars.fillna(method="bfill", inplace=True)
 
         realtime_bars.columns = assets
         return realtime_bars[-bar_count:]
@@ -113,16 +108,16 @@ class DataPortalLive(DataPortal):
             ``field`` is 'volume' the value will be a int. If the ``field`` is
             'last_traded' the value will be a Timestamp.
         """
-        if data_frequency == 'minute':
-            data_frequency = '1m'
-        elif data_frequency == 'daily':
-            data_frequency = '1d'
+        if data_frequency == "minute":
+            data_frequency = "1m"
+        elif data_frequency == "daily":
+            data_frequency = "1d"
         prices = self.broker.get_realtime_bars([asset], data_frequency)
-        if field == 'last_traded':
+        if field == "last_traded":
             return pd.Timestamp(prices[asset.symbol][-1:].index.to_numpy()[0])
-        elif field == 'volume':
+        elif field == "volume":
             return prices[asset.symbol][field][-1] * 100
-        elif field == 'price':
-            return prices[asset.symbol]['close'][-1]
+        elif field == "price":
+            return prices[asset.symbol]["close"][-1]
         else:
             return prices[asset.symbol][field][-1]

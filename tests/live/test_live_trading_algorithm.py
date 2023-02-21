@@ -14,20 +14,17 @@ from zipline.algorithm_live import LiveTradingAlgorithm, LiveAlgorithmExecutor
 from zipline.data.data_portal_live import DataPortalLive
 from zipline.gens.brokers.broker import Broker
 from zipline.testing.fixtures import WithSimParams
-from zipline.testing.fixtures import (ZiplineTestCase,
-                                      WithDataPortal)
+from zipline.testing.fixtures import ZiplineTestCase, WithDataPortal
 from zipline.errors import CannotOrderDelistedAsset
 
 
-class TestLiveTradingAlgorithm(WithSimParams,
-                               WithDataPortal,
-                               ZiplineTestCase):
+class TestLiveTradingAlgorithm(WithSimParams, WithDataPortal, ZiplineTestCase):
     ASSET_FINDER_EQUITY_SIDS = (1, 2)
     ASSET_FINDER_EQUITY_SYMBOLS = ("SPY", "XIV")
-    START_DATE = pd.Timestamp('2017-01-03')
-    END_DATE = pd.Timestamp('2017-04-26')
-    SIM_PARAMS_DATA_FREQUENCY = 'minute'
-    SIM_PARAMS_EMISSION_RATE = 'minute'
+    START_DATE = pd.Timestamp("2017-01-03")
+    END_DATE = pd.Timestamp("2017-04-26")
+    SIM_PARAMS_DATA_FREQUENCY = "minute"
+    SIM_PARAMS_EMISSION_RATE = "minute"
 
     def test_live_trading_supports_orders_outside_ingested_period(self):
         def create_initialized_algo(trading_algorithm_class, current_dt):
@@ -41,11 +38,12 @@ class TestLiveTradingAlgorithm(WithSimParams,
                 namespace={},
                 asset_finder=self.asset_finder,
                 sim_params=self.make_simparams(),
-                state_filename='blah',
-                algo_filename='foo',
+                state_filename="blah",
+                algo_filename="foo",
                 initialize=initialize,
                 handle_data=handle_data,
-                script=None)
+                script=None,
+            )
 
             algo.initialize()
             algo.initialized = True  # Normally this is set through algo.run()
@@ -53,7 +51,7 @@ class TestLiveTradingAlgorithm(WithSimParams,
 
             return algo
 
-        current_dt = self.END_DATE.tz_localize('utc') + pd.Timedelta("1 day")
+        current_dt = self.END_DATE.tz_localize("utc") + pd.Timedelta("1 day")
 
         backtest_algo = create_initialized_algo(TradingAlgorithm, current_dt)
 
@@ -62,7 +60,8 @@ class TestLiveTradingAlgorithm(WithSimParams,
 
         broker = MagicMock(spec=Broker)
         live_algo = create_initialized_algo(
-            partial(LiveTradingAlgorithm, broker=broker), current_dt)
+            partial(LiveTradingAlgorithm, broker=broker), current_dt
+        )
         live_algo.trading_client = MagicMock(spec=LiveAlgorithmExecutor)
         live_algo.trading_client.current_data = Mock()
         live_algo.trading_client.current_data.current.return_value = 12
@@ -73,15 +72,20 @@ class TestLiveTradingAlgorithm(WithSimParams,
 
     @pytest.mark.skip("Failing on CI")
     def test_data_portal_live_extends_ingested_data(self):
-        assets = [self.asset_finder.retrieve_asset(1), ]
+        assets = [
+            self.asset_finder.retrieve_asset(1),
+        ]
         rt_bars = pd.DataFrame(
-            index=pd.date_range(start='2017-09-28 10:11:00',
-                                end='2017-09-28 10:45:00',
-                                freq='1 Min', tz='utc'),
+            index=pd.date_range(
+                start="2017-09-28 10:11:00",
+                end="2017-09-28 10:45:00",
+                freq="1 Min",
+                tz="utc",
+            ),
             columns=pd.MultiIndex.from_product(
-                [assets,
-                 ['open', 'high', 'low', 'close', 'volume']]),
-            data=np.random.randn(35, 5)
+                [assets, ["open", "high", "low", "close", "volume"]]
+            ),
+            data=np.random.randn(35, 5),
         )
         broker = MagicMock(Broker)
         broker.get_realtime_bars.return_value = rt_bars
@@ -92,39 +96,47 @@ class TestLiveTradingAlgorithm(WithSimParams,
             first_trading_day=self.data_portal._first_available_session,
             equity_daily_reader=(
                 self.bcolz_equity_daily_bar_reader
-                if self.DATA_PORTAL_USE_DAILY_DATA else
-                None
+                if self.DATA_PORTAL_USE_DAILY_DATA
+                else None
             ),
             equity_minute_reader=(
                 self.bcolz_equity_minute_bar_reader
-                if self.DATA_PORTAL_USE_MINUTE_DATA else
-                None
+                if self.DATA_PORTAL_USE_MINUTE_DATA
+                else None
             ),
             adjustment_reader=(
-                self.adjustment_reader
-                if self.DATA_PORTAL_USE_ADJUSTMENTS else
-                None
+                self.adjustment_reader if self.DATA_PORTAL_USE_ADJUSTMENTS else None
             ),
         )
 
         # Test with overall bar count > available realtime bar count
-        end_dt = pd.to_datetime('2017-03-03 10:00:00', utc=True)
+        end_dt = pd.to_datetime("2017-03-03 10:00:00", utc=True)
         bar_count = 1000
         combined_data = data_portal_live.get_history_window(
-            assets, end_dt, bar_count=bar_count, frequency='1m',
-            field='price', data_frequency='1m')
+            assets,
+            end_dt,
+            bar_count=bar_count,
+            frequency="1m",
+            field="price",
+            data_frequency="1m",
+        )
 
-        expected_bars = rt_bars[-bar_count:].swaplevel(0, 1, axis=1)['close']
+        expected_bars = rt_bars[-bar_count:].swaplevel(0, 1, axis=1)["close"]
         assert len(combined_data) == bar_count
         assert expected_bars.isin(combined_data).all().all()
 
         # Test with overall bar count < available realtime bar count
-        end_dt = pd.to_datetime('2017-03-03 10:00:00', utc=True)
+        end_dt = pd.to_datetime("2017-03-03 10:00:00", utc=True)
         bar_count = 10
         combined_data = data_portal_live.get_history_window(
-            assets, end_dt, bar_count=bar_count, frequency='1m',
-            field='price', data_frequency='1m')
+            assets,
+            end_dt,
+            bar_count=bar_count,
+            frequency="1m",
+            field="price",
+            data_frequency="1m",
+        )
 
-        expected_bars = rt_bars[-bar_count:].swaplevel(0, 1, axis=1)['close']
+        expected_bars = rt_bars[-bar_count:].swaplevel(0, 1, axis=1)["close"]
         assert len(combined_data) == bar_count
         assert expected_bars.isin(combined_data).all().all()

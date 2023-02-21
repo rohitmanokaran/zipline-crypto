@@ -95,7 +95,7 @@ def _run(
     realtime_bar_target,
     performance_callback,
     stop_execution_callback,
-    teardown
+    teardown,
 ):
     """Run a backtest for the given algorithm.
     This is shared between the cli and :func:`zipline.run_algo`.
@@ -135,16 +135,15 @@ def _run(
         end_date=end,
     )
 
-    emission_rate = 'daily'
+    emission_rate = "daily"
     if broker:  # If live trading is enabled
-        emission_rate = 'minute'
+        emission_rate = "minute"
         # if we run zipline as a command line tool, these will probably not be initiated
         if not start:
             start = pd.Timestamp.utcnow()
         if not end:
             # in cli mode, sessions are 1 day only. and it will be re-ran each day by user
-            end = start + pd.Timedelta('1 day')
-
+            end = start + pd.Timedelta("1 day")
 
     if algotext is not None:
         if local_namespace:
@@ -191,9 +190,7 @@ def _run(
 
     first_trading_day = bundle_data.equity_minute_bar_reader.first_trading_day
 
-    DataPortalClass = (partial(DataPortalLive, broker)
-                       if broker
-                       else DataPortal)
+    DataPortalClass = partial(DataPortalLive, broker) if broker else DataPortal
 
     data = DataPortalClass(
         bundle_data.asset_finder,
@@ -233,11 +230,16 @@ def _run(
         except ValueError as e:
             raise _RunAlgoError(str(e))
 
-    TradingAlgorithmClass = (partial(LiveTradingAlgorithm,
-                                     broker=broker,
-                                     state_filename=state_filename,
-                                     realtime_bar_target=realtime_bar_target)
-                             if broker else TradingAlgorithm)
+    TradingAlgorithmClass = (
+        partial(
+            LiveTradingAlgorithm,
+            broker=broker,
+            state_filename=state_filename,
+            realtime_bar_target=realtime_bar_target,
+        )
+        if broker
+        else TradingAlgorithm
+    )
 
     try:
         perf = TradingAlgorithmClass(
@@ -251,7 +253,7 @@ def _run(
                 trading_calendar=trading_calendar,
                 capital_base=capital_base,
                 emission_rate=emission_rate,
-                data_frequency=data_frequency
+                data_frequency=data_frequency,
             ),
             metrics_set=metrics_set,
             blotter=blotter,
@@ -264,7 +266,7 @@ def _run(
                 "handle_data": handle_data,
                 "before_trading_start": before_trading_start,
                 "analyze": analyze,
-                'teardown': teardown,
+                "teardown": teardown,
             }
             if algotext is None
             else {
@@ -371,7 +373,7 @@ def run_algorithm(
     performance_callback=None,
     stop_execution_callback=None,
     state_filename=None,
-    realtime_bar_target=None
+    realtime_bar_target=None,
 ):
     """
     Run a trading algorithm.
@@ -484,7 +486,7 @@ def run_algorithm(
         state_filename=state_filename,
         realtime_bar_target=realtime_bar_target,
         performance_callback=performance_callback,
-        stop_execution_callback=stop_execution_callback
+        stop_execution_callback=stop_execution_callback,
     )
 
 

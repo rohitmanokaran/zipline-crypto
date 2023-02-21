@@ -336,12 +336,10 @@ class AssetFinder:
         with self.engine.connect() as conn:
             sid_to_country_code = dict(
                 conn.execute(
-                    sa.select(
-                        self.equities.c.sid,
-                        self.exchanges.c.country_code
+                    sa.select(self.equities.c.sid, self.exchanges.c.country_code).where(
+                        self.equities.c.exchange == self.exchanges.c.exchange
                     )
-                    .where(self.equities.c.exchange == self.exchanges.c.exchange))
-                .fetchall(),
+                ).fetchall(),
             )
 
         return build_grouped_ownership_map(
@@ -427,7 +425,9 @@ class AssetFinder:
             for assets in group_into_chunks(missing):
                 query = conn.execute(
                     sa.select(router_cols.sid, router_cols.asset_type).where(
-                        self.asset_router.c.sid.in_(map(int, assets))))
+                        self.asset_router.c.sid.in_(map(int, assets))
+                    )
+                )
                 for sid, type_ in query.fetchall():
                     missing.remove(sid)
                     found[sid] = self._asset_type_cache[sid] = type_
@@ -620,7 +620,9 @@ class AssetFinder:
         to_select = data_cols + (func_rank,)
 
         subquery = (
-            sa.select(*to_select).where(cols.sid.in_(map(int, sid_group))).subquery("sq")
+            sa.select(*to_select)
+            .where(cols.sid.in_(map(int, sid_group)))
+            .subquery("sq")
         )
         query = conn.execute(
             sa.select(subquery.columns)
@@ -633,7 +635,7 @@ class AssetFinder:
     def _lookup_most_recent_symbols(self, sids):
         with self.engine.connect() as conn:
             return {
-                row['sid']: {c: row[c] for c in symbol_columns}
+                row["sid"]: {c: row[c] for c in symbol_columns}
                 for row in concat(
                     self._select_most_recent_symbols_chunk(conn, sid_group)
                     for sid_group in partition_all(SQLITE_MAX_VARIABLE_NUMBER, sids)
@@ -1064,16 +1066,15 @@ class AssetFinder:
         """
 
         with self.engine.connect() as conn:
-            query = conn.execute(self._select_asset_by_symbol(self.futures_contracts, symbol))
+            query = conn.execute(
+                self._select_asset_by_symbol(self.futures_contracts, symbol)
+            )
             query_result = query.fetchone()
 
             # If no data found, raise an exception
             if not query_result:
                 raise SymbolNotFound(symbol=symbol)
-            data = dict(zip(
-                query.keys(),
-                query_result
-            ))
+            data = dict(zip(query.keys(), query_result))
 
         return self.retrieve_asset(data["sid"])
 
@@ -1180,19 +1181,24 @@ class AssetFinder:
             return [
                 r.sid
                 for r in list(
-                    conn.execute(sa.select(fc_cols.sid).where(
-                        (fc_cols.root_symbol == root_symbol)
-                        & (fc_cols.start_date != pd.NaT.value)
-                    ).order_by(fc_cols.sid)).fetchall())]
+                    conn.execute(
+                        sa.select(fc_cols.sid)
+                        .where(
+                            (fc_cols.root_symbol == root_symbol)
+                            & (fc_cols.start_date != pd.NaT.value)
+                        )
+                        .order_by(fc_cols.sid)
+                    ).fetchall()
+                )
+            ]
 
     def _get_root_symbol_exchange(self, root_symbol):
         fc_cols = self.futures_root_symbols.c
 
         with self.engine.connect() as conn:
-            exchange = (
-                conn.execute(sa.select(fc_cols.exchange).where(fc_cols.root_symbol == root_symbol))
-                .scalar()
-            )
+            exchange = conn.execute(
+                sa.select(fc_cols.exchange).where(fc_cols.root_symbol == root_symbol)
+            ).scalar()
 
         if exchange is not None:
             return exchange
@@ -1248,8 +1254,10 @@ class AssetFinder:
         def _(self):
             with self.engine.connect() as conn:
                 query = conn.execute(
-                    sa.select(getattr(self, tblattr).c.sid)
-                      .order_by(getattr(self, tblattr).c.sid))
+                    sa.select(getattr(self, tblattr).c.sid).order_by(
+                        getattr(self, tblattr).c.sid
+                    )
+                )
                 return tuple([sid for sid, in query.fetchall()])
 
         return _
@@ -1390,14 +1398,15 @@ class AssetFinder:
             if "exchange_names" in kwargs.keys():
                 condt = exchanges_cols.exchange.in_(kwargs["exchange_names"])
             with self.engine.connect() as conn:
-                results = (
-                    conn.execute(sa.select(
-                                equities_cols.sid,
-                                equities_cols.start_date,
-                                equities_cols.end_date,
-                        ).where((exchanges_cols.exchange == equities_cols.exchange) & (condt))
-                     ).fetchall()
-                )
+                results = conn.execute(
+                    sa.select(
+                        equities_cols.sid,
+                        equities_cols.start_date,
+                        equities_cols.end_date,
+                    ).where(
+                        (exchanges_cols.exchange == equities_cols.exchange) & (condt)
+                    )
+                ).fetchall()
             if results:
                 sids, starts, ends = zip(*results)
 

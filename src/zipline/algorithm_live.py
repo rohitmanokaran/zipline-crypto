@@ -23,8 +23,11 @@ from zipline.algorithm import TradingAlgorithm
 from zipline.errors import ScheduleFunctionOutsideTradingStart
 from zipline.gens.realtimeclock import RealtimeClock
 from zipline.gens.tradesimulation import AlgorithmSimulator
-from zipline.utils.api_support import ZiplineAPI, \
-    allowed_only_in_before_trading_start, api_method
+from zipline.utils.api_support import (
+    ZiplineAPI,
+    allowed_only_in_before_trading_start,
+    api_method,
+)
 from zipline.utils.serialization_utils import load_context, store_context
 from zipline.finance.metrics import MetricsTracker, load as load_metrics_set
 
@@ -47,77 +50,81 @@ class LiveAlgorithmExecutor(AlgorithmSimulator):
 
 class LiveTradingAlgorithm(TradingAlgorithm):
     def __init__(self, *args, **kwargs):
-        self.broker = kwargs.pop('broker', None)
+        self.broker = kwargs.pop("broker", None)
         self.orders = {}
 
-        self.algo_filename = kwargs.get('algo_filename', "<algorithm>")
-        self.state_filename = kwargs.pop('state_filename', None)
-        self.realtime_bar_target = kwargs.pop('realtime_bar_target', None)
+        self.algo_filename = kwargs.get("algo_filename", "<algorithm>")
+        self.state_filename = kwargs.pop("state_filename", None)
+        self.realtime_bar_target = kwargs.pop("realtime_bar_target", None)
         # Persistence blacklist/whitelist and excludes gives a way to include/
         # exclude (so do not persist on disk if initiated or excluded from the serialization
         # function that reinstate or save the context variable to its last state).
         # trading client can never be serialized, the initialized function and
         # perf tracker remember the context variables and the past performance
         # and need to be whitelisted
-        self._context_persistence_blacklist = ['trading_client']
-        self._context_persistence_whitelist = ['initialized', 'perf_tracker']
+        self._context_persistence_blacklist = ["trading_client"]
+        self._context_persistence_whitelist = ["initialized", "perf_tracker"]
         self._context_persistence_excludes = []
 
         # blotter is always initialized to SimulationBlotter in run_algo.py.
         # we override it here to use the LiveBlotter for live algos
         blotter_live = BlotterLive(
-            data_frequency=kwargs['sim_params'].data_frequency,
-            broker=self.broker)
-        kwargs['blotter'] = blotter_live
+            data_frequency=kwargs["sim_params"].data_frequency, broker=self.broker
+        )
+        kwargs["blotter"] = blotter_live
 
         super(self.__class__, self).__init__(*args, **kwargs)
         log.info("initialization done")
 
     def initialize(self, *args, **kwargs):
 
-        self._context_persistence_excludes = \
-            self._context_persistence_blacklist + \
-            [e for e in self.__dict__.keys()
-             if e not in self._context_persistence_whitelist]
+        self._context_persistence_excludes = self._context_persistence_blacklist + [
+            e
+            for e in self.__dict__.keys()
+            if e not in self._context_persistence_whitelist
+        ]
 
         if os.path.isfile(self.state_filename):
             log.info("Loading state from {}".format(self.state_filename))
-            load_context(self.state_filename,
-                         context=self,
-                         checksum=self.algo_filename)
+            load_context(self.state_filename, context=self, checksum=self.algo_filename)
             return
 
         with ZiplineAPI(self):
             super(self.__class__, self).initialize(*args, **kwargs)
-            store_context(self.state_filename,
-                          context=self,
-                          checksum=self.algo_filename,
-                          exclude_list=self._context_persistence_excludes)
+            store_context(
+                self.state_filename,
+                context=self,
+                checksum=self.algo_filename,
+                exclude_list=self._context_persistence_excludes,
+            )
 
     def handle_data(self, data):
         super(self.__class__, self).handle_data(data)
-        store_context(self.state_filename,
-                      context=self,
-                      checksum=self.algo_filename,
-                      exclude_list=self._context_persistence_excludes)
+        store_context(
+            self.state_filename,
+            context=self,
+            checksum=self.algo_filename,
+            exclude_list=self._context_persistence_excludes,
+        )
 
     def teardown(self):
         super(self.__class__, self).teardown()
-        store_context(self.state_filename,
-                      context=self,
-                      checksum=self.algo_filename,
-                      exclude_list=self._context_persistence_excludes)
+        store_context(
+            self.state_filename,
+            context=self,
+            checksum=self.algo_filename,
+            exclude_list=self._context_persistence_excludes,
+        )
 
     def _create_clock(self):
         # This method is taken from TradingAlgorithm.
         # The clock has been replaced to use RealtimeClock
-        trading_o_and_c = self.trading_calendar.schedule.loc[
-            self.sim_params.sessions]
-        assert self.sim_params.emission_rate == 'minute'
+        trading_o_and_c = self.trading_calendar.schedule.loc[self.sim_params.sessions]
+        assert self.sim_params.emission_rate == "minute"
 
         minutely_emission = True
-        market_opens = trading_o_and_c['market_open']
-        market_closes = trading_o_and_c['market_close']
+        market_opens = trading_o_and_c["market_open"]
+        market_closes = trading_o_and_c["market_close"]
 
         # The calendar's execution times are the minutes over which we actually
         # want to run the clock. Typically the execution times simply adhere to
@@ -125,15 +132,17 @@ class LiveTradingAlgorithm(TradingAlgorithm):
         # for example, we only want to simulate over a subset of the full 24
         # hour calendar, so the execution times dictate a market open time of
         # 6:31am US/Eastern and a close of 5:00pm US/Eastern.
-        execution_opens = \
-            self.trading_calendar.execution_time_from_open(market_opens)
-        execution_closes = \
-            self.trading_calendar.execution_time_from_close(market_closes)
+        execution_opens = self.trading_calendar.execution_time_from_open(market_opens)
+        execution_closes = self.trading_calendar.execution_time_from_close(
+            market_closes
+        )
 
         before_trading_start_minutes = (
-            (pd.to_datetime(execution_opens.values).tz_localize('UTC')
-             .tz_convert('US/Eastern') - timedelta(minutes=_minutes_before_trading_starts)
-             ).tz_convert('UTC'))
+            pd.to_datetime(execution_opens.values)
+            .tz_localize("UTC")
+            .tz_convert("US/Eastern")
+            - timedelta(minutes=_minutes_before_trading_starts)
+        ).tz_convert("UTC")
 
         return RealtimeClock(
             self.sim_params.sessions,
@@ -143,7 +152,7 @@ class LiveTradingAlgorithm(TradingAlgorithm):
             minute_emission=minutely_emission,
             time_skew=self.broker.time_skew,
             is_broker_alive=self.broker.is_alive,
-            stop_execution_callback=self._stop_execution_callback
+            stop_execution_callback=self._stop_execution_callback,
         )
 
     def _create_generator(self, sim_params):
@@ -162,7 +171,9 @@ class LiveTradingAlgorithm(TradingAlgorithm):
         # so, we will check if it's default value - assuming at this stage capital used for one algo will be less
         # than 10e6, we will override it with value from broker. if it's specified to something else we will not change
         # anything.
-        if self.metrics_tracker._capital_base == 10e6:  # should be changed in the future with a centralized value
+        if (
+            self.metrics_tracker._capital_base == 10e6
+        ):  # should be changed in the future with a centralized value
             # the capital base is held in the metrics_tracker then the ledger then the Portfolio, so the best
             # way to handle this, since it's used in many spots, is creating a new metrics_tracker with the new
             # value. and ofc intialized relevant parts. this is copied from TradingAlgorithm._create_generator
@@ -180,7 +191,7 @@ class LiveTradingAlgorithm(TradingAlgorithm):
             self.trading_client.clock,
             self._create_benchmark_source(),
             self.restrictions,
-            universe_func=self._calculate_universe
+            universe_func=self._calculate_universe,
         )
 
         return self.trading_client.transform()
@@ -192,7 +203,7 @@ class LiveTradingAlgorithm(TradingAlgorithm):
         :return:
         """
         account = self.broker.get_account_from_broker()
-        capital_base = float(account['NetLiquidation'])
+        capital_base = float(account["NetLiquidation"])
 
         return MetricsTracker(
             trading_calendar=self.trading_calendar,
@@ -212,14 +223,10 @@ class LiveTradingAlgorithm(TradingAlgorithm):
         return self.broker.account
 
     @api_method
-    @allowed_only_in_before_trading_start(
-        ScheduleFunctionOutsideTradingStart())
-    def schedule_function(self,
-                          func,
-                          date_rule=None,
-                          time_rule=None,
-                          half_days=True,
-                          calendar=None):
+    @allowed_only_in_before_trading_start(ScheduleFunctionOutsideTradingStart())
+    def schedule_function(
+        self, func, date_rule=None, time_rule=None, half_days=True, calendar=None
+    ):
         # If the scheduled_function() is called from initalize()
         # then the state persistence would need to take care of storing and
         # restoring the scheduled functions too (as initialize() only called
@@ -227,11 +234,9 @@ class LiveTradingAlgorithm(TradingAlgorithm):
         # difficult as they are not serializable by default.
         # We enforce scheduled functions to be called only from
         # before_trading_start() in live trading with a decorator.
-        super(self.__class__, self).schedule_function(func,
-                                                      date_rule,
-                                                      time_rule,
-                                                      half_days,
-                                                      calendar)
+        super(self.__class__, self).schedule_function(
+            func, date_rule, time_rule, half_days, calendar
+        )
 
     @api_method
     def symbol(self, symbol_str):
@@ -250,11 +255,16 @@ class LiveTradingAlgorithm(TradingAlgorithm):
 
         asset = super(self.__class__, self).symbol(symbol_str)
         tradeable_asset = asset.to_dict()
-        end_date = pd.Timestamp((datetime.utcnow() + relativedelta(years=10)).date()).replace(tzinfo=None)
-        tradeable_asset['end_date'] = end_date
-        tradeable_asset['auto_close_date'] = end_date
-        log.debug('Extended lifetime of asset {} to {}'.format(symbol_str,
-                                                               tradeable_asset['end_date']))
+        end_date = pd.Timestamp(
+            (datetime.utcnow() + relativedelta(years=10)).date()
+        ).replace(tzinfo=None)
+        tradeable_asset["end_date"] = end_date
+        tradeable_asset["auto_close_date"] = end_date
+        log.debug(
+            "Extended lifetime of asset {} to {}".format(
+                symbol_str, tradeable_asset["end_date"]
+            )
+        )
         return asset.from_dict(tradeable_asset)
 
     def run(self, *args, **kwargs):
@@ -267,13 +277,11 @@ class LiveTradingAlgorithm(TradingAlgorithm):
         if not self.realtime_bar_target:
             return
 
-        log.info("Storing realtime bars to: {}".format(
-            self.realtime_bar_target))
+        log.info("Storing realtime bars to: {}".format(self.realtime_bar_target))
 
-        today = str(pd.to_datetime('today').date())
+        today = str(pd.to_datetime("today").date())
         subscribed_assets = self.broker.subscribed_assets
-        realtime_history = self.broker.get_realtime_bars(subscribed_assets,
-                                                         '1m')
+        realtime_history = self.broker.get_realtime_bars(subscribed_assets, "1m")
 
         if not os.path.exists(self.realtime_bar_target):
             os.mkdir(self.realtime_bar_target)
@@ -281,9 +289,9 @@ class LiveTradingAlgorithm(TradingAlgorithm):
         for asset in subscribed_assets:
             filename = "ZL-%s-%s.csv" % (asset.symbol, today)
             path = os.path.join(self.realtime_bar_target, filename)
-            realtime_history[asset].to_csv(path, mode='a',
-                                           index_label='datetime',
-                                           header=not os.path.exists(path))
+            realtime_history[asset].to_csv(
+                path, mode="a", index_label="datetime", header=not os.path.exists(path)
+            )
 
     def _pipeline_output(self, pipeline, chunks, name):
         # This method is taken from TradingAlgorithm.
@@ -298,14 +306,16 @@ class LiveTradingAlgorithm(TradingAlgorithm):
         today = self.get_datetime().normalize()
         prev_session = self.trading_calendar.previous_open(today).normalize()
 
-        log.info('today in _pipeline_output : {}'.format(prev_session))
+        log.info("today in _pipeline_output : {}".format(prev_session))
 
         try:
             data = self._pipeline_cache.get(name, prev_session)
         except KeyError:
             # Calculate the next block.
             data, valid_until = self.run_pipeline(
-                pipeline, prev_session, next(chunks),
+                pipeline,
+                prev_session,
+                next(chunks),
             )
             self._pipeline_cache.set(name, data, valid_until)
 
