@@ -24,8 +24,8 @@ class TestLiveTradingAlgorithm(WithSimParams,
                                ZiplineTestCase):
     ASSET_FINDER_EQUITY_SIDS = (1, 2)
     ASSET_FINDER_EQUITY_SYMBOLS = ("SPY", "XIV")
-    START_DATE = pd.to_datetime('2017-01-03', utc=True)
-    END_DATE = pd.to_datetime('2017-04-26', utc=True)
+    START_DATE = pd.Timestamp('2017-01-03')
+    END_DATE = pd.Timestamp('2017-04-26')
     SIM_PARAMS_DATA_FREQUENCY = 'minute'
     SIM_PARAMS_EMISSION_RATE = 'minute'
 
@@ -49,11 +49,11 @@ class TestLiveTradingAlgorithm(WithSimParams,
 
             algo.initialize()
             algo.initialized = True  # Normally this is set through algo.run()
-            algo.datetime = current_dt
+            algo.datetime = current_dt  # .tz_localize('utc')
 
             return algo
 
-        current_dt = self.END_DATE + pd.Timedelta("1 day")
+        current_dt = self.END_DATE.tz_localize('utc') + pd.Timedelta("1 day")
 
         backtest_algo = create_initialized_algo(TradingAlgorithm, current_dt)
 

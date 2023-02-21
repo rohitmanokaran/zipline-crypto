@@ -1,4 +1,4 @@
-name: CI Full Tests
+name: CI Tests
 
 on:
   workflow_dispatch:
@@ -6,13 +6,35 @@ on:
     - cron: "0 9 * * 6"
 
 jobs:
+  black-format:
+    name: Formatting Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: psf/black@stable
+        with:
+          options: "--check --diff"
+          src: "./src ./tests"
+
+  flake8-lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: flake8 Lint
+        uses: py-actions/flake8@v2
+
   tests:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ['3.10']
+        python-version: ["3.10"]
 
     steps:
       - name: Checkout Zipline
@@ -26,27 +48,20 @@ jobs:
       - name: Install TA-Lib Linux
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          curl -L -o ta-lib-0.4.0-src.tar.gz  http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz &&
-          tar xvfz ta-lib-0.4.0-src.tar.gz &&
-          cd ta-lib &&
-          ./configure &&
-          sudo make &&
-          sudo make install &&
-          sudo ldconfig
+          sudo ./tools/install_talib.sh
 
       - name: Install Zipline
         run: |
           python -VV
           python -m pip install --upgrade pip setuptools wheel
-          pip install tox tox-gh-actions
-          pip install -e .[test]
-          pip uninstall -y ta-lib
-          python -m pip install --no-cache-dir git+https://github.com/mrjbq7/ta-lib.git
-
-      - name: Lint with flake8
-        run: |
-          flake8
+          python -m pip install tox tox-gh-actions
+          python -m pip install .[test]
 
       - name: Unittests with tox & pytest
-        run: |
-          tox -e ci_tests
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 90
+          max_attempts: 3
+          retry_on: error
+          new_command_on_retry: python -m pip install tox tox-gh-actions .[test]
+          command: tox

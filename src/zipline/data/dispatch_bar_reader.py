@@ -12,14 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 
 from numpy import full, nan, int64, zeros
 
 from zipline.utils.memoize import lazyval
 
 
-class AssetDispatchBarReader(metaclass=ABCMeta):
+class AssetDispatchBarReader(ABC):
     """
 
     Parameters
@@ -44,9 +44,6 @@ class AssetDispatchBarReader(metaclass=ABCMeta):
         self._trading_calendar = trading_calendar
         self._asset_finder = asset_finder
         self._readers = readers
-        # if no timezone given, assume utf
-        if last_available_dt and not last_available_dt.tzinfo:
-            last_available_dt = last_available_dt.tz_localize('utc')
         self._last_available_dt = last_available_dt
 
         for t, r in self._readers.items():

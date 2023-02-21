@@ -6,10 +6,10 @@
 
 # Backtest your Trading Strategies
 
-| Version Info        | [![Python](https://img.shields.io/pypi/pyversions/zipline-crypto.svg?cacheSeconds=2592000")](https://pypi.python.org/pypi/zipline-crypto) [![Release](https://img.shields.io/pypi/v/zipline-crypto.svg?cacheSeconds=2592000)](https://pypi.org/project/zipline-crypto/)                                                                                                                                                                                                                                                                                                                                            |
-|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Test** **Status** | [![CI Tests Quick](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/ci_tests_quick.yml/badge.svg)](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/ci_tests_quick.yml) [![CI Tests Full](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/ci_tests_full.yml/badge.svg)](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/ci_tests_full.yml) [![PyPI](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/build_wheels.yml/badge.svg)](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/build_wheels.yml) |
-| **Community**       | [![Discourse](https://img.shields.io/discourse/topics?server=https%3A%2F%2Fexchange.ml4trading.io%2F)](https://exchange.ml4trading.io) [![ML4T](https://img.shields.io/badge/Powered%20by-ML4Trading-blue)](https://ml4trading.io) [![Twitter](https://img.shields.io/twitter/follow/ml4trading.svg?style=social)](https://twitter.com/ml4trading)                                                                                                                                                                                                                                                                 |
+| Version Info        | [![Python](https://img.shields.io/pypi/pyversions/zipline-crypto.svg?cacheSeconds=2592000")](https://pypi.python.org/pypi/zipline-crypto) [![Release](https://img.shields.io/pypi/v/zipline-crypto.svg?cacheSeconds=2592000)](https://pypi.org/project/zipline-crypto/)                                                                                                                                                                                                                                                                                                                                          |
+|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Test** **Status** | [![CI Tests](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/ci_tests_full.yml/badge.svg)](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/unit_tests.yml) [![PyPI](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/build_wheels.yml/badge.svg)](https://github.com/rohitmanokaran/zipline-crypto/actions/workflows/build_wheels.yml) |
+| **Community**       | [![Discourse](https://img.shields.io/discourse/topics?server=https%3A%2F%2Fexchange.ml4trading.io%2F)](https://exchange.ml4trading.io) [![ML4T](https://img.shields.io/badge/Powered%20by-ML4Trading-blue)](https://ml4trading.io) [![Twitter](https://img.shields.io/twitter/follow/ml4trading.svg?style=social)](https://twitter.com/ml4trading)                                                                                                                                                                                                                                                               |
 
 Zipline is a Pythonic event-driven system for backtesting, developed and used as the backtesting and live-trading engine by [crowd-sourced investment fund Quantopian](https://www.bizjournals.com/boston/news/2020/11/10/quantopian-shuts-down-cofounders-head-elsewhere.html). Since it closed late 2020, the domain that had hosted these docs expired. The library is used extensively in the book [Machine Larning for Algorithmic Trading](https://ml4trading.io)
 by [Stefan Jansen](https://www.linkedin.com/in/applied-ai/) who is trying to keep the library up to date and available to his readers and the wider Python algotrading community.
@@ -29,7 +29,7 @@ by [Stefan Jansen](https://www.linkedin.com/in/applied-ai/) who is trying to kee
 
 ## Installation
 
-Zipline supports Python >= 3.9 and is compatible with current versions of the relevant [NumFOCUS](https://numfocus.org/sponsored-projects?_sft_project_category=python-interface) libraries, including [pandas](https://pandas.pydata.org/) and [scikit-learn](https://scikit-learn.org/stable/index.html).
+Zipline supports Python >= 3.10 and is compatible with current versions of the relevant [NumFOCUS](https://numfocus.org/sponsored-projects?_sft_project_category=python-interface) libraries, including [pandas](https://pandas.pydata.org/) and [scikit-learn](https://scikit-learn.org/stable/index.html).
 
 If your system meets the pre-requisites described in the [installation instructions](https://zipline.ml4trading.io/install.html), you can install Zipline using pip by running:
 
@@ -38,6 +38,8 @@ pip install zipline-crypto
 ```
 
 See the [installation](https://zipline.ml4trading.io/install.html) section of the docs for more detailed instructions.
+
+> **Note:** Installation under Python 3.11 requires building `h5py` [from source](https://docs.h5py.org/en/stable/build.html#source-installation) until [wheels become available](https://github.com/h5py/h5py/issues/2146).
 
 ## Quickstart
 
@@ -87,7 +89,7 @@ $ zipline ingest -b quandl
 $ zipline run -f dual_moving_average.py --start 2014-1-1 --end 2018-1-1 -o dma.pickle --no-benchmark
 ```
 
-This will download asset pricing data sourced from [Quandl](https://www.quandl.com/databases/WIKIP/documentation?anchor=companies), and stream it through the algorithm over the specified time range. Then, the resulting performance DataFrame is saved as `dma.pickle`, which you can load and analyze from Python.
+This will download asset pricing data sourced from [Quandl](https://www.quandl.com/databases/WIKIP/documentation?anchor=companies) (since [acquisition](https://www.nasdaq.com/about/press-center/nasdaq-acquires-quandl-advance-use-alternative-data) hosted by NASDAQ), and stream it through the algorithm over the specified time range. Then, the resulting performance DataFrame is saved as `dma.pickle`, which you can load and analyze from Python.
 
 You can find other examples in the [zipline/examples](https://github.com/rohitmanokaran/zipline-crypto/tree/master/src/zipline/examples) directory.
 

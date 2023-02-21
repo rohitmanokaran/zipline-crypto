@@ -25,13 +25,13 @@ class TestRealtimeClock(TestCase):
         cls.nyse_calendar = get_calendar("NYSE")
 
         cls.sessions = cls.nyse_calendar.sessions_in_range(
-            pd.Timestamp("2017-04-20", tz='utc'),
-            pd.Timestamp("2017-04-20", tz='utc')
+            pd.Timestamp("2017-04-20"),
+            pd.Timestamp("2017-04-20")
         )
 
         trading_o_and_c = cls.nyse_calendar.schedule.loc[cls.sessions]
-        cls.opens = trading_o_and_c['market_open']
-        cls.closes = trading_o_and_c['market_close']
+        cls.opens = trading_o_and_c['open']
+        cls.closes = trading_o_and_c['close']
 
     def setUp(self):
         self.internal_clock = None
@@ -74,7 +74,7 @@ class TestRealtimeClock(TestCase):
                     minute_emission
                 ))
                 self.internal_clock = \
-                    pd.Timestamp("2017-04-20 00:00", tz='UTC')
+                    pd.Timestamp("2017-04-20 00:00")
                 to_dt.side_effect = self.get_clock
                 sleep.side_effect = self.advance_clock
 
@@ -102,7 +102,7 @@ class TestRealtimeClock(TestCase):
                 )
                 to_dt.side_effect = self.get_clock
                 sleep.side_effect = self.advance_clock
-                start_time = pd.Timestamp("2017-04-20 15:31", tz='UTC')
+                start_time = pd.Timestamp("2017-04-20 15:31")
                 self.internal_clock = start_time
 
                 events = list(clock)
@@ -135,7 +135,7 @@ class TestRealtimeClock(TestCase):
 
             to_dt.side_effect = self.get_clock
             sleep.side_effect = self.advance_clock
-            self.internal_clock = pd.Timestamp("2017-04-20 15:00", tz='UTC')
+            self.internal_clock = pd.Timestamp("2017-04-20 15:00")
 
             rtc_events = list(rtc)
 
@@ -149,7 +149,7 @@ class TestRealtimeClock(TestCase):
         # before_trading_start is fired immediately if we're after 8:45 EDT
         event_time, event_type = rtc_events[1]
         self.assertEquals(event_time,
-                          pd.Timestamp("2017-04-20 15:00", tz='UTC'))
+                          pd.Timestamp("2017-04-20 15:00"))
         self.assertEquals(event_type, BEFORE_TRADING_START_BAR)
 
         self.assertEquals(rtc_events[2:], msc_events[msc_midday_position:])
@@ -169,7 +169,7 @@ class TestRealtimeClock(TestCase):
 
             to_dt.side_effect = self.get_clock
             sleep.side_effect = self.advance_clock
-            self.internal_clock = pd.Timestamp("2017-04-20 20:05", tz='UTC')
+            self.internal_clock = pd.Timestamp("2017-04-20 20:05")
 
             events = list(rtc)
             self.assertEquals(len(events), 2)
@@ -180,5 +180,5 @@ class TestRealtimeClock(TestCase):
 
             event_time, event_type = events[1]
             self.assertEquals(event_time,
-                              pd.Timestamp("2017-04-20 20:05", tz='UTC'))
+                              pd.Timestamp("2017-04-20 20:05"))
             self.assertEquals(event_type, BEFORE_TRADING_START_BAR)

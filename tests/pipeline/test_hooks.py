@@ -3,20 +3,22 @@ from operator import attrgetter
 
 import numpy as np
 import pandas as pd
+import pytest
 import toolz
+from numpy.testing import assert_almost_equal
 
 from zipline.pipeline import Pipeline
 from zipline.pipeline.classifiers import Everything
-from zipline.pipeline.domain import US_EQUITIES
-from zipline.pipeline.factors import CustomFactor
 from zipline.pipeline.data import Column, DataSet
 from zipline.pipeline.data.testing import TestingDataSet
-from zipline.pipeline.hooks.testing import TestingHooks
+from zipline.pipeline.domain import US_EQUITIES
+from zipline.pipeline.factors import CustomFactor
 from zipline.pipeline.hooks.progress import (
     ProgressHooks,
     repr_htmlsafe,
     TestingProgressPublisher,
 )
+from zipline.pipeline.hooks.testing import TestingHooks
 from zipline.pipeline.term import AssetExists, ComputableTerm, LoadableTerm
 from zipline.testing import parameter_space
 from zipline.testing.fixtures import (
@@ -24,8 +26,6 @@ from zipline.testing.fixtures import (
     WithSeededRandomPipelineEngine,
 )
 from zipline.testing.predicates import instance_of
-from numpy.testing import assert_almost_equal
-import pytest
 
 
 class TrivialFactor(CustomFactor):
@@ -226,8 +226,8 @@ class ProgressHooksTestCase(WithSeededRandomPipelineEngine, ZiplineTestCase):
 
     ASSET_FINDER_COUNTRY_CODE = "US"
 
-    START_DATE = pd.Timestamp("2014-01-02", tz="UTC")
-    END_DATE = pd.Timestamp("2014-01-31", tz="UTC")
+    START_DATE = pd.Timestamp("2014-01-02")
+    END_DATE = pd.Timestamp("2014-01-31")
 
     # Don't populate PREPOPULATED_TERM for days after this cutoff.
     # This is used to test that we correctly compute progress when the number

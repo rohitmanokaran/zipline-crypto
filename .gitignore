@@ -93,3 +93,5 @@ archive
 conda
 .pytest_cache
 admin
+*.html
+src/zipline/_version.py

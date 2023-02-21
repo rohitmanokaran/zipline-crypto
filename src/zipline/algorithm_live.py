@@ -25,7 +25,6 @@ from zipline.gens.realtimeclock import RealtimeClock
 from zipline.gens.tradesimulation import AlgorithmSimulator
 from zipline.utils.api_support import ZiplineAPI, \
     allowed_only_in_before_trading_start, api_method
-from zipline.utils.pandas_utils import normalize_date
 from zipline.utils.serialization_utils import load_context, store_context
 from zipline.finance.metrics import MetricsTracker, load as load_metrics_set
 
@@ -251,7 +250,7 @@ class LiveTradingAlgorithm(TradingAlgorithm):
 
         asset = super(self.__class__, self).symbol(symbol_str)
         tradeable_asset = asset.to_dict()
-        end_date = pd.Timestamp((datetime.utcnow() + relativedelta(years=10)).date()).replace(tzinfo=pytz.UTC)
+        end_date = pd.Timestamp((datetime.utcnow() + relativedelta(years=10)).date()).replace(tzinfo=None)
         tradeable_asset['end_date'] = end_date
         tradeable_asset['auto_close_date'] = end_date
         log.debug('Extended lifetime of asset {} to {}'.format(symbol_str,
@@ -296,8 +295,8 @@ class LiveTradingAlgorithm(TradingAlgorithm):
         is today
 
         """
-        today = normalize_date(self.get_datetime())
-        prev_session = normalize_date(self.trading_calendar.previous_open(today))
+        today = self.get_datetime().normalize()
+        prev_session = self.trading_calendar.previous_open(today).normalize()
 
         log.info('today in _pipeline_output : {}'.format(prev_session))
 
