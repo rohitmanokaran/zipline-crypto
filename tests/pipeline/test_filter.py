@@ -176,7 +176,6 @@ class FilterTestCase(BaseUSEquityPipelineTestCase):
         )
 
     def test_percentile_between(self):
-
         quintiles = range(5)
         filter_names = ["pct_" + str(q) for q in quintiles]
         iter_quintiles = list(zip(filter_names, quintiles))
@@ -563,7 +562,6 @@ class FilterTestCase(BaseUSEquityPipelineTestCase):
             AllPresent([Mask()], window_length=4)
 
     def test_all(self):
-
         data = np.array(
             [
                 [1, 1, 1, 1, 1, 1],
@@ -622,7 +620,6 @@ class FilterTestCase(BaseUSEquityPipelineTestCase):
         )
 
     def test_any(self):
-
         # FUN FACT: The inputs and outputs here are exactly the negation of
         # the inputs and outputs for test_all above. This isn't a coincidence.
         #
@@ -697,7 +694,6 @@ class FilterTestCase(BaseUSEquityPipelineTestCase):
         )
 
     def test_at_least_N(self):
-
         # With a window_length of K, AtLeastN should return 1
         # if N or more 1's exist in the lookback window
 

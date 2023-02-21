@@ -529,7 +529,6 @@ class TestMinuteBarData(
         assert 390 == bar_data.current(self.ASSET1, "price")
 
     def test_can_trade_equity_same_cal_outside_lifetime(self):
-
         # verify that can_trade returns False for the session before the
         # asset's first session
         session_before_asset1_start = self.trading_calendar.previous_session(

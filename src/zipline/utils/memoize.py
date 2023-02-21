@@ -111,7 +111,6 @@ def _weak_lru_cache(maxsize=100):
     def decorating_function(
         user_function, tuple=tuple, sorted=sorted, KeyError=KeyError
     ):
-
         hits = misses = 0
         kwd_mark = (object(),)  # separates positional and keyword args
         lock = Lock()  # needed because OrderedDict isn't threadsafe

@@ -24,7 +24,6 @@ from zipline.utils.calendar_utils import get_calendar
 def generate_daily_test_data(
     first_day, last_day, starting_open, starting_volume, multipliers_list, path
 ):
-
     cal = get_calendar("XNYS")
     days = cal.days_in_range(first_day, last_day)
 

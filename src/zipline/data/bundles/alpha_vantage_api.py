@@ -343,7 +343,6 @@ def api_to_bundle(interval=["1m"]):
         show_progress,
         output_dir,
     ):
-
         divs_splits = {
             "divs": pd.DataFrame(
                 columns=[

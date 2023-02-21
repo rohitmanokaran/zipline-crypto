@@ -503,7 +503,6 @@ class ComputableTerm(Term):
         *args,
         **kwargs,
     ):
-
         if inputs is NotSpecified:
             inputs = cls.inputs
 

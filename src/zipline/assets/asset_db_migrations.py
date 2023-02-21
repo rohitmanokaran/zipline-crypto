@@ -183,7 +183,6 @@ def _downgrade_v1(op):
 
     # Execute batch op to allow column modification in SQLite
     with op.batch_alter_table("futures_contracts") as batch_op:
-
         # Rename 'multiplier'
         batch_op.alter_column(
             column_name="multiplier", new_column_name="contract_multiplier"

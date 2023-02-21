@@ -258,7 +258,6 @@ def reflected_binary_operator(op):
     @with_name(method_name_for_op(op, commute=True))
     @coerce_numbers_to_my_dtype
     def reflected_binary_operator(self, other):
-
         if isinstance(self, NumericalExpression):
             self_expr, other_expr, new_inputs = self.build_binary_op(op, other)
             return NumExprFactor(
@@ -1417,7 +1416,6 @@ class GroupedRowTransform(Factor):
         mask,
         **kwargs,
     ):
-
         if mask is NotSpecified:
             mask = factor.mask
         else:

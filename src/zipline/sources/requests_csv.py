@@ -150,7 +150,6 @@ class PandasCSV(ABC):
         country_code,
         **kwargs,
     ):
-
         self.start_date = start_date
         self.end_date = end_date
         self.date_column = date_column
@@ -305,7 +304,6 @@ class PandasCSV(ABC):
         if self.symbol is not None:
             df["sid"] = self.symbol
         elif self.finder:
-
             df.sort_values(by=self.symbol_column, inplace=True)
 
             # Pop the 'sid' column off of the DataFrame, just in case the user
@@ -480,7 +478,6 @@ class PandasRequestsCSV(PandasCSV):
         special_params_checker=None,
         **kwargs,
     ):
-
         # Peel off extra requests kwargs, forwarding the remaining kwargs to
         # the superclass.
         # Also returns possible https updated url if sent to http quandl ds

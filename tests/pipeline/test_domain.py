@@ -184,7 +184,6 @@ class TestSpecialize:
             col4 = Column(dtype=float)
 
         def do_checks(cls, colnames):
-
             specialized = cls.specialize(domain)
 
             # Specializations should be memoized.

@@ -54,7 +54,6 @@ class TestLabelArray:
     @pytest.mark.parametrize("array_astype", (bytes, unicode, object))
     @pytest.mark.parametrize("missing_value", ("", "a", "not in the array", None))
     def test_compare_to_str(self, compval, shape, array_astype, missing_value):
-
         strs = self.strs.reshape(shape).astype(array_astype)
         if missing_value is None:
             # As of numpy 1.9.2, object array != None returns just False
@@ -153,7 +152,6 @@ class TestLabelArray:
             la.map(f)
 
     def test_map_can_only_return_none_if_missing_value_is_none(self):
-
         # Should work.
         la = LabelArray(self.strs, missing_value=None)
         result = la.map(lambda x: None)
@@ -589,7 +587,6 @@ class TestLabelArray:
         assert_equal(categories, ["a", "b", "c"])
 
     def test_fortran_contiguous_input(self):
-
         strs = np.array(
             [["a", "b", "c", "d"], ["a", "b", "c", "d"], ["a", "b", "c", "d"]],
             dtype=object,

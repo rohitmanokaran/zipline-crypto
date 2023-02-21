@@ -143,7 +143,6 @@ class DataPortal:
         minute_history_prefetch_length=_DEF_M_HIST_PREFETCH,
         daily_history_prefetch_length=_DEF_D_HIST_PREFETCH,
     ):
-
         self.trading_calendar = trading_calendar
 
         self.asset_finder = asset_finder

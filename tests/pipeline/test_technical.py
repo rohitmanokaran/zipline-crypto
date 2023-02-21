@@ -560,7 +560,6 @@ class TestRSI:
         ],
     )
     def test_rsi(self, seed_value, expected):
-
         rsi = RSI()
 
         today = np.datetime64(1, "ns")

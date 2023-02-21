@@ -42,7 +42,6 @@ class AlgorithmSimulator:
         benchmark_source,
         restrictions,
     ):
-
         # ==============
         # Simulation
         # Param Setup

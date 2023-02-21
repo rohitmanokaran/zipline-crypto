@@ -77,7 +77,6 @@ class LiveTradingAlgorithm(TradingAlgorithm):
         log.info("initialization done")
 
     def initialize(self, *args, **kwargs):
-
         self._context_persistence_excludes = self._context_persistence_blacklist + [
             e
             for e in self.__dict__.keys()

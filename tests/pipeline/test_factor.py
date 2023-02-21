@@ -188,7 +188,6 @@ class FactorTestCase(BaseUSEquityPipelineTestCase):
 
     @for_each_factor_dtype
     def test_rank_ascending(self, name, factor_dtype):
-
         f = F(dtype=factor_dtype)
 
         # Generated with:
@@ -268,7 +267,6 @@ class FactorTestCase(BaseUSEquityPipelineTestCase):
 
     @for_each_factor_dtype
     def test_rank_descending(self, name, factor_dtype):
-
         f = F(dtype=factor_dtype)
 
         # Generated with:
@@ -345,7 +343,6 @@ class FactorTestCase(BaseUSEquityPipelineTestCase):
 
     @for_each_factor_dtype
     def test_rank_after_mask(self, name, factor_dtype):
-
         f = F(dtype=factor_dtype)
         # data = arange(25).reshape(5, 5).transpose() % 4
         data = np.array(
@@ -418,7 +415,6 @@ class FactorTestCase(BaseUSEquityPipelineTestCase):
 
     @for_each_factor_dtype
     def test_grouped_rank_ascending(self, name, factor_dtype=float64_dtype):
-
         f = F(dtype=factor_dtype)
         c = C()
         str_c = C(dtype=categorical_dtype, missing_value=None)
@@ -537,7 +533,6 @@ class FactorTestCase(BaseUSEquityPipelineTestCase):
 
     @for_each_factor_dtype
     def test_grouped_rank_descending(self, name, factor_dtype):
-
         f = F(dtype=factor_dtype)
         c = C()
         str_c = C(dtype=categorical_dtype, missing_value=None)
@@ -658,7 +653,6 @@ class FactorTestCase(BaseUSEquityPipelineTestCase):
         ]
     )
     def test_returns(self, seed_value, window_length):
-
         returns = Returns(window_length=window_length)
 
         today = np.datetime64(1, "ns")
@@ -683,7 +677,6 @@ class FactorTestCase(BaseUSEquityPipelineTestCase):
         ]
     )
     def test_percentchange(self, seed_value, window_length):
-
         pct_change = PercentChange(
             inputs=[EquityPricing.close],
             window_length=window_length,
@@ -1172,7 +1165,6 @@ class FactorTestCase(BaseUSEquityPipelineTestCase):
     def test_normalizations_randomized(
         self, seed_value, normalizer_name_and_func, add_nulls_to_factor
     ):
-
         name, kwargs, func = normalizer_name_and_func
 
         shape = (20, 20)

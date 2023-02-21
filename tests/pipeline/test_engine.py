@@ -1478,7 +1478,6 @@ class PopulateInitialWorkspaceTestCase(
 
 
 class ChunkedPipelineTestCase(zf.WithSeededRandomPipelineEngine, zf.ZiplineTestCase):
-
     PIPELINE_START_DATE = pd.Timestamp("2006-01-05")
     END_DATE = pd.Timestamp("2006-12-29")
     ASSET_FINDER_COUNTRY_CODE = "US"

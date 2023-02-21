@@ -28,7 +28,6 @@ import zipline.testing.fixtures as zf
 class TestBeforeTradingStartTiming(
     zf.WithMakeAlgo, zf.WithTradingSessions, zf.ZiplineTestCase
 ):
-
     ASSET_FINDER_EQUITY_SIDS = (1,)
     BENCHMARK_SID = 1
     # These dates are chosen to cross a DST transition.
@@ -92,7 +91,6 @@ class BeforeTradingStartsOnlyClock:
 
 
 class TestBeforeTradingStartSimulationDt(zf.WithMakeAlgo, zf.ZiplineTestCase):
-
     SIM_PARAMS_DATA_FREQUENCY = "daily"
     DATA_PORTAL_USE_MINUTE_DATA = False
 

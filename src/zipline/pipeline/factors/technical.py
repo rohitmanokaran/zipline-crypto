@@ -158,7 +158,6 @@ class FastStochasticOscillator(CustomFactor):
     window_length = 14
 
     def compute(self, today, assets, out, closes, lows, highs):
-
         highest_highs = nanmax(highs, axis=0)
         lowest_lows = nanmin(lows, axis=0)
         today_closes = closes[-1]
@@ -237,7 +236,6 @@ class IchimokuKinkoHyo(CustomFactor):
         kijun_sen_length,
         chikou_span_length,
     ):
-
         out.tenkan_sen = tenkan_sen = (
             high[-tenkan_sen_length:].max(axis=0) + low[-tenkan_sen_length:].min(axis=0)
         ) / 2
@@ -349,7 +347,6 @@ class MovingAverageConvergenceDivergenceSignal(CustomFactor):
         signal_period=(1, None),
     )
     def __new__(cls, fast_period=12, slow_period=26, signal_period=9, *args, **kwargs):
-
         if slow_period <= fast_period:
             raise ValueError(
                 "'slow_period' must be greater than 'fast_period', but got\n"

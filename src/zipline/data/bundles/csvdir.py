@@ -80,7 +80,6 @@ class CSVDIRBundle:
         show_progress,
         output_dir,
     ):
-
         csvdir_bundle(
             environ,
             asset_db_writer,

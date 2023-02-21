@@ -1092,7 +1092,6 @@ def parameter_space(__fail_fast=_FAIL_FAST_DEFAULT, **params):
     """
 
     def decorator(f):
-
         argspec = getargspec(f)
         if argspec.varargs:
             raise AssertionError("parameter_space() doesn't support *args")

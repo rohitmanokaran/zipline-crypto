@@ -533,7 +533,6 @@ class TestAdjustedArray:
         perspective_offset,
         expected_output,
     ):
-
         array = AdjustedArray(data, adjustments, missing_value)
         for _ in range(2):  # Iterate 2x ensure adjusted_arrays are re-usable.
             in_out = zip(array.traverse(lookback), expected_output)
@@ -555,7 +554,6 @@ class TestAdjustedArray:
         perspective_offset,
         expected,
     ):
-
         array = AdjustedArray(data, adjustments, missing_value)
         for _ in range(2):  # Iterate 2x ensure adjusted_arrays are re-usable.
             window_iter = array.traverse(
@@ -707,7 +705,6 @@ class TestAdjustedArray:
         check_arrays(window, expected)
 
     def test_invalid_lookback(self):
-
         data = np.arange(30, dtype=float).reshape(6, 5)
         adj_array = AdjustedArray(data, {}, float("nan"))
 
@@ -721,7 +718,6 @@ class TestAdjustedArray:
             adj_array.traverse(-1)
 
     def test_array_views_arent_writable(self):
-
         data = np.arange(30, dtype=float).reshape(6, 5)
         adj_array = AdjustedArray(data, {}, float("nan"))
 

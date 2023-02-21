@@ -443,7 +443,6 @@ class Ledger:
 
     @staticmethod
     def _calculate_payout(multiplier, amount, old_price, price):
-
         return (price - old_price) * multiplier * amount
 
     def _cash_flow(self, amount):

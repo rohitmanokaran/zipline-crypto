@@ -60,7 +60,6 @@ class Transaction:
 
 
 def create_transaction(order, dt, price, amount):
-
     # floor the amount to protect against non-whole number orders
     # TODO: Investigate whether we can add a robust check in blotter
     # and/or tradesimulation, as well.

@@ -16,7 +16,6 @@ import pytest
 class TestNearestUnequalElements:
     @pytest.mark.parametrize("tz", ["UTC", "US/Eastern"])
     def test_nearest_unequal_elements(self, tz):
-
         dts = pd.to_datetime(
             ["2014-01-01", "2014-01-05", "2014-01-06", "2014-01-09"],
         ).tz_localize(tz)
@@ -45,7 +44,6 @@ class TestNearestUnequalElements:
 
     @pytest.mark.parametrize("tz", ["UTC", "US/Eastern"])
     def test_nearest_unequal_elements_short_dts(self, tz):
-
         # Length 1.
         dts = pd.to_datetime(["2014-01-01"]).tz_localize(tz)
 
@@ -89,7 +87,6 @@ class TestNearestUnequalElements:
 class TestCatDFConcat:
     @pytest.mark.skipif(new_pandas, reason=skip_pipeline_new_pandas)
     def test_categorical_df_concat(self):
-
         inp = [
             pd.DataFrame(
                 {
@@ -134,7 +131,6 @@ class TestCatDFConcat:
         assert_equal(expected["C"].cat.categories, result["C"].cat.categories)
 
     def test_categorical_df_concat_value_error(self):
-
         mismatched_dtypes = [
             pd.DataFrame(
                 {

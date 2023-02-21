@@ -208,7 +208,6 @@ class TestRisk:
         self.check_metrics(metrics, 24, start_session)
 
     def test_partial_month(self):
-
         start_session = self.trading_calendar.minute_to_session(
             pd.Timestamp("1993-02-01")
         )

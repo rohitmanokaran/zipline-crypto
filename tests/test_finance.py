@@ -212,9 +212,7 @@ class TestFinance:
         asset1 = self.asset_finder.retrieve_asset(1)
 
         with TempDirectory() as tempdir:
-
             if trade_interval < timedelta(days=1):
-
                 sim_params = factory.create_simulation_parameters(
                     start=self.start, end=self.end, data_frequency="minute"
                 )
@@ -443,7 +441,6 @@ class TestSimulationParameters:
 
     @pytest.mark.timeout(DEFAULT_TIMEOUT)
     def test_sim_params_days_in_period(self):
-
         #     January 2008
         #  Su Mo Tu We Th Fr Sa
         #         1  2  3  4  5

@@ -31,7 +31,6 @@ MINUTE = pd.Timedelta(minutes=1)
 
 
 class RestrictionsTestCase(WithDataPortal, ZiplineTestCase):
-
     ASSET_FINDER_EQUITY_SIDS = 1, 2, 3
 
     @classmethod

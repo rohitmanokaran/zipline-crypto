@@ -1347,7 +1347,6 @@ class MinuteEquityHistoryTestCase(WithHistory, zf.WithMakeAlgo, zf.ZiplineTestCa
             idx = equity_minutes.searchsorted(min(minute, equity_close))
 
             for field in ALL_FIELDS:
-
                 window = self.data_portal.get_history_window(
                     [self.ASSET2],
                     minute,
@@ -1541,7 +1540,6 @@ class MinuteEquityHistoryTestCase(WithHistory, zf.WithMakeAlgo, zf.ZiplineTestCa
                 pd.Timestamp("2015-01-12"),
             ]
         ):
-
             session_minutes = self.trading_calendar.session_minutes(day)
 
             equity_cal = self.trading_calendars[Equity]

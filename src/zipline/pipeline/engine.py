@@ -255,7 +255,6 @@ class SimplePipelineEngine(PipelineEngine):
         populate_initial_workspace=None,
         default_hooks=None,
     ):
-
         self._get_loader = get_loader
         self._finder = asset_finder
 

@@ -96,7 +96,6 @@ class MaxOrderCount(TradingControl):
     """
 
     def __init__(self, on_error, max_count):
-
         super(MaxOrderCount, self).__init__(on_error, max_count=max_count)
         self.orders_placed = 0
         self.max_count = max_count

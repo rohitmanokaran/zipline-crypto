@@ -37,7 +37,6 @@ def create_simulation_parameters(
     emission_rate="daily",
     trading_calendar=None,
 ):
-
     if not trading_calendar:
         trading_calendar = get_calendar("NYSE")
 

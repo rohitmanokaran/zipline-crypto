@@ -635,7 +635,6 @@ class PipelineAlgorithmTestCase(
         )
 
     def test_empty_pipeline(self):
-
         # For ensuring we call before_trading_start.
         count = [0]
 
@@ -717,7 +716,6 @@ class PipelineAlgorithmTestCase(
 
 
 class PipelineSequenceTestCase(WithMakeAlgo, ZiplineTestCase):
-
     # run algorithm for 3 days
     START_DATE = pd.Timestamp("2014-12-29")
     END_DATE = pd.Timestamp("2014-12-31")
@@ -727,7 +725,6 @@ class PipelineSequenceTestCase(WithMakeAlgo, ZiplineTestCase):
         raise AssertionError("Loading terms for pipeline with no inputs")
 
     def test_pipeline_compute_before_bts(self):
-
         # for storing and keeping track of calls to BTS and TestFactor.compute
         trace = []
 

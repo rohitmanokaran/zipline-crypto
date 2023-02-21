@@ -111,7 +111,6 @@ def _df_cache(_setup_class, request):
 
 @pytest.mark.usefixtures("_setup_class", "_df_cache")
 class TestsExamplesTests:
-
     # some columns contain values with unique ids that will not be the same
 
     @pytest.mark.filterwarnings("ignore: Matplotlib is currently using agg")
@@ -174,7 +173,6 @@ class TestsStoredDataCheck:
     @pytest.mark.parametrize("example_name", sorted(EXAMPLE_MODULES))
     @pytest.mark.parametrize("pd_versions", COMBINED_DATA_VERSIONS, ids=str)
     def test_compare_stored_data(self, example_name, benchmark_returns, pd_versions):
-
         if benchmark_returns is not None:
             expected_perf_a = self.expected_perf(pd_versions[0])[example_name]
             expected_perf_b = self.expected_perf(pd_versions[1])[example_name]

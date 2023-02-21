@@ -199,7 +199,6 @@ class TestCommissionUnit:
             expected_commissions,
             txns,
         ):
-
             commission = model.calculate(order, txn)
             assert round(abs(expected_commission - commission), 7) == 0
             order.filled += fill_amount
@@ -218,7 +217,6 @@ class TestCommissionUnit:
         for fill_amount, expected_commission, txn in zip(
             fill_amounts, expected_commissions, txns
         ):
-
             commission = model.calculate(order, txn)
             assert round(abs(expected_commission - commission), 7) == 0
             order.filled += fill_amount

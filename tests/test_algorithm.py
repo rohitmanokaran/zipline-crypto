@@ -157,7 +157,6 @@ class TestRecord(zf.WithMakeAlgo, zf.ZiplineTestCase):
 
 
 class TestMiscellaneousAPI(zf.WithMakeAlgo, zf.ZiplineTestCase):
-
     START_DATE = pd.Timestamp("2006-01-03")
     END_DATE = pd.Timestamp("2006-01-04")
     SIM_PARAMS_DATA_FREQUENCY = "minute"
@@ -373,7 +372,6 @@ class TestMiscellaneousAPI(zf.WithMakeAlgo, zf.ZiplineTestCase):
 
         def handle_data(algo, data):
             if algo.minute == 0:
-
                 # Should be filled by the next minute
                 algo.order(algo.sid(1), 1)
 
@@ -922,7 +920,6 @@ class TestPositions(zf.WithMakeAlgo, zf.ZiplineTestCase):
         # to sell with extremely high versions of same. Should not end up with
         # any positions for reasonable data.
         def handle_data(algo, data):
-
             ########
             # Buys #
             ########
@@ -1896,7 +1893,6 @@ class TestAlgoScript(zf.WithMakeAlgo, zf.ZiplineTestCase):
 
     @parameterized.expand(ARG_TYPE_TEST_CASES)
     def test_arg_types(self, name, inputs):
-
         keyword = name.split("__")[1]
 
         algo = self.make_algo(script=inputs[0])
@@ -2031,7 +2027,6 @@ class TestAlgoScript(zf.WithMakeAlgo, zf.ZiplineTestCase):
 
 
 class TestCapitalChanges(zf.WithMakeAlgo, zf.ZiplineTestCase):
-
     START_DATE = pd.Timestamp("2006-01-03")
     END_DATE = pd.Timestamp("2006-01-09")
 
@@ -2794,7 +2789,6 @@ class TestTradingControls(zf.WithMakeAlgo, zf.ZiplineTestCase):
         cls.another_asset = cls.asset_finder.retrieve_asset(134)
 
     def _check_algo(self, algo, expected_order_count, expected_exc):
-
         with pytest.raises(expected_exc) if expected_exc else nop_context:
             algo.run()
         assert algo.order_count == expected_order_count
@@ -3235,7 +3229,6 @@ class TestTradingControls(zf.WithMakeAlgo, zf.ZiplineTestCase):
 
 
 class TestAssetDateBounds(zf.WithMakeAlgo, zf.ZiplineTestCase):
-
     START_DATE = pd.Timestamp("2014-01-02")
     END_DATE = pd.Timestamp("2014-01-03")
     SIM_PARAMS_START_DATE = END_DATE  # Only run for one day.
@@ -3755,7 +3748,6 @@ class TestOrderCancelation(zf.WithMakeAlgo, zf.ZiplineTestCase):
         assert np.copysign(389, direction) == the_order["filled"]
 
         with self._caplog.at_level(logging.WARNING):
-
             assert 1 == len(self._caplog.messages)
 
             if direction == 1:
@@ -4447,7 +4439,6 @@ class TestOrderAfterDelist(zf.WithMakeAlgo, zf.ZiplineTestCase):
         algo.run()
 
         with self._caplog.at_level(logging.WARNING):
-
             # one warning per order on the second day
             assert 6 * 390 == len(self._caplog.messages)
 
@@ -4478,6 +4469,5 @@ class AlgoInputValidationTestCase(zf.WithMakeAlgo, zf.ZiplineTestCase):
             """
         )
         for method in ("initialize", "handle_data", "before_trading_start", "analyze"):
-
             with pytest.raises(ValueError):
                 self.make_algo(script=script, **{method: lambda *args, **kwargs: None})

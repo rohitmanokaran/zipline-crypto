@@ -17,7 +17,6 @@ def handle_data(context, data):
 
 
 class TestAPIShim(WithCreateBarData, WithMakeAlgo, ZiplineTestCase):
-
     START_DATE = pd.Timestamp("2016-01-05")
     END_DATE = pd.Timestamp("2016-01-28")
     SIM_PARAMS_DATA_FREQUENCY = "minute"

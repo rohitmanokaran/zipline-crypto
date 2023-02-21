@@ -119,7 +119,6 @@ class ClassifierTestCase(BaseUSEquityPipelineTestCase):
         labelarray_dtype=(bytes_dtype, categorical_dtype, unicode_dtype),
     )
     def test_string_eq(self, compval, labelarray_dtype):
-
         compval = labelarray_dtype.type(compval)
 
         class C(Classifier):
@@ -216,7 +215,6 @@ class ClassifierTestCase(BaseUSEquityPipelineTestCase):
         labelarray_dtype=(bytes_dtype, unicode_dtype, categorical_dtype),
     )
     def test_string_not_equal(self, compval, missing, labelarray_dtype):
-
         compval = labelarray_dtype.type(compval)
 
         class C(Classifier):
@@ -330,7 +328,6 @@ class ClassifierTestCase(BaseUSEquityPipelineTestCase):
         labelarray_dtype=(categorical_dtype, bytes_dtype, unicode_dtype),
     )
     def test_element_of_strings(self, container_type, labelarray_dtype):
-
         missing = labelarray_dtype.type("not in the array")
 
         class C(Classifier):
@@ -509,7 +506,6 @@ class ClassifierTestCase(BaseUSEquityPipelineTestCase):
         missing_value=[None, "M"],
     )
     def test_relabel_missing_value_interactions(self, missing_value):
-
         mv = missing_value
 
         class C(Classifier):

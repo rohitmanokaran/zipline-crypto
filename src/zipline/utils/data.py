@@ -42,7 +42,6 @@ class RollingPanel:
         dtype=np.float64,
         initial_dates=None,
     ):
-
         self._pos = window
         self._window = window
 

@@ -35,7 +35,6 @@ class SimulationParameters:
         data_frequency="daily",
         arena="backtest",
     ):
-
         assert type(start_session) == pd.Timestamp
         assert type(end_session) == pd.Timestamp
 

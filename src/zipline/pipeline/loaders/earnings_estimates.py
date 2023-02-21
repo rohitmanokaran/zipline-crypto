@@ -1266,7 +1266,6 @@ class SplitAdjustedEstimatesLoader(EarningsEstimatesLoader):
         post_adjustments,
         requested_split_adjusted_columns,
     ):
-
         pre_adjustments_dict = self.collect_pre_split_asof_date_adjustments(
             split_adjusted_asof_idx,
             sid_idx,

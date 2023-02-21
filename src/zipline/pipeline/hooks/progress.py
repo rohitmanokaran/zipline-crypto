@@ -356,7 +356,6 @@ class IPythonWidgetProgressPublisher:
             self._ensure_displayed()
 
         elif model.state in ("loading", "computing"):
-
             term_list = self._render_term_list(model.current_work)
             if model.state == "loading":
                 details_heading = "<b>Loading Inputs:</b>"

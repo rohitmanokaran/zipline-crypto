@@ -27,7 +27,6 @@ from zipline.utils.numpy_utils import bool_dtype
 
 
 class TestParameterSpace(TestCase):
-
     x_args = [1, 2]
     y_args = [3, 4]
 

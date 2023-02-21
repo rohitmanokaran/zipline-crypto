@@ -53,7 +53,6 @@ class BusinessDaysSincePreviousEvent(Factor):
     dtype = float64_dtype
 
     def _compute(self, arrays, dates, assets, mask):
-
         # Coerce from [ns] to [D] for numpy busday_count.
         announce_dates = arrays[0].astype(datetime64D_dtype)
 
@@ -89,7 +88,6 @@ class BusinessDaysUntilNextEvent(Factor):
     dtype = float64_dtype
 
     def _compute(self, arrays, dates, assets, mask):
-
         # Coerce from [ns] to [D] for numpy busday_count.
         announce_dates = arrays[0].astype(datetime64D_dtype)
 

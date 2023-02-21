@@ -520,7 +520,6 @@ class BenchmarkSpec:
         benchmark_symbol,
         no_benchmark,
     ):
-
         self.benchmark_returns = benchmark_returns
         self.benchmark_file = benchmark_file
         self.benchmark_sid = benchmark_sid
@@ -531,7 +530,6 @@ class BenchmarkSpec:
     def from_cli_params(
         cls, benchmark_sid, benchmark_symbol, benchmark_file, no_benchmark
     ):
-
         return cls(
             benchmark_returns=None,
             benchmark_sid=benchmark_sid,

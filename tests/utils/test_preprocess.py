@@ -139,7 +139,6 @@ class TestPreprocess:
         ],
     )
     def test_preprocess_on_function(self, args, kwargs):
-
         decorators = [
             preprocess(a=call(str), b=call(float), c=call(lambda x: x + 1)),
         ]
@@ -284,7 +283,6 @@ class TestPreprocess:
             f("c")
 
     def test_expect_element_custom_funcname(self):
-
         set_ = {"a", "b"}
 
         class Foo:
@@ -331,7 +329,6 @@ class TestPreprocess:
             foo(np.arange(3, dtype="uint32"), good_c, good_c)
 
     def test_expect_dtypes_with_tuple(self):
-
         allowed_dtypes = (np.dtype("datetime64[ns]"), np.dtype("float"))
 
         @expect_dtypes(a=allowed_dtypes)
@@ -353,7 +350,6 @@ class TestPreprocess:
             foo(np.arange(3, dtype="uint32"), object())
 
     def test_expect_dtypes_custom_funcname(self):
-
         allowed_dtypes = (np.dtype("datetime64[ns]"), np.dtype("float"))
 
         class Foo:

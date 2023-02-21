@@ -431,7 +431,6 @@ class EventsLoaderTestCase(WithAssetFinder, WithTradingSessions, ZiplineTestCase
 
     @skipIf(new_pandas, skip_pipeline_new_pandas)
     def test_load_properly_forward_fills(self):
-
         # Cut the dates in half so we need to forward fill some data which
         # is not in our window. The results should be computed the same as if
         # we had computed across the entire window and then sliced after the

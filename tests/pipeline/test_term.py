@@ -153,7 +153,6 @@ def to_dict(a_list):
 
 
 class DependencyResolutionTestCase(WithTradingSessions, ZiplineTestCase):
-
     TRADING_CALENDAR_STRS = ("NYSE",)
     START_DATE = pd.Timestamp("2014-01-02")
     END_DATE = pd.Timestamp("2014-12-31")
@@ -191,7 +190,6 @@ class DependencyResolutionTestCase(WithTradingSessions, ZiplineTestCase):
         """
 
         def check_output(graph):
-
             resolution_order = list(graph.ordered())
 
             # Loadable terms should get specialized during graph construction.
@@ -257,7 +255,6 @@ class DependencyResolutionTestCase(WithTradingSessions, ZiplineTestCase):
         self.check_dependency_order(resolution_order)
 
     def test_disallow_recursive_lookback(self):
-
         with pytest.raises(NonWindowSafeInput):
             SomeFactor(inputs=[SomeFactor(), SomeDataSet.foo])
 
@@ -286,7 +283,6 @@ class TestObjectIdentity:
             self.fail("%s appeared %d times in %s" % (dupe, count, objs))
 
     def test_instance_caching(self):
-
         self.assertSameObject(*gen_equivalent_factors())
         assert SomeFactor(window_length=SomeFactor.window_length + 1) is SomeFactor(
             window_length=SomeFactor.window_length + 1
@@ -342,7 +338,6 @@ class TestObjectIdentity:
         assert c_slice is type(c_slice)(GenericClassifier(), my_asset)
 
     def test_instance_non_caching(self):
-
         f = SomeFactor()
 
         # Different window_length.
@@ -355,7 +350,6 @@ class TestObjectIdentity:
         assert f is not SomeFactor(inputs=[SomeFactor.inputs[1], SomeFactor.inputs[0]])
 
     def test_instance_non_caching_redefine_class(self):
-
         orig_foobar_instance = SomeFactorAlias()
 
         class SomeFactor(Factor):
@@ -439,7 +433,6 @@ class TestObjectIdentity:
         params = ("a", "b")
 
     def test_parameterized_term(self):
-
         f = self.SomeFactorParameterized(a=1, b=2)
         assert f.params == {"a": 1, "b": 2}
 
@@ -629,7 +622,6 @@ class TestObjectIdentity:
             assert column.missing_value is column.latest.missing_value
 
     def test_failure_timing_on_bad_dtypes(self):
-
         # Just constructing a bad column shouldn't fail.
         Column(dtype=int64_dtype)
 
@@ -715,7 +707,6 @@ class TestSubDataSet:
             SomeClassifier()
 
     def test_unreasonable_missing_values(self):
-
         for base_type, dtype_, bad_mv in (
             (Factor, float64_dtype, "ayy"),
             (Filter, bool_dtype, "lmao"),

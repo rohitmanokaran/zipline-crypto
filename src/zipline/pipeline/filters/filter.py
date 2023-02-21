@@ -697,7 +697,6 @@ class AllPresent(CustomFilter, SingleInputMixin, StandardOutputs):
     """Pipeline filter indicating input term has data for a given window."""
 
     def _validate(self):
-
         if isinstance(self.inputs[0], Filter):
             raise TypeError("Input to filter `AllPresent` cannot be a Filter.")
 

@@ -126,7 +126,6 @@ class CustomTermMixin(Term):
         ndim=NotSpecified,
         **kwargs,
     ):
-
         unexpected_keys = set(kwargs) - set(cls.params)
         if unexpected_keys:
             raise TypeError(

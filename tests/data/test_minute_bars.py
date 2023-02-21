@@ -294,7 +294,6 @@ class BcolzMinuteBarTestCase(
         assert_almost_equal(0, volume_price)
 
     def test_write_on_multiple_days(self):
-
         tds = self.market_opens.index
         days = tds[
             tds.slice_indexer(
@@ -964,7 +963,6 @@ class BcolzMinuteBarTestCase(
             assert self.reader.get_sid_attr(sid, k) == v
 
     def test_truncate_between_data_points(self):
-
         tds = self.market_opens.index
         days = tds[
             tds.slice_indexer(
@@ -1024,7 +1022,6 @@ class BcolzMinuteBarTestCase(
         assert 50.0 == volume_price
 
     def test_truncate_all_data_points(self):
-
         tds = self.market_opens.index
         days = tds[
             tds.slice_indexer(

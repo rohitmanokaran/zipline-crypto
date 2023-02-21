@@ -416,7 +416,6 @@ class BcolzMinuteBarWriter:
         expectedlen=DEFAULT_EXPECTEDLEN,
         write_metadata=True,
     ):
-
         self._rootdir = rootdir
         self._start_session = start_session
         self._end_session = end_session
@@ -877,7 +876,6 @@ class BcolzMinuteBarReader(MinuteBarReader):
     _default_proxy = mappingproxy(DEFAULT_MINUTELY_SID_CACHE_SIZES)
 
     def __init__(self, rootdir, sid_cache_sizes=_default_proxy):
-
         self._rootdir = rootdir
 
         metadata = self._get_metadata()

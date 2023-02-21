@@ -1294,7 +1294,6 @@ class AssetFinder:
             missing.append(obj)
 
     def _lookup_generic_scalar_helper(self, obj, as_of_date, country_code):
-
         if isinstance(obj, (Asset, ContinuousFuture)):
             return obj
 

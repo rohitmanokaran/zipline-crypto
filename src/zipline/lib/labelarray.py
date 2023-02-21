@@ -154,7 +154,6 @@ class LabelArray(ndarray):
     )
     @expect_kinds(values=("O", "S", "U"))
     def __new__(cls, values, missing_value, categories=None, sort=True):
-
         # Numpy's fixed-width string types aren't very efficient. Working with
         # object arrays is faster than bytes or unicode arrays in almost all
         # cases.
@@ -450,7 +449,6 @@ class LabelArray(ndarray):
         """
 
         def method(self, other):
-
             if isinstance(other, LabelArray):
                 self_mv = self.missing_value
                 other_mv = other.missing_value
@@ -644,7 +642,6 @@ class LabelArray(ndarray):
             allowed_outtypes = self.SUPPORTED_NON_NONE_SCALAR_TYPES
 
         def f_to_use(x, missing_value=self.missing_value, otypes=allowed_outtypes):
-
             # Don't call f on the missing value; those locations don't exist
             # semantically. We return _sortable_sentinel rather than None
             # because the np.unique call below sorts the categories array,

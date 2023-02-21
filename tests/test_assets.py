@@ -765,7 +765,6 @@ class TestAssetFinder:
             assert A_result.asset_name == "Asset A"
 
     def test_lookup_symbol(self, asset_finder):
-
         # Incrementing by two so that start and end dates for each
         # generated Asset don't overlap (each Asset's end_date is the
         # day after its start date.)

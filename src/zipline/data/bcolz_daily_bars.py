@@ -287,7 +287,6 @@ class BcolzDailyBarWriter:
                 sessions.slice_indexer(asset_first_day, asset_last_day)
             ]
             if len(table) != len(asset_sessions):
-
                 missing_sessions = asset_sessions.difference(
                     pd.to_datetime(np.array(table["day"]), unit="s")
                 ).tolist()

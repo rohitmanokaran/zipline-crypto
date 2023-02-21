@@ -568,7 +568,6 @@ class TradingAlgorithm:
             benchmark_asset = self.asset_finder.retrieve_asset(self.benchmark_sid)
             benchmark_returns = None
         else:
-
             benchmark_asset = None
             benchmark_returns = self.benchmark_returns
         return BenchmarkSource(
@@ -680,7 +679,6 @@ class TradingAlgorithm:
             # TODO: Rohit: May need to check perf is not None
             # if perf and "daily_perf" in perf:
             if "daily_perf" in perf:
-
                 perf["daily_perf"].update(perf["daily_perf"].pop("recorded_vars"))
                 perf["daily_perf"].update(perf["cumulative_risk_metrics"])
                 daily_perfs.append(perf["daily_perf"])

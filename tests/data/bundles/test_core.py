@@ -47,7 +47,6 @@ _1_ns = pd.Timedelta(1, unit="ns")
 
 
 class BundleCoreTestCase(WithInstanceTmpDir, WithDefaultDateBounds, ZiplineTestCase):
-
     START_DATE = pd.Timestamp("2014-01-06")
     END_DATE = pd.Timestamp("2014-01-10")
 

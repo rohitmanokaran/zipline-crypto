@@ -36,7 +36,6 @@ from zipline.utils.numpy_utils import float64_dtype
 
 
 class DataPortalTestBase(WithDataPortal, WithTradingSessions):
-
     ASSET_FINDER_EQUITY_SIDS = (1, 2, 3)
     DIVIDEND_ASSET_SID = 3
     START_DATE = pd.Timestamp("2016-08-01")
@@ -435,7 +434,6 @@ class DataPortalTestBase(WithDataPortal, WithTradingSessions):
         )
 
         for (dt, perspective_dt), expected in cases.items():
-
             if data_frequency == "minute":
                 dt = calendar.session_open(dt)
                 perspective_dt = calendar.session_open(perspective_dt)

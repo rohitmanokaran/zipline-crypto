@@ -296,7 +296,6 @@ def api_to_bundle(interval=["1m"]):
         show_progress,
         output_dir,
     ):
-
         assets_to_sids = asset_to_sid_map(asset_db_writer.asset_finder, list_assets())
 
         def minute_data_generator():

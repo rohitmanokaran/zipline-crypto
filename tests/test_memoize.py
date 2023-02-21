@@ -7,7 +7,6 @@ from zipline.utils.memoize import remember_last
 
 class TestRememberLast:
     def test_remember_last(self):
-
         # Store the count in a list so we can mutate it from inside `func`.
         call_count = [0]
 

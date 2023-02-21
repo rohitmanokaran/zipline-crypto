@@ -59,7 +59,6 @@ class TestPipelineTestCase:
         assert p3.screen == screen
 
     def test_construction_bad_input_types(self):
-
         with pytest.raises(TypeError):
             Pipeline(1)
 

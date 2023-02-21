@@ -660,7 +660,6 @@ class PreviousEstimate(WithEstimatesTimeZero, ZiplineTestCase):
         return PreviousEarningsEstimatesLoader(events, columns)
 
     def get_expected_estimate(self, q1_knowledge, q2_knowledge, comparable_date):
-
         # The expected estimate will be for q2 if the last thing
         # we've seen is that the release date already happened.
         # Otherwise, it'll be for q1, as long as the release date

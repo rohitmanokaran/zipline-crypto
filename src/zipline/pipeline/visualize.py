@@ -98,7 +98,6 @@ def _render(g, out, format_, include_asset_exists=False):
 
     f = BytesIO()
     with graph(f, "G", **graph_attrs):
-
         # Write outputs cluster.
         with cluster(f, "Output", labelloc="b", **cluster_attrs):
             for term in filter_nodes(include_asset_exists, out_nodes):

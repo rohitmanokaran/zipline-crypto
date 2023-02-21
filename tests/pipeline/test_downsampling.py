@@ -59,7 +59,6 @@ class NDaysAgoClassifier(CustomClassifier):
 
 
 class ComputeExtraRowsTestCase(WithTradingSessions, ZiplineTestCase):
-
     DATA_MIN_DAY = pd.Timestamp("2012-06")
     DATA_MAX_DAY = pd.Timestamp("2015")
     TRADING_CALENDAR_STRS = ("NYSE", "LSE", "TSX")
@@ -580,7 +579,6 @@ class ComputeExtraRowsTestCase(WithTradingSessions, ZiplineTestCase):
 
 
 class DownsampledPipelineTestCase(WithSeededRandomPipelineEngine, ZiplineTestCase):
-
     # Extend into the last few days of 2013 to test year/quarter boundaries.
     START_DATE = pd.Timestamp("2013-12-15")
 
@@ -603,7 +601,6 @@ class DownsampledPipelineTestCase(WithSeededRandomPipelineEngine, ZiplineTestCas
         return cls.DOMAIN.sessions()
 
     def check_downsampled_term(self, term):
-
         #       June 2014
         # Mo Tu We Th Fr Sa Su
         #                    1
@@ -715,7 +712,6 @@ class DownsampledPipelineTestCase(WithSeededRandomPipelineEngine, ZiplineTestCas
         self.check_downsampled_term(sma.quantiles(5))
 
     def test_errors_on_bad_downsample_frequency(self):
-
         f = NDaysAgoFactor(window_length=3)
         expected = (
             "{}() expected a value in "
@@ -735,7 +731,6 @@ class DownsampledCAPipelineTestCase(DownsampledPipelineTestCase):
 
 
 class TestDownsampledRowwiseOperation(WithAssetFinder, ZiplineTestCase):
-
     START_DATE = pd.Timestamp("2014-01-01")
     END_DATE = pd.Timestamp("2014-02-01")
     HALF_WAY_POINT = pd.Timestamp("2014-01-15")

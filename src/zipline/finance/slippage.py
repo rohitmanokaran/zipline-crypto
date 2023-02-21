@@ -269,7 +269,6 @@ class VolumeShareSlippage(SlippageModel):
         volume_limit=DEFAULT_EQUITY_VOLUME_SLIPPAGE_BAR_LIMIT,
         price_impact=0.1,
     ):
-
         super(VolumeShareSlippage, self).__init__()
 
         self.volume_limit = volume_limit

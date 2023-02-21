@@ -192,7 +192,6 @@ class TALIBAlgorithm(TradingAlgorithm):
     """
 
     def initialize(self, *args, **kwargs):
-
         if "talib" not in kwargs:
             raise KeyError("No TA-LIB transform specified " "(use keyword 'talib').")
         elif not isinstance(kwargs["talib"], (list, tuple)):
@@ -267,7 +266,6 @@ class InvalidOrderAlgorithm(TradingAlgorithm):
             StopOrder(10),
             StopLimitOrder(10, 10, asset=self.asset),
         ]:
-
             with pytest.raises(UnsupportedOrderParameters):
                 order(self.asset, 10, limit_price=10, style=style)
 
@@ -307,6 +305,7 @@ class InvalidOrderAlgorithm(TradingAlgorithm):
 
 ##############################
 # Quantopian style algorithms
+
 
 # Noop algo
 def initialize_noop(context):
