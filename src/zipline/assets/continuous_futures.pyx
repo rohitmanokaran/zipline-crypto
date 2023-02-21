@@ -257,7 +257,7 @@ cdef class ContinuousFuture:
 
     def is_exchange_open(self, dt_minute):
         """
-        
+
         Parameters
         ----------
         dt_minute: pd.Timestamp (UTC, tz-aware)

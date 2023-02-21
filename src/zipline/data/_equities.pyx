@@ -254,7 +254,7 @@ cpdef _read_tape_data(dict table,
                        bool read_all):
     """
     Load raw dict data for the given columns and indices.
-    basically, slice the desired data from a dict of arrays. 
+    basically, slice the desired data from a dict of arrays.
 
     Parameters
     ----------

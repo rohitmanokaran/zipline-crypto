@@ -25,7 +25,7 @@ by [Stefan Jansen](https://www.linkedin.com/in/applied-ai/) who is trying to kee
 - **PyData Integration:** Input of historical data and output of performance statistics are based on Pandas DataFrames to integrate nicely into the existing PyData ecosystem.
 - **Statistics and Machine Learning Libraries:** You can use libraries like matplotlib, scipy, statsmodels, and scikit-klearn to support development, analysis, and visualization of state-of-the-art trading systems.
 - **Live trading:** Live trading support for Interactive Brokers and Alpaca.
-- **Multiple Data sources:** 
+- **Multiple Data sources:**
 
 ## Installation
 
