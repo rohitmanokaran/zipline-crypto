@@ -55,7 +55,7 @@ dependencies = [
     'six >=1.10.0',
     'sqlalchemy >=2.0.0',
     'statsmodels >=0.6.1',
-    'ta-lib ==0.4.25',
+    'TA-Lib ==0.4.25',
     'tables >=3.4.3',
     'toolz >=0.8.2',
     'exchange-calendars >=4.2.4',
@@ -83,6 +83,7 @@ build-backend = 'setuptools.build_meta'
 
 [project.optional-dependencies]
 test = [
+    'TA-Lib==0.4.25',
     'tox',
     'pytest>=7.2.0',
     'pytest-cov >=3.0.0',
