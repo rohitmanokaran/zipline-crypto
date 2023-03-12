@@ -64,6 +64,7 @@ dependencies = [
     'ratelimit==2.2.1',
     'ibapi >=9.81',
     'polling==0.3.1',
+    'tiingo >=0.14.0'
 ]
 
 [project.urls]

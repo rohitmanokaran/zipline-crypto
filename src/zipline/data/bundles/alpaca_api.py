@@ -7,8 +7,9 @@ import pandas as pd
 import pytz
 from alpaca_trade_api.common import URL
 from dateutil import tz
+import os
+import yaml
 
-import zipline.config
 from zipline.data.bundles import core as bundles
 from zipline.data.bundles.common import asset_to_sid_map
 from zipline.data.bundles.universe import (
@@ -25,10 +26,57 @@ user_home = str(Path.home())
 CLIENT: tradeapi.REST = None
 NY = "America/New_York"
 
+CONFIG_PATH = os.environ.get("ZIPLINE_TRADER_CONFIG")
+if CONFIG_PATH:
+    with open(CONFIG_PATH, mode="r") as f:
+        ZIPLINE_CONFIG = yaml.safe_load(f)
+
+
+class AlpacaConfig:
+    if CONFIG_PATH and ZIPLINE_CONFIG.get("alpaca"):
+        al = ZIPLINE_CONFIG["alpaca"]
+    else:
+        al = {}
+
+    @property
+    def key(self):
+        if CONFIG_PATH and self.al:
+            return self.al["key_id"]
+        else:
+            return os.environ.get("APCA_API_KEY_ID")
+
+    @property
+    def secret(self):
+        if CONFIG_PATH and self.al:
+            return self.al["secret"]
+        else:
+            return os.environ.get("APCA_API_SECRET_KEY")
+
+    @property
+    def base_url(self):
+        if CONFIG_PATH and self.al:
+            return self.al["base_url"]
+        else:
+            return os.environ.get("APCA_API_BASE_URL")
+
+    @property
+    def universe(self):
+        if CONFIG_PATH and self.al:
+            return self.al["universe"]
+        else:
+            return os.environ.get("ZT_UNIVERSE")
+
+    @property
+    def custom_asset_list(self):
+        if CONFIG_PATH and self.al:
+            return self.al.get("custom_asset_list")
+        else:
+            return os.environ.get("ZT_CUSTOM_ASSET_LIST")
+
 
 def initialize_client():
     global CLIENT
-    conf = zipline.config.bundle.AlpacaConfig()
+    conf = AlpacaConfig()
     key = conf.key
     secret = conf.secret
     base_url = conf.base_url
@@ -41,7 +89,7 @@ ASSETS = None
 def list_assets():
     global ASSETS
     if not ASSETS:
-        conf = zipline.config.bundle.AlpacaConfig()
+        conf = AlpacaConfig()
         custom_asset_list = conf.custom_asset_list
         if custom_asset_list:
             custom_asset_list = custom_asset_list.strip().replace(" ", "").split(",")

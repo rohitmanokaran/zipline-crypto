@@ -1,6 +1,6 @@
 """
-Data-Bundle for Aplhavantage
-Usage: set api-key with 'export ALPHAVANTAGE_API_KEY=yourkey'
+Data-Bundle for Tiingo
+Usage: set api-key with 'export TIINGO_API_KEY=yourkey'
 Limitations: free-accounts can have 5 calls per minute and 500 calls a day.
   tolerance is used to wait some small additional time, otherwise sometimes
   we will still hit the limit if we want to squeeze out as much calls as
@@ -16,16 +16,18 @@ Adjustments: to enable a bigger precision on our backtests, i decided to
   for dividends and splits. However, only daily-data contains this information
   so it's really IMPORTANT that you never only request minute-data alone.
 """
-import alpaca_trade_api.rest
+# import alpaca_trade_api.rest
+from tiingo import TiingoClient
 import numpy as np
 import pandas as pd
 
-from alpha_vantage.timeseries import TimeSeries
+# from alpha_vantage.timeseries import TimeSeries
 
 from datetime import date, timedelta
 
 from ratelimit import limits, sleep_and_retry
 
+from zipline.assets import AssetDBWriter
 from zipline.data.bundles import core as bundles
 from zipline.data.bundles.common import asset_to_sid_map
 from zipline.data.bundles.universe import (
@@ -42,27 +44,27 @@ import time
 import os
 import yaml
 
-CONFIG_PATH = os.environ.get("ZIPLINE_TRADER_CONFIG")
+CONFIG_PATH = os.environ.get("ZIPLINE_CONFIG")
 if CONFIG_PATH:
     with open(CONFIG_PATH, mode="r") as f:
         ZIPLINE_CONFIG = yaml.safe_load(f)
 
 
-class AlphaVantage:
-    if CONFIG_PATH and ZIPLINE_CONFIG.get("alpha-vantage"):
-        av = ZIPLINE_CONFIG["alpha-vantage"]
+class Tiingo:
+    if CONFIG_PATH and ZIPLINE_CONFIG.get("tiingo"):
+        av = ZIPLINE_CONFIG["tiingo"]
     else:
         av = {}
 
     @property
     def sample_frequency(self):
         """
-        how long to wait between samples. default for free accounts - 1 min.
-        so we could do 5 sample per minute.
+        how long to wait between samples. default for free accounts - 1 hour.
+        so we could do 50 samples per hour.
         you could define it in the config file or override it with env variable
         :return:
         """
-        val = 60
+        val = 60 * 60  # Time to wait in seconds
         if os.environ.get("AV_FREQ_SEC"):
             val = int(os.environ.get("AV_FREQ_SEC"))
         elif CONFIG_PATH and self.av.get("AV_FREQ_SEC"):
@@ -73,11 +75,11 @@ class AlphaVantage:
     def max_calls_per_freq(self):
         """
         max api calls you could do per frequency period.
-        free account can do 5 calls per minute
+        free account can do 50 calls per hour
         you could define it in the config file or override it with env variable
         :return:
         """
-        val = 5
+        val = 50
         if os.environ.get("AV_CALLS_PER_FREQ"):
             val = int(os.environ.get("AV_CALLS_PER_FREQ"))
         elif CONFIG_PATH and self.av.get("AV_CALLS_PER_FREQ"):
@@ -106,24 +108,46 @@ class AlphaVantage:
         :return:
         """
         val = ""
-        if os.environ.get("ALPHAVANTAGE_API_KEY"):
-            val = os.environ.get("ALPHAVANTAGE_API_KEY")
-        elif CONFIG_PATH and self.av.get("ALPHAVANTAGE_API_KEY"):
-            val = self.av.get("ALPHAVANTAGE_API_KEY")
+        if os.environ.get("TIINGO_API_KEY"):
+            val = os.environ.get("TIINGO_API_KEY")
+        elif CONFIG_PATH and self.av.get("TIINGO_API_KEY"):
+            val = self.av.get("TIINGO_API_KEY")
         return val
 
+    def client(self):
+        config = {}
 
-av_config = AlphaVantage()
+        # To reuse the same HTTP Session across API calls (and have better performance), include a session key.
+        config["session"] = True
+
+        # If you don't have your API key as an environment variable,
+        # pass it in via a configuration dictionary.
+        config["api_key"] = self.api_key
+
+        # Initialize
+        return TiingoClient(config)
+
+
+av_config = Tiingo()
 AV_FREQ_SEC = av_config.sample_frequency
 AV_CALLS_PER_FREQ = av_config.max_calls_per_freq
 AV_TOLERANCE_SEC = av_config.breathing_space
-os.environ[
-    "ALPHAVANTAGE_API_KEY"
-] = av_config.api_key  # make sure it's set in env variable
+# os.environ[
+#     "TIINGO_API_KEY"
+# ] = av_config.api_key  # make sure it's set in env variable
+tiingo_client = None
+# tiingo_client = av_config.client()
 
 UNIVERSE = Universe.NASDAQ100
 
 ASSETS = None
+
+
+def get_or_create_client():
+    global tiingo_client
+    if tiingo_client is None:
+        tiingo_client = av_config.client()
+    return tiingo_client
 
 
 def list_assets():
@@ -139,17 +163,20 @@ def list_assets():
             except KeyError:
                 universe = Universe.ALL
             if universe == Universe.ALL:
-                # alpha vantage doesn't define a universe. we could try using alpaca's universe if the
+                raise "No"
+                # Tiingo doesn't define a universe. we could try using alpaca's universe if the
                 # user defined credentials. if not, we will raise an exception.
-                try:
-                    import zipline.data.bundles.alpaca_api as alpaca
-
-                    alpaca.initialize_client()
-                    ASSETS = all_alpaca_assets(alpaca.CLIENT)
-                except alpaca_trade_api.rest.APIError:
-                    raise Exception(
-                        "You tried to use Universe.ALL but you didn't define the alpaca credentials."
-                    )
+                # try:
+                #     import zipline.data.bundles.alpaca_api as alpaca
+                #
+                #     alpaca.initialize_client()
+                #     ASSETS = all_alpaca_assets(alpaca.CLIENT)
+                # except:  # alpaca_trade_api.rest.APIError:
+                #     raise Exception(
+                #         "You tried to use Universe.ALL but you didn't define the alpaca credentials."
+                #     )
+                # Tiingo has 5,000 ETFs, 50,000 Stocks and 50,000 Mutual Funds as of 2023-03
+                ASSETS = get_or_create_client().list_tickers(["ETF", "Stock"])
             elif universe == Universe.SP100:
                 ASSETS = get_sp100()
             elif universe == Universe.SP500:
@@ -200,71 +227,133 @@ def fill_daily_gaps(df):
 
 # purpose of this function is to encapsulate both minute- and daily-requests in one
 # function to be able to properly do rate-limiting.
+"""Returns pd.read_csv() of columns
+    intraday:
+        date, open, high, low, close, volume
+    daily:
+        Above and adjOpen, adjHigh, adjLow, adjClose, adjVolume, divCash, splitFactor
+    Date is index and pd.Timestamp in UTC:
+        df.set_index('date', inplace=True)
+        df.index = pd.to_datetime(df.index).tz_localize('UTC')
+"""
+
+
 @sleep_and_retry
 @limits(calls=AV_CALLS_PER_FREQ, period=AV_FREQ_SEC + AV_TOLERANCE_SEC)
-def av_api_wrapper(symbol, interval, _slice=None):
+def av_api_wrapper(
+    symbol, interval, start: pd.Timestamp, end: pd.Timestamp
+) -> pd.DataFrame:
     if interval == "1m":
-        ts = TimeSeries(output_format="csv")
-        data_slice, meta_data = ts.get_intraday_extended(
-            symbol, interval="1min", slice=_slice, adjusted="false"
-        )
-        return data_slice
-
-    else:
-        ts = TimeSeries()
-        data, meta_data = ts.get_daily_adjusted(symbol, outputsize="full")
-        return data
-
-
-def av_get_data_for_symbol(symbol, start, end, interval):
-    if interval == "1m":
-        data = []
-        for i in range(1, 3):
-            for j in range(1, 13):
-                _slice = "year" + str(i) + "month" + str(j)
-                # print('requesting slice ' + _slice + ' for ' + symbol)
-                data_slice = av_api_wrapper(symbol, interval=interval, slice=_slice)
-
-                # dont know better way to convert _csv.reader to list or DataFrame
-                table = []
-                for line in data_slice:
-                    table.append(line)
-
-                # strip header-row from csv
-                table = table[1:]
-                data = data + table
-
-        df = pd.DataFrame(
-            data, columns=["date", "open", "high", "low", "close", "volume"]
+        # ts = TimeSeries(output_format="csv")
+        # data_slice, meta_data = ts.get_intraday_extended(
+        #     symbol, interval="1min", slice=_slice, adjusted="false"
+        # )
+        # return data_slice
+        return get_or_create_client().get_dataframe(
+            tickers=symbol,
+            startDate=start.strftime("%Y-%m-%d"),
+            endDate=end.strftime("%Y-%m-%d"),
+            # metric_name=[], TODO: Create custom client that calls APIs with param to return only specific columns
+            frequency="1min",
+            fmt="csv",
         )
 
-        df.index = pd.to_datetime(df["date"])
-        df.index = df.index.tz_localize("UTC")
-        df.drop(columns=["date"], inplace=True)
-        df.sort_index(inplace=True)
-
     else:
-        data = av_api_wrapper(symbol, interval)
+        # ts = TimeSeries()
+        # data, meta_data = ts.get_daily_adjusted(symbol, outputsize="full")
+        # return data
+        return get_or_create_client().get_dataframe(
+            tickers=symbol,
+            startDate=start_date.strftime("%Y-%m-%d"),
+            endDate=end_date.strftime("%Y-%m-%d"),
+            # metric_name=[], TODO: Create custom client that calls APIs with param to return only specific columns
+            frequency="daily",
+            fmt="csv",
+        )
 
-        df = pd.DataFrame.from_dict(data, orient="index")
-        df.index = pd.to_datetime(df.index).tz_localize("UTC")
 
+def av_get_data_for_symbol(symbol, start: pd.Timestamp, end: pd.Timestamp, interval):
+    if interval == "1m":
+        # data = []
+        # for i in range(1, 3):
+        #     for j in range(1, 13):
+        #         _slice = "year" + str(i) + "month" + str(j)
+        #         # print('requesting slice ' + _slice + ' for ' + symbol)
+        #         data_slice = av_api_wrapper(symbol, interval=interval, slice=_slice)
+        #
+        #         # dont know better way to convert _csv.reader to list or DataFrame
+        #         table = []
+        #         for line in data_slice:
+        #             table.append(line)
+        #
+        #         # strip header-row from csv
+        #         table = table[1:]
+        #         data = data + table
+        #
+        # df = pd.DataFrame(
+        #     data, columns=["date", "open", "high", "low", "close", "volume"]
+        # )
+        #
+        # df.index = pd.to_datetime(df["date"])
+        # df.index = df.index.tz_localize("UTC")
+        # df.drop(columns=["date"], inplace=True)
+        # df.sort_index(inplace=True)
+
+        df = av_api_wrapper(symbol, interval=interval, start=start, end=end)
+        df.index = df.index.tz_convert(None)
+    else:
+        # data = av_api_wrapper(symbol, interval)
+        #
+        # df = pd.DataFrame.from_dict(data, orient="index")
+        # df.index = pd.to_datetime(df.index).tz_localize("UTC")
+        #
+        # df.rename(
+        #     columns={
+        #         "1. open": "open",
+        #         "2. high": "high",
+        #         "3. low": "low",
+        #         "4. close": "close",
+        #         "5. volume": "volume",
+        #         "5. adjusted close": "adj_close",
+        #         "6. volume": "volume",
+        #         "7. dividend amount": "dividend",
+        #         "8. split coefficient": "split",
+        #     },
+        #     inplace=True,
+        # )
+        #
+        # df.sort_index(inplace=True)
+
+        df = av_api_wrapper(symbol, interval=interval, start=start, end=end)
+        df.index = df.index.tz_convert(None)
+        df = df[
+            [
+                "open",
+                "high",
+                "low",
+                "close",
+                "volume",
+                "adjClose",
+                "adjVolume",
+                "divCash",
+                "splitFactor",
+            ]
+        ]
         df.rename(
             columns={
-                "1. open": "open",
-                "2. high": "high",
-                "3. low": "low",
-                "4. close": "close",
-                "5. volume": "volume",
-                "5. adjusted close": "adj_close",
-                "6. volume": "volume",
-                "7. dividend amount": "dividend",
-                "8. split coefficient": "split",
+                "open": "open",
+                "high": "high",
+                "low": "low",
+                "close": "close",
+                "volume": "volume",
+                "adjClose": "adj_close",
+                "adjVolume": "adj_volume",  # TODO: Prev was overriding that doesnt work
+                "divCash": "dividend",
+                "splitFactor": "split",
             },
             inplace=True,
         )
 
-        df.sort_index(inplace=True)
         # fill potential gaps in data
         df = fill_daily_gaps(df)
 
@@ -293,7 +382,7 @@ def calc_split(sid, df):
     tmp = 1.0 / df[df["split"] != 1.0]["split"]
     split = pd.DataFrame(data=tmp.index.tolist(), columns=["effective_date"])
     split["ratio"] = tmp.tolist()
-    split["sid"] = np.int(sid)
+    split["sid"] = int(sid)
 
     # split['effective_date'] = pd.to_datetime(split['effective_date'], utc=True)
     split["effective_date"] = split["effective_date"].apply(lambda x: x.timestamp())
@@ -320,7 +409,7 @@ def calc_dividend(sid, df, sessions):
     ]
 
     div["amount"] = tmp.tolist()
-    div["sid"] = np.int(sid)
+    div["sid"] = int(sid)
 
     # convert to string and then back to datetime, otherwise pd.concat will fail
     div["ex_date"] = div["ex_date"].apply(lambda x: x.strftime("%Y-%m-%d 00:00:00"))
@@ -350,7 +439,7 @@ def df_generator(interval, start, end, divs_splits, assets_to_sids={}):
 
             if "split" in df.columns:
                 split = calc_split(sid, df)
-                divs_splits["splits"] = divs_splits["splits"].append(split)
+                divs_splits["splits"] = pd.concat([divs_splits["splits"], split])
 
             if "dividend" in df.columns:
                 div = calc_dividend(sid, df, sessions)
@@ -364,19 +453,20 @@ def df_generator(interval, start, end, divs_splits, assets_to_sids={}):
         except KeyboardInterrupt:
             exit()
 
-        except Exception as e:
-            # somehow rate-limiting does not work with exceptions, throttle manually
-            if (
-                "Thank you for using Alpha Vantage! Our standard API call frequency is"
-                in str(e)
-            ):
-                print(
-                    f"\nGot rate-limit on remote-side, retrying symbol {symbol} later"
-                )
-                asset_list.append(symbol)
-            else:
-                print(f"\nException for symbol {symbol}")
-                print(e)
+        # TODO: Add handing for rate limited exception, other exceptions
+        # except Exception as e:
+        #     # somehow rate-limiting does not work with exceptions, throttle manually
+        #     if (
+        #         "Thank you for using Tiingo! Our standard API call frequency is"
+        #         in str(e)
+        #     ):
+        #         print(
+        #             f"\nGot rate-limit on remote-side, retrying symbol {symbol} later"
+        #         )
+        #         asset_list.append(symbol)
+        #     else:
+        #         print(f"\nException for symbol {symbol}")
+        #         print(e)
 
 
 def metadata_df(assets_to_sids={}):
@@ -399,11 +489,11 @@ def metadata_df(assets_to_sids={}):
     return metadata_df
 
 
-@bundles.register("alpha_vantage", calendar_name="NYSE", minutes_per_day=390)
-def api_to_bundle(interval=["1m"]):
+@bundles.register("tiingo", calendar_name="NYSE", minutes_per_day=390)
+def api_to_bundle(interval=["1d"]):
     def ingest(
         environ,
-        asset_db_writer,
+        asset_db_writer: AssetDBWriter,
         minute_bar_writer,
         daily_bar_writer,
         adjustment_writer,
@@ -471,8 +561,8 @@ def api_to_bundle(interval=["1m"]):
         asset_db_writer.write(equities=metadata)
 
         # convert back wrong datatypes after pd.concat
-        divs_splits["splits"]["sid"] = divs_splits["splits"]["sid"].astype(np.int)
-        divs_splits["divs"]["sid"] = divs_splits["divs"]["sid"].astype(np.int)
+        divs_splits["splits"]["sid"] = divs_splits["splits"]["sid"].astype(int)
+        divs_splits["divs"]["sid"] = divs_splits["divs"]["sid"].astype(int)
         divs_splits["divs"]["ex_date"] = pd.to_datetime(
             divs_splits["divs"]["ex_date"], utc=True
         )
@@ -497,23 +587,18 @@ if __name__ == "__main__":
     cal: TradingCalendar = get_calendar("NYSE")
 
     # alpha-vantage has a fixed time-window, no point in changing these
-    start_date = pd.Timestamp("1999-11-1", tz="utc")
-    end_date = pd.Timestamp(date.today() - timedelta(days=1), tz="utc")
+    start_date = pd.Timestamp("1999-11-1", tz=None)
+    end_date = pd.Timestamp(date.today() - timedelta(days=1), tz=None)
 
     while not cal.is_session(end_date):
         end_date -= timedelta(days=1)
 
-    print(
-        "ingesting alpha_vantage-data from: "
-        + str(start_date)
-        + " to: "
-        + str(end_date)
-    )
+    print("ingesting tiingo from: " + str(start_date) + " to: " + str(end_date))
 
     start_time = time.time()
 
     register(
-        "alpha_vantage",
+        "tiingo",
         # api_to_bundle(interval=['1d', '1m']),
         # api_to_bundle(interval=['1m']),
         api_to_bundle(interval=["1d"]),
@@ -524,7 +609,7 @@ if __name__ == "__main__":
 
     assets_version = ((),)[0]  # just a weird way to create an empty tuple
     bundles_module.ingest(
-        "alpha_vantage",
+        "tiingo",
         os.environ,
         assets_versions=assets_version,
         show_progress=True,

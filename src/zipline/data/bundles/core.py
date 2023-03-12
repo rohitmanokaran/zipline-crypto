@@ -423,6 +423,10 @@ def _make_bundle_core():
                 assets_db_path = wd.getpath(*asset_db_relative(name, timestr))
                 asset_db_writer = AssetDBWriter(assets_db_path)
 
+                asset_db_writer.init_db()
+                asset_finder = AssetFinder(assets_db_path)
+                asset_db_writer.asset_finder = asset_finder  # TODO: Fix monkey patch
+
                 adjustment_db_writer = stack.enter_context(
                     SQLiteAdjustmentWriter(
                         wd.getpath(*adjustment_db_relative(name, timestr)),

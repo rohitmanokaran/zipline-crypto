@@ -992,6 +992,17 @@ class AssetFinder:
             as_of_date,
         )
 
+    def get_max_sid(self):
+        table = self.equity_symbol_mappings
+        with self.engine.connect() as conn:
+            #  f'SELECT MAX(sid) max_id FROM {table}'
+            max_id = pd.read_sql(sa.select(sa.func.max(table.c.sid)), conn)
+
+            if len(max_id) == 0 or max_id["max_1"][0] is None:
+                return -1
+
+            return max_id["max_1"][0]
+
     def lookup_symbols(self, symbols, as_of_date, fuzzy=False, country_code=None):
         """Lookup a list of equities by symbol.
 
