@@ -32,7 +32,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Wheels Linux
-        uses: pypa/cibuildwheel@v2.12.0
+        uses: pypa/cibuildwheel@v2.13.0
         env:
           CIBW_BEFORE_ALL_LINUX: ./tools/install_talib.sh
           CIBW_ARCHS_LINUX: x86_64
