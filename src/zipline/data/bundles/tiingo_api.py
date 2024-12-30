@@ -16,6 +16,7 @@ Adjustments: to enable a bigger precision on our backtests, i decided to
   for dividends and splits. However, only daily-data contains this information
   so it's really IMPORTANT that you never only request minute-data alone.
 """
+
 # import alpaca_trade_api.rest
 from tiingo import TiingoClient
 import numpy as np

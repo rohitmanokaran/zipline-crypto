@@ -4,6 +4,7 @@ written by https://github.com/ajjcoppola
 
 make sure you set the QUANDL_API_KEY env variable to use this bundle
 """
+
 from io import BytesIO
 from zipfile import ZipFile
 
@@ -96,12 +97,12 @@ def sharadar_prices_bundle(
 
     # raw_data.loc[:, 'ex_date'] = raw_data.loc[:, 'record_date'] = raw_data.date
     # raw_data.loc[:, 'declared_date'] = raw_data.loc[:, 'pay_date'] = raw_data.date
-    raw_data.loc[:, "ex_date"] = raw_data.loc[
-        :, "record_date"
-    ] = raw_data.index.get_level_values("date")
-    raw_data.loc[:, "declared_date"] = raw_data.loc[
-        :, "pay_date"
-    ] = raw_data.index.get_level_values("date")
+    raw_data.loc[:, "ex_date"] = raw_data.loc[:, "record_date"] = (
+        raw_data.index.get_level_values("date")
+    )
+    raw_data.loc[:, "declared_date"] = raw_data.loc[:, "pay_date"] = (
+        raw_data.index.get_level_values("date")
+    )
     # raw_data.loc[:, 'sid'] = raw_data.loc[:, 'symbol'].apply(lambda x: ticker2sid_map[x])
     raw_data = raw_data.rename(columns={"dividends": "amount"})
     # raw_data = raw_data.drop(['open', 'high', 'low', 'close', 'volume','symbol'], axis=1)

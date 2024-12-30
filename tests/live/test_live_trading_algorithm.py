@@ -1,6 +1,7 @@
 """
 Tests for live trading.
 """
+
 import pytest
 
 import pandas as pd

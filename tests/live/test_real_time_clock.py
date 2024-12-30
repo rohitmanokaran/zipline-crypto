@@ -65,9 +65,10 @@ class TestRealtimeClock(TestCase):
             )
             msc_events = list(msc)
 
-            with patch("zipline.gens.realtimeclock.pd.to_datetime") as to_dt, patch(
-                "zipline.gens.realtimeclock.sleep"
-            ) as sleep:
+            with (
+                patch("zipline.gens.realtimeclock.pd.to_datetime") as to_dt,
+                patch("zipline.gens.realtimeclock.sleep") as sleep,
+            ):
                 rtc = iter(
                     RealtimeClock(
                         self.sessions,
@@ -93,9 +94,10 @@ class TestRealtimeClock(TestCase):
         """Tests that RealtimeClock's time_skew parameter behaves as
         expected"""
         for time_skew in (pd.Timedelta("2 hour"), pd.Timedelta("-120 sec")):
-            with patch("zipline.gens.realtimeclock.pd.to_datetime") as to_dt, patch(
-                "zipline.gens.realtimeclock.sleep"
-            ) as sleep:
+            with (
+                patch("zipline.gens.realtimeclock.pd.to_datetime") as to_dt,
+                patch("zipline.gens.realtimeclock.sleep") as sleep,
+            ):
                 clock = RealtimeClock(
                     self.sessions,
                     self.opens,
@@ -127,9 +129,10 @@ class TestRealtimeClock(TestCase):
         )
         msc_events = list(msc)
 
-        with patch("zipline.gens.realtimeclock.pd.to_datetime") as to_dt, patch(
-            "zipline.gens.realtimeclock.sleep"
-        ) as sleep:
+        with (
+            patch("zipline.gens.realtimeclock.pd.to_datetime") as to_dt,
+            patch("zipline.gens.realtimeclock.sleep") as sleep,
+        ):
             rtc = RealtimeClock(
                 self.sessions,
                 self.opens,
@@ -161,9 +164,10 @@ class TestRealtimeClock(TestCase):
     @unittest.skip("Failing on CI - Fix later")
     def test_afterhours_start(self):
         """Tests that RealtimeClock returns immediately if started after RTH"""
-        with patch("zipline.gens.realtimeclock.pd.to_datetime") as to_dt, patch(
-            "zipline.gens.realtimeclock.sleep"
-        ) as sleep:
+        with (
+            patch("zipline.gens.realtimeclock.pd.to_datetime") as to_dt,
+            patch("zipline.gens.realtimeclock.sleep") as sleep,
+        ):
             rtc = RealtimeClock(
                 self.sessions,
                 self.opens,

@@ -467,13 +467,17 @@ class TWSConnection(EWrapper):  # EClientSocket, EWrapper
             "exec_id: {exec_id}".format(
                 order_id=order_id,
                 exec_id=commission_report.m_execId,
-                realized_pnl=commission_report.m_realizedPNL
-                if commission_report.m_realizedPNL != sys.float_info.max
-                else 0,
+                realized_pnl=(
+                    commission_report.m_realizedPNL
+                    if commission_report.m_realizedPNL != sys.float_info.max
+                    else 0
+                ),
                 commission=commission_report.m_commission,
-                yield_=commission_report.m_yield
-                if commission_report.m_yield != sys.float_info.max
-                else 0,
+                yield_=(
+                    commission_report.m_yield
+                    if commission_report.m_yield != sys.float_info.max
+                    else 0
+                ),
             )
         )
 

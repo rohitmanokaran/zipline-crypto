@@ -16,6 +16,7 @@ Adjustments: to enable a bigger precision on our backtests, i decided to
   for dividends and splits. However, only daily-data contains this information
   so it's really IMPORTANT that you never only request minute-data alone.
 """
+
 import alpaca_trade_api.rest
 import numpy as np
 import pandas as pd
@@ -117,9 +118,9 @@ av_config = AlphaVantage()
 AV_FREQ_SEC = av_config.sample_frequency
 AV_CALLS_PER_FREQ = av_config.max_calls_per_freq
 AV_TOLERANCE_SEC = av_config.breathing_space
-os.environ[
-    "ALPHAVANTAGE_API_KEY"
-] = av_config.api_key  # make sure it's set in env variable
+os.environ["ALPHAVANTAGE_API_KEY"] = (
+    av_config.api_key
+)  # make sure it's set in env variable
 
 UNIVERSE = Universe.NASDAQ100
 
