@@ -55,26 +55,23 @@ implements the following algorithm for executing pipelines:
    into "narrow" format, with output labels dictated by the Pipeline's
    screen. This logic lives in SimplePipelineEngine._to_narrow.
 """
+
 from abc import ABC, abstractmethod
 from functools import partial
 
-from numpy import array, arange
-from pandas import DataFrame, MultiIndex
+import pandas as pd
+from numpy import arange, array
 from toolz import groupby
 
 from zipline.errors import NoFurtherDataError
 from zipline.lib.adjusted_array import ensure_adjusted_array, ensure_ndarray
 from zipline.utils.date_utils import compute_date_range_chunks
 from zipline.utils.input_validation import expect_types
-from zipline.utils.numpy_utils import (
-    as_column,
-    repeat_first_axis,
-    repeat_last_axis,
-)
-from zipline.utils.pandas_utils import categorical_df_concat
-from zipline.utils.pandas_utils import explode
+from zipline.utils.numpy_utils import as_column, repeat_first_axis, repeat_last_axis
+from zipline.utils.pandas_utils import categorical_df_concat, explode
 from zipline.utils.string_formatting import bulleted_list
-from .domain import Domain, GENERIC
+
+from .domain import GENERIC, Domain
 from .graph import maybe_specialize
 from .hooks import DelegatingHooks
 from .term import AssetExists, InputDates, LoadableTerm
@@ -93,7 +90,7 @@ class PipelineEngine(ABC):
             Start date of the computed matrix.
         end_date : pd.Timestamp
             End date of the computed matrix.
-        hooks : list[implements(PipelineHooks)], optional
+        hooks : list[PipelineHooks], optional
             Hooks for instrumenting Pipeline execution.
 
         Returns
@@ -132,7 +129,7 @@ class PipelineEngine(ABC):
             The end date to run the pipeline for.
         chunksize : int
             The number of days to execute at a time.
-        hooks : list[implements(PipelineHooks)], optional
+        hooks : list[PipelineHooks], optional
             Hooks for instrumenting Pipeline execution.
 
         Returns
@@ -290,7 +287,7 @@ class SimplePipelineEngine(PipelineEngine):
             The end date to run the pipeline for.
         chunksize : int
             The number of days to execute at a time.
-        hooks : list[implements(PipelineHooks)], optional
+        hooks : list[PipelineHooks], optional
             Hooks for instrumenting Pipeline execution.
 
         Returns
@@ -345,7 +342,7 @@ class SimplePipelineEngine(PipelineEngine):
             Start date of the computed matrix.
         end_date : pd.Timestamp
             End date of the computed matrix.
-        hooks : list[implements(PipelineHooks)], optional
+        hooks : list[PipelineHooks], optional
             Hooks for instrumenting Pipeline execution.
 
         Returns
@@ -593,7 +590,7 @@ class SimplePipelineEngine(PipelineEngine):
             ``workspace``. See TermGraph.decref_dependencies for more info.
         execution_order : list[Term]
             Order in which to execute terms.
-        hooks : implements(PipelineHooks)
+        hooks : PipelineHooks
             Hooks to instrument pipeline execution.
 
         Returns
@@ -751,9 +748,9 @@ class SimplePipelineEngine(PipelineEngine):
             # Slicing `dates` here to preserve pandas metadata.
             empty_dates = dates[:0]
             empty_assets = array([], dtype=object)
-            return DataFrame(
+            return pd.DataFrame(
                 data={name: array([], dtype=arr.dtype) for name, arr in data.items()},
-                index=MultiIndex.from_arrays([empty_dates, empty_assets]),
+                index=pd.MultiIndex.from_arrays([empty_dates, empty_assets]),
             )
         # if "open_instance" in data.keys():
         #     data["open_instance"].tofile("../../open_instance.dat")
@@ -767,7 +764,9 @@ class SimplePipelineEngine(PipelineEngine):
 
         resolved_assets = array(self._finder.retrieve_all(assets))
         index = _pipeline_output_index(dates, resolved_assets, mask)
-        return DataFrame(data=final_columns, index=index)
+        return pd.DataFrame(
+            data=final_columns, index=index, columns=final_columns.keys()
+        )
 
     def _validate_compute_chunk_params(self, graph, dates, sids, initial_workspace):
         """
@@ -899,7 +898,7 @@ def _pipeline_output_index(dates, assets, mask):
     """
     date_labels = repeat_last_axis(arange(len(dates)), len(assets))[mask]
     asset_labels = repeat_first_axis(arange(len(assets)), len(dates))[mask]
-    return MultiIndex(
+    return pd.MultiIndex(
         [dates, assets],
         [date_labels, asset_labels],
         # TODO: We should probably add names for these.

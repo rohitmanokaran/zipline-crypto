@@ -1,6 +1,5 @@
 """Synthetic data loaders for testing."""
 
-from interface import implements
 import numpy as np
 
 from numpy.random import RandomState
@@ -31,7 +30,7 @@ def nanos_to_seconds(nanos):
     return nanos / (1000 * 1000 * 1000)
 
 
-class PrecomputedLoader(implements(PipelineLoader)):
+class PrecomputedLoader(PipelineLoader):
     """Synthetic PipelineLoader that uses a pre-computed array for each column.
 
     Parameters
@@ -189,16 +188,18 @@ PSEUDO_EPOCH_NAIVE = Timestamp("2000-01-01")
 # TODO FIX TZ MESS
 
 
-def asset_start(asset_info, asset):
+def asset_start(asset_info, asset, tz=None):
     ret = asset_info.loc[asset]["start_date"]
-    # if ret.tz is None:
-    #     ret = ret.tz_localize("UTC")
+    if tz is not None:
+        ret = ret.tz_localize(tz)
     # assert ret.tzname() == "UTC", "Unexpected non-UTC timestamp"
     return ret
 
 
-def asset_end(asset_info, asset):
+def asset_end(asset_info, asset, tz=None):
     ret = asset_info.loc[asset]["end_date"]
+    if tz is not None:
+        ret = ret.tz_localize(tz)
     # if ret.tz is None:
     #     ret = ret.tz_localize("UTC")
     # assert ret.tzname() == "UTC", "Unexpected non-UTC timestamp"
@@ -260,8 +261,8 @@ def make_bar_data(asset_info, calendar, holes=None):
         # info.
         datetimes = calendar[
             calendar.slice_indexer(
-                asset_start(asset_info, asset_id),
-                asset_end(asset_info, asset_id),
+                asset_start(asset_info, asset_id, tz=calendar.tz),
+                asset_end(asset_info, asset_id, tz=calendar.tz),
             )
         ]
 

@@ -1996,11 +1996,13 @@ class TestAlgoScript(zf.WithMakeAlgo, zf.ZiplineTestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("ignore", PerformanceWarning)
             warnings.simplefilter("ignore", RuntimeWarning)
+            # catch new FutureWarning until fixed
+            warnings.simplefilter("ignore", FutureWarning)
 
             algo = self.make_algo(script=algocode, sim_params=sim_params)
             algo.run()
 
-            assert len(w) == 2
+            assert len(w) == 2, f"Expected 2 warnings, got {len(w):d}"
 
             for i, warning in enumerate(w):
                 assert isinstance(warning.message, UserWarning)
@@ -2748,7 +2750,7 @@ class TestGetDatetime(zf.WithMakeAlgo, zf.ZiplineTestCase):
 
             def handle_data(context, data):
                 dt = get_datetime({tz})
-                if dt.tz.zone != context.tz:
+                if str(dt.tz) != context.tz:
                     raise ValueError("Mismatched Zone")
 
                 if context.first_bar:

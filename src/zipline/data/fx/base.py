@@ -1,4 +1,4 @@
-from interface import default, Interface
+import abc
 
 import numpy as np
 import pandas as pd
@@ -10,7 +10,7 @@ from zipline.lib._factorize import factorize_strings
 DEFAULT_FX_RATE = sentinel("DEFAULT_FX_RATE")
 
 
-class FXRateReader(Interface):
+class FXRateReader(abc.ABC):
     """
     Interface for reading foreign exchange (fx) rates.
 
@@ -84,7 +84,7 @@ class FXRateReader(Interface):
             The column at index j corresponds to the base currency in bases[j].
         """
 
-    @default
+    # @default
     def get_rate_scalar(self, rate, quote, base, dt):
         """
         Load a scalar FX rate value.
@@ -113,7 +113,7 @@ class FXRateReader(Interface):
         )
         return rates_2d[0, 0]
 
-    @default
+    # @default
     def get_rates_columnar(self, rate, quote, bases, dts):
         """
         Load a 1D array of FX rates.

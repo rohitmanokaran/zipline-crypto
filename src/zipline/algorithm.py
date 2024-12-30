@@ -16,7 +16,7 @@ from collections.abc import Iterable
 from collections import namedtuple
 from copy import copy
 import warnings
-from datetime import tzinfo, time, datetime
+from datetime import tzinfo, time, datetime, timezone
 import logging
 import pytz
 import pandas as pd
@@ -458,9 +458,11 @@ class TradingAlgorithm:
 
         self._in_before_trading_start = True
 
-        with handle_non_market_minutes(
-            data
-        ) if self.data_frequency == "minute" else ExitStack():
+        with (
+            handle_non_market_minutes(data)
+            if self.data_frequency == "minute"
+            else ExitStack()
+        ):
             self._before_trading_start(self, data)
 
         self._in_before_trading_start = False
@@ -753,28 +755,30 @@ class TradingAlgorithm:
 
         Parameters
         ----------
-        field : {'platform', 'arena', 'data_frequency',
-                 'start', 'end', 'capital_base', 'platform', '*'}
-            The field to query. The options have the following meanings:
-              arena : str
-                  The arena from the simulation parameters. This will normally
-                  be ``'backtest'`` but some systems may use this distinguish
-                  live trading from backtesting.
-              data_frequency : {'daily', 'minute'}
-                  data_frequency tells the algorithm if it is running with
-                  daily data or minute data.
-              start : datetime
-                  The start date for the simulation.
-              end : datetime
-                  The end date for the simulation.
-              capital_base : float
-                  The starting capital for the simulation.
-              platform : str
-                  The platform that the code is running on. By default this
-                  will be the string 'zipline'. This can allow algorithms to
-                  know if they are running on the Quantopian platform instead.
-              * : dict[str -> any]
-                  Returns all of the fields in a dictionary.
+        field : {'platform', 'arena', 'data_frequency', 'start', 'end',
+        'capital_base', 'platform', '*'}
+
+        The field to query. The options have the following meanings:
+
+        - arena : str
+          The arena from the simulation parameters. This will normally
+          be ``'backtest'`` but some systems may use this distinguish
+          live trading from backtesting.
+        - data_frequency : {'daily', 'minute'}
+          data_frequency tells the algorithm if it is running with
+          daily data or minute data.
+        - start : datetime
+          The start date for the simulation.
+        - end : datetime
+          The end date for the simulation.
+        - capital_base : float
+          The starting capital for the simulation.
+        -platform : str
+          The platform that the code is running on. By default, this
+          will be the string 'zipline'. This can allow algorithms to
+          know if they are running on the Quantopian platform instead.
+        - * : dict[str -> any]
+          Returns all the fields in a dictionary.
 
         Returns
         -------
@@ -812,7 +816,7 @@ class TradingAlgorithm:
         post_func=None,
         date_column="date",
         date_format=None,
-        timezone=pytz.utc.zone,
+        timezone=str(timezone.utc),
         symbol=None,
         mask=True,
         symbol_column=None,
@@ -1493,7 +1497,19 @@ class TradingAlgorithm:
             The current simulation datetime converted to ``tz``.
         """
         dt = self.datetime
-        assert dt.tzinfo == pytz.utc, "Algorithm should have a utc datetime"
+        from packaging.version import Version
+        import pytz
+
+        if Version(pd.__version__) < Version("2.0.0"):
+            assert (
+                dt.tzinfo == pytz.utc
+            ), f"Algorithm should have a pytc utc datetime, {dt.tzinfo}"
+        else:
+            assert (
+                dt.tzinfo == timezone.utc
+            ), f"Algorithm should have a timezone.utc datetime, {dt.tzinfo}"
+
+        # assert dt.tzinfo == timezone.utc, "Algorithm should have a utc datetime"
         if tz is not None:
             dt = dt.astimezone(tz)
         return dt

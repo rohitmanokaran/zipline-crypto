@@ -12,11 +12,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""
-Tests for USEquityPricingLoader and related classes.
-"""
+
+"""Tests for USEquityPricingLoader and related classes."""
+
 from parameterized import parameterized
 import sys
+from packaging.version import Version
 import numpy as np
 from numpy.testing import (
     assert_allclose,
@@ -84,7 +85,7 @@ EQUITY_INFO = pd.DataFrame(
     ],
     index=np.arange(1, 7),
     columns=["start_date", "end_date"],
-).astype(np.datetime64)
+).astype("datetime64[ns]")
 EQUITY_INFO["symbol"] = [chr(ord("A") + n) for n in range(len(EQUITY_INFO))]
 EQUITY_INFO["exchange"] = "TEST"
 
@@ -473,6 +474,9 @@ class USEquityPricingLoaderTestCase(WithAdjustmentReader, ZiplineTestCase):
     @parameterized.expand([(True,), (False,)])
     @pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
     def test_load_adjustments_to_df(self, convert_dts):
+        if Version(pd.__version__) < Version("2.0") and not convert_dts:
+            pytest.skip("pandas < 2.0 behaves differently datetime64[s]")
+
         reader = self.adjustment_reader
         adjustment_dfs = reader.unpack_db_to_component_dfs(convert_dates=convert_dts)
 
@@ -487,7 +491,9 @@ class USEquityPricingLoaderTestCase(WithAdjustmentReader, ZiplineTestCase):
 
             if convert_dts:
                 for colname in reader._datetime_int_cols[name]:
-                    expected_df[colname] = expected_df[colname].astype("datetime64[s]")
+                    expected_df[colname] = pd.to_datetime(
+                        expected_df[colname], unit="s"
+                    )
 
             return expected_df
 
@@ -496,16 +502,9 @@ class USEquityPricingLoaderTestCase(WithAdjustmentReader, ZiplineTestCase):
 
             for colname in reader._datetime_int_cols[name]:
                 if not convert_dts:
-                    # todo: fix nanosecond hack
                     expected_df[colname] = (
-                        expected_df[colname]
-                        .astype("datetime64[s]")
-                        .view(int)
-                        .div(1000000000)
-                        .astype(int)
+                        expected_df[colname].astype("datetime64[s]").view(int)
                     )
-                else:
-                    expected_df[colname] = expected_df[colname].astype("datetime64[s]")
 
             return expected_df
 

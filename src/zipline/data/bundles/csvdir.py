@@ -1,6 +1,7 @@
 """
 Module for building a complete dataset from local directory with csv files.
 """
+
 import os
 import sys
 
@@ -194,11 +195,7 @@ def _pricing_iter(csvdir, symbols, metadata, divs_splits, show_progress):
         files = os.scandir(csvdir)
         # building a dictionary of filenames
         # NOTE: if there are duplicates it will arbitrarily pick the latest found
-        fnames = {
-            f.name.split(".")[0]: f.name
-            for f in files
-            if f.is_file() and f.name.split(".")[0] in it
-        }
+        fnames = {f.name.split(".")[0]: f.name for f in files if f.is_file()}
 
         for sid, symbol in enumerate(it):
             logger.debug(f"{symbol}: sid {sid}")
@@ -211,7 +208,6 @@ def _pricing_iter(csvdir, symbols, metadata, divs_splits, show_progress):
             dfr = pd.read_csv(
                 os.path.join(csvdir, fname),
                 parse_dates=[0],
-                infer_datetime_format=True,
                 index_col=0,
             ).sort_index()
 

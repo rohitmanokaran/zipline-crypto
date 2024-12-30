@@ -34,6 +34,7 @@ from numpy cimport int64_t
 import warnings
 cimport numpy as np
 
+
 from zipline.utils.calendar_utils import get_calendar
 
 

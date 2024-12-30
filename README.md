@@ -13,7 +13,6 @@
 
 Zipline is a Pythonic event-driven system for backtesting, developed and used as the backtesting and live-trading engine by [crowd-sourced investment fund Quantopian](https://www.bizjournals.com/boston/news/2020/11/10/quantopian-shuts-down-cofounders-head-elsewhere.html). Since it closed late 2020, the domain that had hosted these docs expired. The library is used extensively in the book [Machine Larning for Algorithmic Trading](https://ml4trading.io)
 by [Stefan Jansen](https://www.linkedin.com/in/applied-ai/) who is trying to keep the library up to date and available to his readers and the wider Python algotrading community.
-
 - [Join our Community!](https://exchange.ml4trading.io)
 - [zipline-Documentation](https://zipline.ml4trading.io)
 - [zipline-live Documentation](https://zipline-trader.readthedocs.io)
@@ -27,6 +26,12 @@ by [Stefan Jansen](https://www.linkedin.com/in/applied-ai/) who is trying to kee
 - **Live trading:** Live trading support for Interactive Brokers and Alpaca.
 - **Multiple Data sources:**
 
+> **Note:** Release 3.05 makes Zipline compatible with Numpy 2.0, which requires Pandas 2.2.2 or higher. If you are using an older version of Pandas, you will need to upgrade it. Other packages may also still take more time to catch up with the latest Numpy release.
+
+> **Note:** Release 3.0 updates Zipline to use [pandas](https://pandas.pydata.org/pandas-docs/stable/whatsnew/v2.0.0.html) >= 2.0 and [SQLAlchemy](https://docs.sqlalchemy.org/en/20/) > 2.0. These are major version updates that may break existing code; please review the linked docs.
+
+> **Note:** Release 2.4 updates Zipline to use [exchange_calendars](https://github.com/gerrymanoim/exchange_calendars) >= 4.2. This is a major version update and may break existing code (which we have tried to avoid but cannot guarantee). Please review the changes [here](https://github.com/gerrymanoim/exchange_calendars/issues/61).
+
 ## Installation
 
 Zipline supports Python >= 3.10 and is compatible with current versions of the relevant [NumFOCUS](https://numfocus.org/sponsored-projects?_sft_project_category=python-interface) libraries, including [pandas](https://pandas.pydata.org/) and [scikit-learn](https://scikit-learn.org/stable/index.html).
@@ -39,7 +44,7 @@ pip install zipline-crypto
 
 See the [installation](https://zipline.ml4trading.io/install.html) section of the docs for more detailed instructions.
 
-> **Note:** Installation under Python 3.11 requires building `h5py` [from source](https://docs.h5py.org/en/stable/build.html#source-installation) until [wheels become available](https://github.com/h5py/h5py/issues/2146).
+### Using `conda`
 
 ## Quickstart
 
@@ -82,10 +87,22 @@ def handle_data(context, data):
            long_mavg=long_mavg)
 ```
 
-You can then run this algorithm using the Zipline CLI. But first, you need to download some market data with historical prices and trading volumes:
+You can then run this algorithm using the Zipline CLI. But first, you need to download some market data with historical prices and trading volumes.
+
+This will download asset pricing data from [NASDAQ](https://data.nasdaq.com/databases/WIKIP) (formerly [Quandl](https://www.nasdaq.com/about/press-center/nasdaq-acquires-quandl-advance-use-alternative-data)).
+
+> This requires an API key, which you can get for free by signing up at [NASDAQ Data Link](https://data.nasdaq.com).
 
 ```bash
+$ export QUANDL_API_KEY="your_key_here"
 $ zipline ingest -b quandl
+````
+
+The following will
+- stream the through the algorithm over the specified time range.
+- save the resulting performance DataFrame as `dma.pickle`, which you can load and analyze from Python using, e.g., [pyfolio-reloaded](https://github.com/stefan-jansen/pyfolio-reloaded).
+
+```bash
 $ zipline run -f dual_moving_average.py --start 2014-1-1 --end 2018-1-1 -o dma.pickle --no-benchmark
 ```
 

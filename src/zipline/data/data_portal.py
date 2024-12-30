@@ -219,11 +219,11 @@ class DataPortal:
                 self.asset_finder,
                 aligned_future_session_reader,
             )
-            aligned_session_readers[
-                ContinuousFuture
-            ] = ContinuousFutureSessionBarReader(
-                aligned_future_session_reader,
-                self._roll_finders,
+            aligned_session_readers[ContinuousFuture] = (
+                ContinuousFutureSessionBarReader(
+                    aligned_future_session_reader,
+                    self._roll_finders,
+                )
             )
 
         _dispatch_minute_reader = AssetDispatchMinuteBarReader(
@@ -402,12 +402,13 @@ class DataPortal:
         )
 
     def _get_fetcher_value(self, asset, field, dt):
-        day = dt.normalize()
+        # TODO: FIX TZ MESS
+        day = dt.normalize().tz_localize(None)
 
         try:
             return self._augmented_sources_map[field][asset].loc[day, field]
         except KeyError:
-            return np.NaN
+            return np.nan
 
     def _get_single_asset_value(self, session_label, asset, field, dt, data_frequency):
         if self._is_extra_source(asset, field, self._augmented_sources_map):
@@ -426,7 +427,7 @@ class DataPortal:
             elif field == "contract":
                 return None
             elif field != "last_traded":
-                return np.NaN
+                return np.nan
 
         if data_frequency == "daily":
             if field == "contract":
@@ -1032,7 +1033,7 @@ class DataPortal:
         if field != "volume":
             # volumes default to 0, so we don't need to put NaNs in the array
             return_array = return_array.astype(float64)
-            return_array[:] = np.NAN
+            return_array[:] = np.nan
 
         if bar_count != 0:
             data = self._history_loader.history(
@@ -1072,9 +1073,9 @@ class DataPortal:
         try:
             adjustments = adjustments_dict[sid]
         except KeyError:
-            adjustments = adjustments_dict[
-                sid
-            ] = self._adjustment_reader.get_adjustments_for_sid(table_name, sid)
+            adjustments = adjustments_dict[sid] = (
+                self._adjustment_reader.get_adjustments_for_sid(table_name, sid)
+            )
 
         return adjustments
 
@@ -1185,7 +1186,8 @@ class DataPortal:
         if self._extra_source_df is None:
             return []
 
-        day = dt.normalize()
+        # TODO: FIX THIS TZ MESS!
+        day = dt.normalize().tz_localize(None)
 
         if day in self._extra_source_df.index:
             assets = self._extra_source_df.loc[day]["sid"]

@@ -1017,7 +1017,6 @@ class WithBcolzEquityDailyBarReader(WithEquityDailyBarData, WithTmpDir):
 
     BCOLZ_DAILY_BAR_PATH = "daily_equity_pricing.bcolz"
     BCOLZ_DAILY_BAR_READ_ALL_THRESHOLD = None
-    BCOLZ_DAILY_BAR_COUNTRY_CODE = None
     EQUITY_DAILY_BAR_SOURCE_FROM_MINUTE = False
     # allows WithBcolzEquityDailyBarReaderFromCSVs to call the
     # `write_csvs`method without needing to reimplement `init_class_fixtures`
@@ -1453,9 +1452,9 @@ class WithBcolzEquityMinuteBarReader(WithEquityMinuteBarData, WithTmpDir):
     @classmethod
     def init_class_fixtures(cls):
         super(WithBcolzEquityMinuteBarReader, cls).init_class_fixtures()
-        cls.bcolz_equity_minute_bar_path = (
-            p
-        ) = cls.make_bcolz_equity_minute_bar_rootdir_path()
+        cls.bcolz_equity_minute_bar_path = p = (
+            cls.make_bcolz_equity_minute_bar_rootdir_path()
+        )
         days = cls.equity_minute_bar_days
 
         writer = BcolzMinuteBarWriter(
@@ -1515,9 +1514,9 @@ class WithBcolzFutureMinuteBarReader(WithFutureMinuteBarData, WithTmpDir):
     def init_class_fixtures(cls):
         super(WithBcolzFutureMinuteBarReader, cls).init_class_fixtures()
         trading_calendar = get_calendar("us_futures")
-        cls.bcolz_future_minute_bar_path = (
-            p
-        ) = cls.make_bcolz_future_minute_bar_rootdir_path()
+        cls.bcolz_future_minute_bar_path = p = (
+            cls.make_bcolz_future_minute_bar_rootdir_path()
+        )
         days = cls.future_minute_bar_days
 
         writer = BcolzMinuteBarWriter(

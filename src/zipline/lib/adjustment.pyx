@@ -1,7 +1,7 @@
 # cython: embedsignature=True
 from cpython cimport Py_EQ
 
-cimport cython
+# cimport cython
 from pandas import isnull, Timestamp
 cimport numpy as np
 from numpy cimport float64_t, uint8_t, int64_t

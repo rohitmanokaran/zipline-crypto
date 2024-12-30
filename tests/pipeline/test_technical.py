@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
-import talib
 from numpy.random import RandomState
-
+from packaging.version import Version
 from zipline.lib.adjusted_array import AdjustedArray
 from zipline.pipeline.data import USEquityPricing
 from zipline.pipeline.factors import (
@@ -22,6 +21,14 @@ from zipline.testing.predicates import assert_equal
 from .base import BaseUSEquityPipelineTestCase
 import pytest
 import re
+
+# talib is not yet compatible with numpy 2.0, and also now optional.
+NUMPY2 = Version(np.__version__) >= Version("2.0.0")
+if not NUMPY2:
+    try:
+        import talib
+    except ImportError:
+        talib = None
 
 
 class BollingerBandsTestCase(BaseUSEquityPipelineTestCase):
@@ -75,6 +82,7 @@ class BollingerBandsTestCase(BaseUSEquityPipelineTestCase):
         mask_last_sid={True, False},
         __fail_fast=True,
     )
+    @pytest.mark.skipif(NUMPY2 or talib is None, reason="requires numpy 1.0")
     def test_bollinger_bands(self, window_length, k, mask_last_sid):
         closes = self.closes(mask_last_sid=mask_last_sid)
         mask = ~np.isnan(closes)
@@ -194,6 +202,7 @@ class TestFastStochasticOscillator:
             range(5),
         ],
     )
+    @pytest.mark.skipif(NUMPY2 or talib is None, reason="requires numpy 1.0")
     def test_fso_expected_with_talib(self, seed):
         """
         Test the output that is returned from the fast stochastic oscillator

@@ -1,6 +1,7 @@
 """
 Tests for SimplePipelineEngine
 """
+
 from collections import OrderedDict
 from itertools import product
 from operator import add, sub
@@ -11,7 +12,8 @@ import numpy as np
 
 from numpy.testing import assert_almost_equal
 import pandas as pd
-from pandas.compat.chainmap import ChainMap
+from collections import ChainMap
+
 from pandas.testing import assert_frame_equal
 from toolz import merge
 

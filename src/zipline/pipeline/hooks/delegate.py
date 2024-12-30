@@ -1,5 +1,3 @@
-from interface import implements
-
 from zipline.utils.compat import ExitStack, contextmanager, wraps
 
 from .iface import PipelineHooks, PIPELINE_HOOKS_CONTEXT_MANAGERS
@@ -31,12 +29,12 @@ def delegating_hooks_method(method_name):
         return method
 
 
-class DelegatingHooks(implements(PipelineHooks)):
+class DelegatingHooks(PipelineHooks):
     """A PipelineHooks that delegates to one or more other hooks.
 
     Parameters
     ----------
-    hooks : list[implements(PipelineHooks)]
+    hooks : list[PipelineHooks]
         Sequence of hooks to delegate to.
     """
 
@@ -54,15 +52,17 @@ class DelegatingHooks(implements(PipelineHooks)):
             self._hooks = hooks
             return self
 
-    # Implement all interface methods by delegating to corresponding methods on
-    # input hooks.
-    locals().update(
-        {
-            name: delegating_hooks_method(name)
-            # TODO: Expose this publicly on interface.
-            for name in PipelineHooks._signatures
-        }
-    )
+    # Implement all abstract methods by delegating to corresponding methods on hooks.
+    def __init__(self, hooks):
+        self._hooks = hooks
+
+    def some_method(self):
+        for hook in self._hooks:
+            hook.some_method()
+
+    # Dynamically generate all methods declared in PIPELINE_HOOKS_CONTEXT_MANAGERS
+    for name in PIPELINE_HOOKS_CONTEXT_MANAGERS:
+        locals()[name] = delegating_hooks_method(name)
 
 
 del delegating_hooks_method

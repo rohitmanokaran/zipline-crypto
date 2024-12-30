@@ -14,10 +14,11 @@ Currently, this means that a domain defines two things:
    the future, we expect to expand this functionality to include more general
    concepts.
 """
+
+import abc
 import datetime
 from textwrap import dedent
 
-from interface import default, implements, Interface
 import numpy as np
 import pandas as pd
 import pytz
@@ -31,7 +32,7 @@ from zipline.utils.memoize import lazyval
 from zipline.utils.pandas_utils import days_at_time
 
 
-class IDomain(Interface):
+class IDomain(abc.ABC):
     """Domain interface."""
 
     def sessions(self):
@@ -72,7 +73,7 @@ class IDomain(Interface):
             "available" on each session.
         """
 
-    @default
+    # @default
     def roll_forward(self, dt):
         """Given a date, align it to the calendar of the pipeline's domain.
 
@@ -95,7 +96,7 @@ class IDomain(Interface):
             ) from exc
 
 
-Domain = implements(IDomain)
+Domain = IDomain
 Domain.__doc__ = """A domain represents a set of labels for the arrays computed by a Pipeline.
 
 A domain defines two things:

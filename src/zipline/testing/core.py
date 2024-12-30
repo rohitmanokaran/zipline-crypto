@@ -158,9 +158,10 @@ def security_list_copy():
             shutil.copytree(
                 os.path.join(old_dir, subdir), os.path.join(new_dir, subdir)
             )
-            with mock.patch.object(
-                security_list, "SECURITY_LISTS_DIR", new_dir
-            ), mock.patch.object(security_list, "using_copy", True, create=True):
+            with (
+                mock.patch.object(security_list, "SECURITY_LISTS_DIR", new_dir),
+                mock.patch.object(security_list, "using_copy", True, create=True),
+            ):
                 yield
     finally:
         shutil.rmtree(new_dir, True)
@@ -293,7 +294,7 @@ def check_allclose(actual, desired, rtol=1e-07, atol=0, err_msg="", verbose=True
     --------
     np.assert_allclose
     """
-    if type(actual) != type(desired):
+    if type(actual) is not type(desired):
         raise AssertionError("%s != %s" % (type(actual), type(desired)))
     return assert_allclose(
         actual,
@@ -313,7 +314,7 @@ def check_arrays(x, y, err_msg="", verbose=True, check_dtypes=True):
     --------
     np.assert_array_equal
     """
-    assert type(x) == type(y), "{x} != {y}".format(x=type(x), y=type(y))
+    assert type(x) is type(y), "{x} != {y}".format(x=type(x), y=type(y))
     assert x.dtype == y.dtype, "{x.dtype} != {y.dtype}".format(x=x, y=y)
 
     if isinstance(x, LabelArray):
@@ -741,7 +742,7 @@ class tmp_assets_db:
         self._eng = None  # set in enter and exit
 
     def __enter__(self):
-        self._eng = eng = create_engine(self._url, future=True)
+        self._eng = eng = create_engine(self._url)
         AssetDBWriter(eng).write(**self._frames)
         return eng
 

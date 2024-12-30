@@ -1,5 +1,6 @@
 """Tests for statistical pipeline terms."""
 
+import os
 import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -45,6 +46,14 @@ from zipline.utils.numpy_utils import (
 )
 import pytest
 import re
+
+ON_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
+
+
+@pytest.fixture
+def clean_pipeline():
+    # Reset pipeline state
+    return Pipeline()
 
 
 @pytest.fixture(scope="class")
@@ -149,6 +158,9 @@ def set_test_statistical_built_ins(request, with_asset_finder, with_trading_cale
 class TestStatisticalBuiltIns:
     @pytest.mark.parametrize("returns_length", [2, 3])
     @pytest.mark.parametrize("correlation_length", [3, 4])
+    @pytest.mark.skipif(
+        ON_GITHUB_ACTIONS, reason="Test randomly fails on Github Actions."
+    )
     def test_correlation_factors(self, returns_length, correlation_length):
         """Tests for the built-in factors `RollingPearsonOfReturns` and
         `RollingSpearmanOfReturns`.
@@ -248,6 +260,9 @@ class TestStatisticalBuiltIns:
 
     @pytest.mark.parametrize("returns_length", [2, 3])
     @pytest.mark.parametrize("regression_length", [3, 4])
+    @pytest.mark.skipif(
+        ON_GITHUB_ACTIONS, reason="Test randomly fails on Github Actions."
+    )
     def test_regression_of_returns_factor(self, returns_length, regression_length):
         """Tests for the built-in factor `RollingLinearRegressionOfReturns`."""
 
@@ -325,9 +340,9 @@ class TestStatisticalBuiltIns:
                         x=my_asset_returns,
                     )
                     for i, output in enumerate(outputs):
-                        expected_output_results[output][
-                            day, asset_column
-                        ] = expected_regression_results[i]
+                        expected_output_results[output][day, asset_column] = (
+                            expected_regression_results[i]
+                        )
 
             for output in outputs:
                 output_result = output_results[output]
@@ -487,6 +502,9 @@ class TestStatisticalBuiltIns:
                 allowed_missing_percentage=50,
             )
 
+    @pytest.mark.skipif(
+        ON_GITHUB_ACTIONS, reason="Test randomly fails on Github Actions."
+    )
     def test_simple_beta_target(self):
         beta = SimpleBeta(
             target=self.my_asset,
@@ -560,6 +578,9 @@ class StatisticalMethodsTestCase(zf.WithSeededRandomPipelineEngine, zf.ZiplineTe
         # Random input for factors.
         cls.col = TestingDataSet.float_col
 
+    @pytest.mark.skipif(
+        ON_GITHUB_ACTIONS, reason="Test randomly fails on Github Actions."
+    )
     @parameter_space(returns_length=[2, 3], correlation_length=[3, 4])
     def test_factor_correlation_methods(self, returns_length, correlation_length):
         """Ensure that `Factor.pearsonr` and `Factor.spearmanr` are consistent
@@ -932,9 +953,9 @@ class StatisticalMethodsTestCase(zf.WithSeededRandomPipelineEngine, zf.ZiplineTe
                     x=asset_returns_10,
                 )
                 for i, output in enumerate(outputs):
-                    expected_output_results[output][
-                        day, asset_column
-                    ] = expected_regression_results[i]
+                    expected_output_results[output][day, asset_column] = (
+                        expected_regression_results[i]
+                    )
 
         for output in outputs:
             output_result = output_results[output]

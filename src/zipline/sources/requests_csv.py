@@ -7,8 +7,8 @@ import warnings
 import logging
 import numpy
 import pandas as pd
-from pandas import read_csv
-import pytz
+import datetime
+
 import requests
 from io import StringIO
 from zipline.errors import MultipleSymbolsFound, SymbolNotFound, ZiplineError
@@ -214,10 +214,10 @@ class PandasCSV(ABC):
             format_str = None
 
         tz_str = str(tz)
-        if tz_str == pytz.utc.zone:
+        if tz_str == str(datetime.timezone.utc):
             parsed = pd.to_datetime(
                 date_str_series.values,
-                format=format_str,
+                # format=format_str,
                 utc=True,
                 errors="coerce",
             )
@@ -343,7 +343,7 @@ class PandasCSV(ABC):
                             row[self.symbol_column],
                             # Replacing tzinfo here is necessary because of the
                             # timezone metadata bug described below.
-                            row["dt"].replace(tzinfo=pytz.utc),
+                            row["dt"].replace(tzinfo=datetime.tzinfo.utc),
                             country_code=self.country_code,
                             # It's possible that no asset comes back here if our
                             # lookup date is from before any asset held the
@@ -582,7 +582,7 @@ class PandasRequestsCSV(PandasCSV):
 
         try:
             # see if pandas can parse csv data
-            frames = read_csv(fd, **self.pandas_kwargs)
+            frames = pd.read_csv(fd, **self.pandas_kwargs)
 
             frames_hash = hashlib.md5(str(fd.getvalue()).encode("utf-8"))
             self.fetch_hash = frames_hash.hexdigest()

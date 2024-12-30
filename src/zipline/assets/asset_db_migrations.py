@@ -76,9 +76,10 @@ def downgrade(engine, desired_version):
 
     # Check the version of the db at the engine
     with engine.begin() as conn:
-        metadata = sa.MetaData()
-        metadata.reflect(conn)
-        version_info_table = metadata.tables["version_info"]
+        metadata_obj = sa.MetaData()
+        metadata_obj.reflect(conn)
+        version_info_table = metadata_obj.tables["version_info"]
+        # starting_version = sa.select((version_info_table.c.version,)).scalar()
         starting_version = conn.execute(
             sa.select(version_info_table.c.version)
         ).scalar()
@@ -373,7 +374,7 @@ def _downgrade_v6(op):
 
 
 @downgrades(7)
-def _downgrade_v7(op):
+def _downgrade_v7(op):  # noqa: E241
     tmp_name = "_new_equities"
     op.create_table(
         tmp_name,

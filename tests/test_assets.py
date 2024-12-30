@@ -911,7 +911,7 @@ class TestAssetFinder:
                     "sid": 1,
                     "symbol": "FOOB",
                     "start_date": date.value,
-                    "end_date": date.max.value,
+                    "end_date": date.max.asm8.view("i8"),
                     "exchange": "NYSE",
                 },
                 {
@@ -925,7 +925,7 @@ class TestAssetFinder:
                     "sid": 2,
                     "symbol": "FOO_B",
                     "start_date": (date + timedelta(days=61)).value,
-                    "end_date": date.max.value,
+                    "end_date": date.max.asm8.view("i8"),
                     "exchange": "NYSE",
                 },
             ]
@@ -1980,7 +1980,7 @@ class TestAssetFinderMultipleCountries:
                         "sid": n * 2,
                         "symbol": "FOOB",
                         "start_date": date.value,
-                        "end_date": date.max.value,
+                        "end_date": date.max.asm8.view("i8"),
                         "exchange": "EXCHANGE %d" % n,
                     },
                     {
@@ -1994,7 +1994,7 @@ class TestAssetFinderMultipleCountries:
                         "sid": n * 2 + 1,
                         "symbol": "FOO_B",
                         "start_date": (date + timedelta(days=61)).value,
-                        "end_date": date.max.value,
+                        "end_date": date.max.asm8.view("i8"),
                         "exchange": "EXCHANGE %d" % n,
                     },
                 ]
@@ -2032,10 +2032,7 @@ def sql_db(request, postgresql=None):
         connection = "sqlite:///:memory:"
     # elif request.param == "postgresql":
     #     connection = f"postgresql://{postgresql.info.user}:@{postgresql.info.host}:{postgresql.info.port}/{postgresql.info.dbname}"
-    request.cls.engine = sa.create_engine(
-        connection,
-        future=True,
-    )
+    request.cls.engine = sa.create_engine(connection)
     yield request.cls.engine
     request.cls.engine.dispose()
     request.cls.engine = None
@@ -2100,8 +2097,10 @@ class TestAssetDBVersioning:
     def test_finder_checks_version(self):
         with self.engine.connect() as conn:
             version_table = self.metadata.tables["version_info"]
+        with self.engine.connect() as conn:
             conn.execute(version_table.delete())
             write_version_info(conn, version_table, -2)
+            conn.commit()
             check_version_info(conn, version_table, -2)
             conn.commit()
 

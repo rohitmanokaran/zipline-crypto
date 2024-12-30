@@ -261,18 +261,20 @@ def _run(
             benchmark_sid=benchmark_sid,
             performance_callback=performance_callback,
             stop_execution_callback=stop_execution_callback,
-            **{
-                "initialize": initialize,
-                "handle_data": handle_data,
-                "before_trading_start": before_trading_start,
-                "analyze": analyze,
-                "teardown": teardown,
-            }
-            if algotext is None
-            else {
-                "algo_filename": getattr(algofile, "name", "<algorithm>"),
-                "script": algotext,
-            },
+            **(
+                {
+                    "initialize": initialize,
+                    "handle_data": handle_data,
+                    "before_trading_start": before_trading_start,
+                    "analyze": analyze,
+                    "teardown": teardown,
+                }
+                if algotext is None
+                else {
+                    "algo_filename": getattr(algofile, "name", "<algorithm>"),
+                    "script": algotext,
+                }
+            ),
         ).run()
     except NoBenchmark:
         raise _RunAlgoError(

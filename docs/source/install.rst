@@ -5,7 +5,7 @@ Installation
 
 You can install Zipline either using `pip <https://pip.pypa.io/en/stable/>`_, the Python package installer.
 
-Zipline runs on Python 3.10+. To install and use different Python versions in parallel as well as create
+Zipline runs on Python 3.8, 3.9, 3.10 and 3.11. To install and use different Python versions in parallel as well as create
 a virtual environment, you may want to use `pyenv <https://github.com/pyenv/pyenv>`_.
 
 Installing with ``pip``

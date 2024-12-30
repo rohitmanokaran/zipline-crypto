@@ -15,6 +15,7 @@ from cython cimport boundscheck, wraparound
 from numpy import finfo, float64, nan, isnan
 from numpy cimport intp_t, float64_t, uint32_t
 
+
 @boundscheck(False)
 @wraparound(False)
 cpdef void _minute_to_session_open(intp_t[:] close_locs,

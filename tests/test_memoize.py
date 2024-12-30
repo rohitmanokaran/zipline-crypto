@@ -1,4 +1,5 @@
 """Tests for zipline.utils.memoize."""
+
 from collections import defaultdict
 import gc
 
@@ -93,4 +94,4 @@ class TestRememberLast:
         while gc.collect():
             pass
 
-        assert not [inst for inst in gc.get_objects() if type(inst) == clz]
+        assert not [inst for inst in gc.get_objects() if type(inst) is clz]

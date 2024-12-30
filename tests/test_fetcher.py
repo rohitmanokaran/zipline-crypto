@@ -159,12 +159,9 @@ def handle_data(context, data):
 
         # manually getting generator because we need the minutely emission
         # packets here. TradingAlgorithm.run() only returns daily packets.
-        gen = test_algo.get_generator()
-        perf_packets = list(gen)
-
         signal = [
             result["minute_perf"]["recorded_vars"]["aapl_signal"]
-            for result in perf_packets
+            for result in test_algo.get_generator()
             if "minute_perf" in result
         ]
 
@@ -187,7 +184,7 @@ def handle_data(context, data):
         # 390 bars of signal 4 on 1/9
         # 390 bars of signal 4 on 1/9 (forward filled)
 
-        np.testing.assert_array_equal([np.NaN] * 390, signal[0:390])
+        np.testing.assert_array_equal([np.nan] * 390, signal[0:390])
         np.testing.assert_array_equal([2] * 390, signal[390:780])
         np.testing.assert_array_equal([3] * 780, signal[780:1560])
         np.testing.assert_array_equal([4] * 780, signal[1560:])

@@ -2,8 +2,6 @@ from collections import namedtuple
 
 from .iface import PipelineHooks, PIPELINE_HOOKS_CONTEXT_MANAGERS
 
-from interface import implements
-
 from zipline.utils.compat import contextmanager, wraps
 
 
@@ -47,7 +45,7 @@ def testing_hooks_method(method_name):
         return method
 
 
-class TestingHooks(implements(PipelineHooks)):
+class TestingHooks(PipelineHooks):
     """A hooks implementation that keeps a trace of hook method calls."""
 
     def __init__(self):
@@ -56,12 +54,10 @@ class TestingHooks(implements(PipelineHooks)):
     def clear(self):
         self.trace = []
 
-    # Implement all interface methods by delegating to corresponding methods on
-    # input hooks.
-    locals().update(
-        {
-            name: testing_hooks_method(name)
-            # TODO: Expose this publicly on interface.
-            for name in PipelineHooks._signatures
-        }
-    )
+    # Dynamically generate all interface methods
+    for name in PIPELINE_HOOKS_CONTEXT_MANAGERS:
+        locals()[name] = testing_hooks_method(name)
+
+    # Example abstract method implementation (to satisfy ABC requirements)
+    def some_method(self):
+        self.trace.append(Call("some_method", (), {}))

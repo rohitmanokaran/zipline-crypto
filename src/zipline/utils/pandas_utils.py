@@ -1,6 +1,7 @@
 """
 Utilities for working with pandas objects.
 """
+
 from contextlib import contextmanager
 from copy import deepcopy
 from itertools import product
@@ -18,7 +19,7 @@ new_pandas = pandas_version >= Version("0.19")
 skip_pipeline_new_pandas = (
     "Pipeline categoricals are not yet compatible with pandas >=0.19"
 )
-skip_pipeline_blaze = "Blaze doesn't play nicely with Pandas >=1.0"
+# skip_pipeline_blaze = "Blaze doesn't play nicely with Pandas >=1.0"
 
 
 def july_5th_holiday_observance(datetime_index):
@@ -226,8 +227,8 @@ def categorical_df_concat(df_list, inplace=False):
 
     # Assert each dataframe has the same columns/dtypes
     df = df_list[0]
-    if not all([(df.dtypes.equals(df_i.dtypes)) for df_i in df_list[1:]]):
-        raise ValueError("Input DataFrames must have the same columns/dtypes.")
+    if not all([set(df.columns) == set(df_i.columns) for df_i in df_list[1:]]):
+        raise ValueError("Input DataFrames must have the same columns.")
 
     categorical_columns = df.columns[df.dtypes == "category"]
 
@@ -238,7 +239,7 @@ def categorical_df_concat(df_list, inplace=False):
 
         with ignore_pandas_nan_categorical_warning():
             for df in df_list:
-                df[col].cat.set_categories(new_categories, inplace=True)
+                df[col] = df[col].cat.set_categories(new_categories)
 
     return pd.concat(df_list)
 

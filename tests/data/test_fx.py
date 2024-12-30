@@ -285,9 +285,7 @@ class FastGetLocTestCase(zp_fixtures.ZiplineTestCase):
             assert_equal(result, expected)
 
         with pytest.raises(KeyError):
-            # TODO FIXME get_loc is deprecated  but get_indexer doesn't raise keyerror
-            # THIS IS worrying as -1 is returned instead
-            dts.get_loc(pd.Timestamp("2014-01-01"), method="ffill")
+            dts.get_loc(pd.Timestamp("2014-01-01"))
 
         with pytest.raises(KeyError):
             zp_fixtures.fast_get_loc_ffilled(dts, pd.Timestamp("2014-01-01"))
